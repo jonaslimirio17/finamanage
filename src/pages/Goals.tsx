@@ -4,23 +4,21 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { User, Session } from "@supabase/supabase-js";
-import { BalanceCard } from "@/components/dashboard/BalanceCard";
-import { CategoryPieChart } from "@/components/dashboard/CategoryPieChart";
-import { IncomePieChart } from "@/components/dashboard/IncomePieChart";
-import { ExpenseTimeline } from "@/components/dashboard/ExpenseTimeline";
-import { IncomeTimeline } from "@/components/dashboard/IncomeTimeline";
-import { UpcomingDebts } from "@/components/dashboard/UpcomingDebts";
-import { GoalsProgress } from "@/components/dashboard/GoalsProgress";
-import { LastSyncInfo } from "@/components/dashboard/LastSyncInfo";
+import { Plus } from "lucide-react";
+import { GoalForm } from "@/components/goals/GoalForm";
+import { GoalsList } from "@/components/goals/GoalsList";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
-const Dashboard = () => {
+const Goals = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingGoal, setEditingGoal] = useState<any>(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -30,7 +28,6 @@ const Dashboard = () => {
       }
     });
 
-    // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -53,12 +50,24 @@ const Dashboard = () => {
         variant: "destructive",
       });
     } else {
-      toast({
-        title: "Logout realizado",
-        description: "Até logo!",
-      });
       navigate("/");
     }
+  };
+
+  const handleCreateGoal = () => {
+    setEditingGoal(null);
+    setIsFormOpen(true);
+  };
+
+  const handleEditGoal = (goal: any) => {
+    setEditingGoal(goal);
+    setIsFormOpen(true);
+  };
+
+  const handleFormSuccess = () => {
+    setIsFormOpen(false);
+    setEditingGoal(null);
+    setRefreshTrigger(prev => prev + 1);
   };
 
   if (!user) {
@@ -75,8 +84,8 @@ const Dashboard = () => {
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold">FinManage</h1>
           <div className="flex gap-4">
-            <Button variant="ghost" onClick={() => navigate("/goals")}>
-              Metas
+            <Button variant="ghost" onClick={() => navigate("/dashboard")}>
+              Dashboard
             </Button>
             <Button variant="outline" onClick={handleLogout}>
               Sair
@@ -86,36 +95,45 @@ const Dashboard = () => {
       </header>
       
       <main className="container mx-auto px-4 py-8">
-        <div className="max-w-7xl mx-auto space-y-6">
-          <div className="flex justify-between items-start">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex justify-between items-center mb-6">
             <div>
-              <h2 className="text-3xl font-bold mb-2">Dashboard</h2>
+              <h2 className="text-3xl font-bold mb-2">Metas Financeiras</h2>
               <p className="text-muted-foreground">
-                Bem-vindo ao seu painel financeiro, {user.email}!
+                Defina e acompanhe suas metas de economia
               </p>
             </div>
-            <LastSyncInfo profileId={user.id} />
+            <Button onClick={handleCreateGoal}>
+              <Plus className="h-4 w-4 mr-2" />
+              Nova Meta
+            </Button>
           </div>
 
-          {/* Balance Card */}
-          <div className="grid md:grid-cols-3 gap-6">
-            <BalanceCard profileId={user.id} />
-            <UpcomingDebts profileId={user.id} />
-            <GoalsProgress profileId={user.id} />
-          </div>
-
-          {/* Charts */}
-          <div className="grid md:grid-cols-2 gap-6">
-            <CategoryPieChart profileId={user.id} />
-            <IncomePieChart profileId={user.id} />
-          </div>
-          
-          <ExpenseTimeline profileId={user.id} />
-          <IncomeTimeline profileId={user.id} />
+          <GoalsList 
+            profileId={user.id} 
+            onEdit={handleEditGoal}
+            refreshTrigger={refreshTrigger}
+          />
         </div>
       </main>
+
+      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {editingGoal ? "Editar Meta" : "Nova Meta"}
+            </DialogTitle>
+          </DialogHeader>
+          <GoalForm
+            profileId={user.id}
+            goal={editingGoal}
+            onSuccess={handleFormSuccess}
+            onCancel={() => setIsFormOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
-export default Dashboard;
+export default Goals;
