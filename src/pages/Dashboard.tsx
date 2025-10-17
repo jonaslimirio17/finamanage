@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { User, Session } from "@supabase/supabase-js";
 import { BalanceCard } from "@/components/dashboard/BalanceCard";
 import { CategoryPieChart } from "@/components/dashboard/CategoryPieChart";
+import { IncomePieChart } from "@/components/dashboard/IncomePieChart";
 import { ExpenseTimeline } from "@/components/dashboard/ExpenseTimeline";
 import { IncomeTimeline } from "@/components/dashboard/IncomeTimeline";
 import { UpcomingDebts } from "@/components/dashboard/UpcomingDebts";
@@ -101,6 +102,7 @@ const Dashboard = () => {
           {/* Charts */}
           <div className="grid md:grid-cols-2 gap-6">
             <CategoryPieChart profileId={user.id} />
+            <IncomePieChart profileId={user.id} />
           </div>
           
           <ExpenseTimeline profileId={user.id} />
