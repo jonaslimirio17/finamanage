@@ -254,6 +254,39 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          created_at: string
+          cta: string | null
+          id: string
+          is_read: boolean
+          profile_id: string
+          summary: string
+          title: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          cta?: string | null
+          id?: string
+          is_read?: boolean
+          profile_id: string
+          summary: string
+          title: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          cta?: string | null
+          id?: string
+          is_read?: boolean
+          profile_id?: string
+          summary?: string
+          title?: string
+          type?: string
+        }
+        Relationships: []
+      }
       pre_signups: {
         Row: {
           created_at: string
@@ -286,6 +319,8 @@ export type Database = {
           cpf_hash: string | null
           created_at: string
           email: string
+          email_notifications: boolean | null
+          estimated_income: number | null
           id: string
           last_login: string | null
           nome: string
@@ -294,6 +329,8 @@ export type Database = {
           cpf_hash?: string | null
           created_at?: string
           email: string
+          email_notifications?: boolean | null
+          estimated_income?: number | null
           id: string
           last_login?: string | null
           nome: string
@@ -302,6 +339,8 @@ export type Database = {
           cpf_hash?: string | null
           created_at?: string
           email?: string
+          email_notifications?: boolean | null
+          estimated_income?: number | null
           id?: string
           last_login?: string | null
           nome?: string
