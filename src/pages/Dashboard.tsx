@@ -12,6 +12,7 @@ import { IncomeTimeline } from "@/components/dashboard/IncomeTimeline";
 import { UpcomingDebts } from "@/components/dashboard/UpcomingDebts";
 import { GoalsProgress } from "@/components/dashboard/GoalsProgress";
 import { LastSyncInfo } from "@/components/dashboard/LastSyncInfo";
+import { NotificationsList } from "@/components/dashboard/NotificationsList";
 
 const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -96,6 +97,9 @@ const Dashboard = () => {
             </div>
             <LastSyncInfo profileId={user.id} />
           </div>
+
+          {/* Notifications */}
+          <NotificationsList profileId={user.id} />
 
           {/* Balance Card */}
           <div className="grid md:grid-cols-3 gap-6">
