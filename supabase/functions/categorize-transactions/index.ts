@@ -5,64 +5,119 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Simple rule-based categorization
+// Heuristic-based categorization with keyword matching
 function categorizeTransaction(description: string, merchant: string | null, amount: number): {
   category: string;
   subcategory: string | null;
 } {
   const text = (description + ' ' + (merchant || '')).toLowerCase();
   
+  // Subscriptions (streaming, software, etc.)
+  if (text.match(/netflix|spotify|amazon prime|disney|hbo|youtube premium|apple music|deezer/)) {
+    return { category: 'Assinaturas', subcategory: 'Streaming' };
+  }
+  if (text.match(/adobe|microsoft|google workspace|dropbox|notion|canva/)) {
+    return { category: 'Assinaturas', subcategory: 'Software' };
+  }
+  
   // Food & Dining
-  if (text.match(/restaurante|lanche|padaria|cafe|pizzaria|ifood|rappi|uber eats|food/)) {
+  if (text.match(/restaurante|lanche|padaria|cafe|pizzaria|ifood|rappi|uber eats|food|bar/)) {
     return { category: 'Alimentação', subcategory: 'Restaurantes' };
   }
-  if (text.match(/supermercado|mercado|hortifruti|açougue|grocery/)) {
+  if (text.match(/supermercado|mercado|hortifruti|açougue|grocery|Extra|Carrefour|Pão de Açúcar/i)) {
     return { category: 'Alimentação', subcategory: 'Supermercado' };
   }
   
   // Transportation
-  if (text.match(/uber|99|taxi|combustivel|gasolina|posto|ipva|estacionamento|parking/)) {
+  if (text.match(/uber|99|taxi|combustivel|gasolina|posto|shell|ipiranga/)) {
     return { category: 'Transporte', subcategory: 'Combustível e Transportes' };
+  }
+  if (text.match(/estacionamento|parking|zona azul/)) {
+    return { category: 'Transporte', subcategory: 'Estacionamento' };
   }
   
   // Bills & Utilities
-  if (text.match(/luz|energia|eletric|agua|saneamento|gas|internet|telefone|celular|tim|claro|vivo|oi/)) {
-    return { category: 'Contas', subcategory: 'Utilidades' };
+  if (text.match(/luz|energia|eletric|cemig|cpfl|enel/)) {
+    return { category: 'Contas', subcategory: 'Energia' };
   }
-  if (text.match(/aluguel|condominio|rent/)) {
+  if (text.match(/agua|saneamento|sabesp|cedae/)) {
+    return { category: 'Contas', subcategory: 'Água' };
+  }
+  if (text.match(/internet|telefone|celular|tim|claro|vivo|oi|net|sky/)) {
+    return { category: 'Contas', subcategory: 'Telecomunicações' };
+  }
+  if (text.match(/aluguel|condominio|rent|condomínio/)) {
     return { category: 'Contas', subcategory: 'Moradia' };
   }
   
   // Entertainment
-  if (text.match(/netflix|spotify|amazon prime|disney|hbo|cinema|teatro|show|entretenimento/)) {
-    return { category: 'Entretenimento', subcategory: 'Streaming e Lazer' };
+  if (text.match(/cinema|teatro|show|entretenimento|ingresso|ticket/)) {
+    return { category: 'Entretenimento', subcategory: 'Lazer' };
   }
   
   // Shopping
-  if (text.match(/magazine|loja|shop|mercado livre|shopee|amazon|americanas/)) {
+  if (text.match(/magazine|loja|shop|mercado livre|shopee|amazon|americanas|casas bahia/)) {
     return { category: 'Compras', subcategory: 'Varejo' };
   }
   
   // Health
-  if (text.match(/farmacia|drogaria|hospital|clinica|medico|saude|plano de saude|health/)) {
+  if (text.match(/farmacia|drogaria|hospital|clinica|medico|saude|plano de saude|unimed|amil|sulamerica/)) {
     return { category: 'Saúde', subcategory: 'Medicamentos e Consultas' };
   }
   
   // Education
-  if (text.match(/escola|universidade|curso|faculdade|livro|education/)) {
+  if (text.match(/escola|universidade|curso|faculdade|livro|education|livraria/)) {
     return { category: 'Educação', subcategory: null };
   }
   
   // Salary/Income
-  if (amount > 0 && text.match(/salario|salary|pagamento|transferencia|pix recebido|income/)) {
+  if (amount > 0 && text.match(/salario|salary|pagamento|transferencia recebida|pix recebido|income/)) {
     return { category: 'Renda', subcategory: 'Salário' };
   }
   
-  // Default
-  if (amount < 0) {
-    return { category: 'Outros', subcategory: 'Despesas Diversas' };
-  } else {
-    return { category: 'Outros', subcategory: 'Receitas Diversas' };
+  // Unclassified - will be marked for review
+  return { category: 'Sem categoria', subcategory: null };
+}
+
+// Detect recurring transactions (monthly pattern)
+async function detectRecurringPattern(
+  supabase: any,
+  profileId: string,
+  merchant: string | null
+): Promise<boolean> {
+  if (!merchant) return false;
+  
+  try {
+    // Look for transactions with same merchant in the last 90 days
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+    
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('date, amount')
+      .eq('profile_id', profileId)
+      .eq('merchant', merchant)
+      .gte('date', threeMonthsAgo.toISOString().split('T')[0])
+      .order('date', { ascending: true });
+    
+    if (error || !data || data.length < 2) return false;
+    
+    // Check if transactions appear monthly (simple heuristic: 2+ transactions ~30 days apart)
+    for (let i = 1; i < data.length; i++) {
+      const prevDate = new Date(data[i - 1].date);
+      const currDate = new Date(data[i].date);
+      const daysDiff = Math.abs((currDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      // If transactions are 25-35 days apart, likely monthly
+      if (daysDiff >= 25 && daysDiff <= 35) {
+        return true;
+      }
+    }
+    
+    return false;
+  } catch (error) {
+    console.error('Error detecting recurring pattern:', error);
+    return false;
   }
 }
 
@@ -102,7 +157,9 @@ Deno.serve(async (req) => {
     console.log(`Categorizing ${transaction_ids.length} transactions for profile ${profile_id}`);
 
     let categorized = 0;
+    let unclassified = 0;
     let skipped = 0;
+    const needsReview: string[] = [];
 
     // Fetch and categorize each transaction
     for (const txnId of transaction_ids) {
@@ -121,25 +178,48 @@ Deno.serve(async (req) => {
           continue;
         }
 
-        // Skip if already categorized
-        if (txn.category && txn.category !== 'Outros') {
+        // Skip if already categorized (and not "Sem categoria")
+        if (txn.category && txn.category !== 'Outros' && txn.category !== 'Sem categoria') {
           skipped++;
           continue;
         }
 
-        // Categorize
-        const { category, subcategory } = categorizeTransaction(
+        // Apply keyword-based categorization
+        let { category, subcategory } = categorizeTransaction(
           txn.raw_description || txn.merchant || '',
           txn.merchant,
           txn.amount
         );
 
-        // Update transaction
+        // Check for recurring patterns if merchant exists
+        if (txn.merchant && category !== 'Assinaturas') {
+          const isRecurring = await detectRecurringPattern(
+            supabase,
+            profile_id,
+            txn.merchant
+          );
+          
+          if (isRecurring) {
+            category = 'Assinaturas';
+            subcategory = 'Recorrente';
+          }
+        }
+
+        // Track unclassified transactions
+        if (category === 'Sem categoria') {
+          unclassified++;
+          needsReview.push(txnId);
+        }
+
+        // Update transaction with tags for review queue
+        const tags = category === 'Sem categoria' ? ['needs_review'] : txn.tags || [];
+
         const { error: updateError } = await supabase
           .from('transactions')
           .update({
             category,
             subcategory,
+            tags,
           })
           .eq('id', txnId);
 
@@ -155,23 +235,28 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Log event
+    // Log event with detailed categorization stats
     await supabase
       .from('events_logs')
       .insert({
         profile_id,
         event_type: 'transactions_categorized',
         payload: {
-          categorized,
-          skipped,
+          categorized_count: categorized,
+          unclassified_count: unclassified,
+          skipped_count: skipped,
           total: transaction_ids.length,
+          needs_review: needsReview,
+          timestamp: new Date().toISOString(),
         },
       });
 
     const result = {
       status: 'success',
-      categorized,
-      skipped,
+      categorized_count: categorized,
+      unclassified_count: unclassified,
+      skipped_count: skipped,
+      needs_review_ids: needsReview,
       total: transaction_ids.length,
     };
 
