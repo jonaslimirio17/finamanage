@@ -7,6 +7,7 @@ import { User, Session } from "@supabase/supabase-js";
 import { BalanceCard } from "@/components/dashboard/BalanceCard";
 import { CategoryPieChart } from "@/components/dashboard/CategoryPieChart";
 import { ExpenseTimeline } from "@/components/dashboard/ExpenseTimeline";
+import { IncomeTimeline } from "@/components/dashboard/IncomeTimeline";
 import { UpcomingDebts } from "@/components/dashboard/UpcomingDebts";
 import { GoalsProgress } from "@/components/dashboard/GoalsProgress";
 import { LastSyncInfo } from "@/components/dashboard/LastSyncInfo";
@@ -100,8 +101,10 @@ const Dashboard = () => {
           {/* Charts */}
           <div className="grid md:grid-cols-2 gap-6">
             <CategoryPieChart profileId={user.id} />
-            <ExpenseTimeline profileId={user.id} />
           </div>
+          
+          <ExpenseTimeline profileId={user.id} />
+          <IncomeTimeline profileId={user.id} />
         </div>
       </main>
     </div>
