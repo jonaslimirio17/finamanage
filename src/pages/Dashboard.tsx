@@ -4,6 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { User, Session } from "@supabase/supabase-js";
+import { BalanceCard } from "@/components/dashboard/BalanceCard";
+import { CategoryPieChart } from "@/components/dashboard/CategoryPieChart";
+import { ExpenseTimeline } from "@/components/dashboard/ExpenseTimeline";
+import { UpcomingDebts } from "@/components/dashboard/UpcomingDebts";
+import { GoalsProgress } from "@/components/dashboard/GoalsProgress";
+import { LastSyncInfo } from "@/components/dashboard/LastSyncInfo";
 
 const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -73,27 +79,28 @@ const Dashboard = () => {
       </header>
       
       <main className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold mb-4">Dashboard</h2>
-          <p className="text-muted-foreground mb-8">
-            Bem-vindo ao seu painel financeiro, {user.email}!
-          </p>
-          
+        <div className="max-w-7xl mx-auto space-y-6">
+          <div className="flex justify-between items-start">
+            <div>
+              <h2 className="text-3xl font-bold mb-2">Dashboard</h2>
+              <p className="text-muted-foreground">
+                Bem-vindo ao seu painel financeiro, {user.email}!
+              </p>
+            </div>
+            <LastSyncInfo profileId={user.id} />
+          </div>
+
+          {/* Balance Card */}
           <div className="grid md:grid-cols-3 gap-6">
-            <div className="bg-card p-6 rounded-lg border border-border">
-              <h3 className="font-semibold mb-2">Contas conectadas</h3>
-              <p className="text-3xl font-bold">0</p>
-            </div>
-            
-            <div className="bg-card p-6 rounded-lg border border-border">
-              <h3 className="font-semibold mb-2">Transações</h3>
-              <p className="text-3xl font-bold">0</p>
-            </div>
-            
-            <div className="bg-card p-6 rounded-lg border border-border">
-              <h3 className="font-semibold mb-2">Metas ativas</h3>
-              <p className="text-3xl font-bold">0</p>
-            </div>
+            <BalanceCard profileId={user.id} />
+            <UpcomingDebts profileId={user.id} />
+            <GoalsProgress profileId={user.id} />
+          </div>
+
+          {/* Charts */}
+          <div className="grid md:grid-cols-2 gap-6">
+            <CategoryPieChart profileId={user.id} />
+            <ExpenseTimeline profileId={user.id} />
           </div>
         </div>
       </main>
