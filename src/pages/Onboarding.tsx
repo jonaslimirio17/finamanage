@@ -144,7 +144,6 @@ export default function Onboarding() {
 
       const formData = new FormData();
       formData.append("file", importFile);
-      formData.append("profile_id", user.id);
 
       const { data, error } = await supabase.functions.invoke("import-csv", {
         body: formData
@@ -152,9 +151,11 @@ export default function Onboarding() {
 
       if (error) throw error;
 
+      const summary = data?.summary || {};
+      
       toast({
         title: "Importação concluída",
-        description: `${data?.count || 0} transações importadas com sucesso.`
+        description: `${summary.inserted || 0} transações importadas, ${summary.duplicates || 0} duplicadas, ${summary.failed_rows || 0} com erro.`
       });
 
       setImportDialogOpen(false);
