@@ -294,14 +294,24 @@ const Index = () => {
 
       {/* Footer */}
       <footer className="border-t border-border py-8">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-sm text-muted-foreground">
-            Ao prosseguir você aceita nossa{" "}
-            <a href="#politica" className="text-primary underline">
-              Política de Privacidade
-            </a>{" "}
-            — você pode solicitar exportação ou exclusão de dados a qualquer momento.
-          </p>
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-sm text-muted-foreground text-center md:text-left">
+              Ao prosseguir você aceita nossa{" "}
+              <a href="#politica" className="text-primary underline">
+                Política de Privacidade
+              </a>{" "}
+              — você pode solicitar exportação ou exclusão de dados a qualquer momento.
+            </p>
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate("/help")}
+              className="flex items-center gap-2"
+            >
+              <HelpCircle className="w-4 h-4" />
+              Ajuda e Suporte
+            </Button>
+          </div>
         </div>
       </footer>
     </div>

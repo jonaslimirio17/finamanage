@@ -79,6 +79,9 @@ const Dashboard = () => {
             <Button variant="ghost" onClick={() => navigate("/goals")}>
               Metas
             </Button>
+            <Button variant="ghost" onClick={() => navigate("/help")}>
+              Ajuda
+            </Button>
             <Button variant="outline" onClick={handleLogout}>
               Sair
             </Button>
