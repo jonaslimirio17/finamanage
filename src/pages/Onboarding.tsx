@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +19,8 @@ export default function Onboarding() {
   const [consentChecked, setConsentChecked] = useState(false);
   const [importFile, setImportFile] = useState<File | null>(null);
   const [importing, setImporting] = useState(false);
+  const [widgetLoaded, setWidgetLoaded] = useState(false);
+  const [connecting, setConnecting] = useState(false);
   
   // Manual transaction form state
   const [transactionDate, setTransactionDate] = useState("");
@@ -43,6 +45,67 @@ export default function Onboarding() {
     }
   };
 
+  // Setup global callback for aggregator widget
+  useEffect(() => {
+    // Define the global callback function that the widget will call
+    (window as any).onWidgetSuccess = async (data: {
+      provider: string;
+      provider_account_id: string;
+      provider_session_id?: string;
+      mask?: string;
+      account_type?: string;
+    }) => {
+      console.log("Widget success callback triggered:", data);
+      setConnecting(true);
+
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("Usuário não autenticado");
+
+        // Call the webhook endpoint
+        const { data: result, error } = await supabase.functions.invoke("account-connected", {
+          body: {
+            provider: data.provider,
+            provider_account_id: data.provider_account_id,
+            provider_session_id: data.provider_session_id,
+            mask: data.mask,
+            account_type: data.account_type || 'checking',
+            profile_id: user.id
+          }
+        });
+
+        if (error) throw error;
+
+        console.log("Account connected successfully:", result);
+
+        toast({
+          title: "Conta conectada!",
+          description: "Sua conta foi conectada com sucesso via Open Finance."
+        });
+
+        // Close modal and reset state
+        setConnectModalOpen(false);
+        setConsentChecked(false);
+        setWidgetLoaded(false);
+
+      } catch (error: any) {
+        console.error("Error connecting account:", error);
+        toast({
+          title: "Erro ao conectar conta",
+          description: error.message || "Não foi possível conectar sua conta. Tente novamente.",
+          variant: "destructive"
+        });
+      } finally {
+        setConnecting(false);
+      }
+    };
+
+    // Cleanup
+    return () => {
+      delete (window as any).onWidgetSuccess;
+    };
+  }, []);
+
   const handleConnectAccount = async () => {
     if (!consentChecked) {
       toast({
@@ -54,15 +117,12 @@ export default function Onboarding() {
     }
 
     await logEvent("connect_account_initiated");
+    setWidgetLoaded(true);
     
-    // Here the iframe/widget would be shown
     toast({
-      title: "Conectando conta",
+      title: "Carregando widget",
       description: "O widget do Open Finance será carregado em breve."
     });
-    
-    setConnectModalOpen(false);
-    setConsentChecked(false);
   };
 
   const handleImportFile = async () => {
@@ -320,12 +380,38 @@ export default function Onboarding() {
               </label>
             </div>
             
-            {/* Placeholder for aggregator widget iframe */}
-            <div className="border rounded-md p-4 bg-muted min-h-[200px] flex items-center justify-center">
-              <p className="text-sm text-muted-foreground text-center">
-                O widget do agregador será carregado aqui após o consentimento
-              </p>
-            </div>
+            {/* Aggregator widget iframe container */}
+            {widgetLoaded ? (
+              <div className="border rounded-md overflow-hidden min-h-[400px]">
+                <iframe
+                  id="aggregator-widget"
+                  src="about:blank"
+                  className="w-full h-[400px] border-0"
+                  title="Open Finance Widget"
+                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                />
+                <div className="p-2 bg-muted text-xs text-muted-foreground text-center">
+                  Substitua o src do iframe pelo snippet oficial do agregador quando disponível.
+                  <br />
+                  O widget chamará window.onWidgetSuccess(data) após sucesso.
+                </div>
+              </div>
+            ) : (
+              <div className="border rounded-md p-4 bg-muted min-h-[200px] flex items-center justify-center">
+                <p className="text-sm text-muted-foreground text-center">
+                  {consentChecked 
+                    ? "Clique em 'Continuar' para carregar o widget do agregador" 
+                    : "Aceite o consentimento para continuar"}
+                </p>
+              </div>
+            )}
+            
+            {connecting && (
+              <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
+                Conectando sua conta...
+              </div>
+            )}
           </div>
 
           <DialogFooter>
