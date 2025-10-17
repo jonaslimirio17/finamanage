@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -12,6 +13,7 @@ const Index = () => {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleScrollToDemo = () => {
     document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
@@ -88,7 +90,10 @@ const Index = () => {
               <Button 
                 size="lg" 
                 className="text-base"
-                onClick={() => trackEvent("cta_create_account_click")}
+                onClick={() => {
+                  trackEvent("cta_create_account_click");
+                  navigate("/auth");
+                }}
                 aria-label="Criar minha conta no FinManage"
               >
                 Criar minha conta
@@ -192,10 +197,13 @@ const Index = () => {
         <div className="container mx-auto px-4 text-center space-y-6">
           <h2 className="text-3xl md:text-4xl font-bold">Pronto para começar?</h2>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" onClick={() => trackEvent("cta_create_account_click")}>
+            <Button size="lg" onClick={() => {
+              trackEvent("cta_create_account_click");
+              navigate("/auth");
+            }}>
               Criar minha conta
             </Button>
-            <Button size="lg" variant="secondary">
+            <Button size="lg" variant="secondary" onClick={() => navigate("/auth")}>
               Importar extrato
             </Button>
           </div>

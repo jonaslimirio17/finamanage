@@ -14,6 +14,246 @@ export type Database = {
   }
   public: {
     Tables: {
+      accounts: {
+        Row: {
+          account_type: string
+          balance: number
+          connected_at: string
+          id: string
+          last_sync: string | null
+          mask: string | null
+          profile_id: string
+          provider: string
+          provider_account_id: string
+          refresh_token_hash: string | null
+        }
+        Insert: {
+          account_type: string
+          balance?: number
+          connected_at?: string
+          id?: string
+          last_sync?: string | null
+          mask?: string | null
+          profile_id: string
+          provider: string
+          provider_account_id: string
+          refresh_token_hash?: string | null
+        }
+        Update: {
+          account_type?: string
+          balance?: number
+          connected_at?: string
+          id?: string
+          last_sync?: string | null
+          mask?: string | null
+          profile_id?: string
+          provider?: string
+          provider_account_id?: string
+          refresh_token_hash?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accounts_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      consents: {
+        Row: {
+          consent_type: string
+          created_at: string
+          details: Json | null
+          expires_at: string | null
+          granted_at: string
+          id: string
+          profile_id: string
+        }
+        Insert: {
+          consent_type: string
+          created_at?: string
+          details?: Json | null
+          expires_at?: string | null
+          granted_at?: string
+          id?: string
+          profile_id: string
+        }
+        Update: {
+          consent_type?: string
+          created_at?: string
+          details?: Json | null
+          expires_at?: string | null
+          granted_at?: string
+          id?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consents_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      credit_profiles: {
+        Row: {
+          bureau: string
+          created_at: string
+          id: string
+          last_check: string | null
+          profile_id: string
+          raw_report: Json | null
+          score: number | null
+        }
+        Insert: {
+          bureau: string
+          created_at?: string
+          id?: string
+          last_check?: string | null
+          profile_id: string
+          raw_report?: Json | null
+          score?: number | null
+        }
+        Update: {
+          bureau?: string
+          created_at?: string
+          id?: string
+          last_check?: string | null
+          profile_id?: string
+          raw_report?: Json | null
+          score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_profiles_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      debts: {
+        Row: {
+          created_at: string
+          creditor: string
+          due_date: string | null
+          id: string
+          interest_rate: number | null
+          principal: number
+          profile_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          creditor: string
+          due_date?: string | null
+          id?: string
+          interest_rate?: number | null
+          principal: number
+          profile_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          creditor?: string
+          due_date?: string | null
+          id?: string
+          interest_rate?: number | null
+          principal?: number
+          profile_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "debts_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events_logs: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          payload: Json | null
+          profile_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          payload?: Json | null
+          profile_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          payload?: Json | null
+          profile_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_logs_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      goals: {
+        Row: {
+          created_at: string
+          current_amount: number
+          id: string
+          profile_id: string
+          recurrence: string | null
+          status: string
+          target_amount: number
+          target_date: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          current_amount?: number
+          id?: string
+          profile_id: string
+          recurrence?: string | null
+          status?: string
+          target_amount: number
+          target_date?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          current_amount?: number
+          id?: string
+          profile_id?: string
+          recurrence?: string | null
+          status?: string
+          target_amount?: number
+          target_date?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goals_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pre_signups: {
         Row: {
           created_at: string
@@ -40,6 +280,102 @@ export type Database = {
           utm_source?: string | null
         }
         Relationships: []
+      }
+      profiles: {
+        Row: {
+          cpf_hash: string | null
+          created_at: string
+          email: string
+          id: string
+          last_login: string | null
+          nome: string
+        }
+        Insert: {
+          cpf_hash?: string | null
+          created_at?: string
+          email: string
+          id: string
+          last_login?: string | null
+          nome: string
+        }
+        Update: {
+          cpf_hash?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          last_login?: string | null
+          nome?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          account_id: string
+          amount: number
+          category: string | null
+          created_at: string
+          currency: string
+          date: string
+          id: string
+          imported_from: string
+          merchant: string | null
+          profile_id: string
+          provider_transaction_id: string | null
+          raw_description: string | null
+          subcategory: string | null
+          tags: string[] | null
+          type: string
+        }
+        Insert: {
+          account_id: string
+          amount: number
+          category?: string | null
+          created_at?: string
+          currency?: string
+          date: string
+          id?: string
+          imported_from: string
+          merchant?: string | null
+          profile_id: string
+          provider_transaction_id?: string | null
+          raw_description?: string | null
+          subcategory?: string | null
+          tags?: string[] | null
+          type: string
+        }
+        Update: {
+          account_id?: string
+          amount?: number
+          category?: string | null
+          created_at?: string
+          currency?: string
+          date?: string
+          id?: string
+          imported_from?: string
+          merchant?: string | null
+          profile_id?: string
+          provider_transaction_id?: string | null
+          raw_description?: string | null
+          subcategory?: string | null
+          tags?: string[] | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
