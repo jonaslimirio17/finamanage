@@ -8,6 +8,7 @@ import { Plus } from "lucide-react";
 import { GoalForm } from "@/components/goals/GoalForm";
 import { GoalsList } from "@/components/goals/GoalsList";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AppMenu } from "@/components/AppMenu";
 
 const Goals = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -80,17 +81,10 @@ const Goals = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border">
+      <header className="border-b border-border sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold">FinManage</h1>
-          <div className="flex gap-4">
-            <Button variant="ghost" onClick={() => navigate("/dashboard")}>
-              Dashboard
-            </Button>
-            <Button variant="outline" onClick={handleLogout}>
-              Sair
-            </Button>
-          </div>
+          <h1 className="text-2xl font-bold text-primary">FinManage</h1>
+          <AppMenu user={user} />
         </div>
       </header>
       

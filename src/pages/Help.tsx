@@ -10,6 +10,7 @@ import { FAQSection } from "@/components/help/FAQSection";
 import { SupportTicketForm } from "@/components/help/SupportTicketForm";
 import { UserTicketsList } from "@/components/help/UserTicketsList";
 import { ArticlesList } from "@/components/help/ArticlesList";
+import { AppMenu } from "@/components/AppMenu";
 
 const CATEGORIES = [
   "Conta e Login",
@@ -64,22 +65,12 @@ const Help = () => {
 
       <div className="min-h-screen bg-background">
         {/* Header */}
-        <header className="border-b border-border">
+        <header className="border-b border-border sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 className="text-2xl font-bold cursor-pointer" onClick={() => navigate("/")}>
+            <h1 className="text-2xl font-bold text-primary cursor-pointer" onClick={() => navigate("/")}>
               FinManage
             </h1>
-            <div className="flex gap-4">
-              {user ? (
-                <Button variant="outline" onClick={() => navigate("/dashboard")}>
-                  Dashboard
-                </Button>
-              ) : (
-                <Button variant="outline" onClick={() => navigate("/auth")}>
-                  Login
-                </Button>
-              )}
-            </div>
+            <AppMenu user={user} />
           </div>
         </header>
 
