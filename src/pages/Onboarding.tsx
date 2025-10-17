@@ -116,13 +116,42 @@ export default function Onboarding() {
       return;
     }
 
-    await logEvent("connect_account_initiated");
-    setWidgetLoaded(true);
-    
-    toast({
-      title: "Carregando widget",
-      description: "O widget do Open Finance será carregado em breve."
-    });
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Usuário não autenticado");
+
+      // Save consent to database
+      const expiresAt = new Date();
+      expiresAt.setFullYear(expiresAt.getFullYear() + 1); // 1 year validity
+
+      await supabase.from("consents").insert({
+        profile_id: user.id,
+        consent_type: "open_finance_data_access",
+        granted_at: new Date().toISOString(),
+        expires_at: expiresAt.toISOString(),
+        details: {
+          scope: ["extratos", "produtos_financeiros", "categorização", "recomendações"],
+          accepted_terms: true,
+          ip_address: null, // Could capture client IP if needed
+          user_agent: navigator.userAgent
+        }
+      });
+
+      await logEvent("connect_account_initiated", { consent_granted: true });
+      setWidgetLoaded(true);
+      
+      toast({
+        title: "Carregando widget",
+        description: "O widget do Open Finance será carregado em breve."
+      });
+    } catch (error: any) {
+      console.error("Error saving consent:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível salvar o consentimento. Tente novamente.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleImportFile = async () => {
@@ -374,10 +403,20 @@ export default function Onboarding() {
               />
               <label
                 htmlFor="consent"
-                className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                className="text-sm leading-relaxed cursor-pointer"
               >
-                Autorizo o acesso aos meus dados financeiros conforme a LGPD e regulamentação 
-                do Banco Central. Posso revogar este consentimento a qualquer momento.
+                Autorizo a FinManage a acessar meus extratos e produtos financeiros para 
+                consolidar, categorizar e gerar recomendações. Posso revogar o consentimento 
+                a qualquer momento. Dados serão usados conforme{" "}
+                <a 
+                  href="/privacy-policy" 
+                  target="_blank" 
+                  className="text-primary hover:underline"
+                  rel="noopener noreferrer"
+                >
+                  Política de Privacidade
+                </a>
+                .
               </label>
             </div>
             
