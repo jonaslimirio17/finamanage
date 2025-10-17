@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,11 +7,13 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [nome, setNome] = useState("");
+  const [acceptedPrivacyPolicy, setAcceptedPrivacyPolicy] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -35,6 +37,16 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!acceptedPrivacyPolicy) {
+      toast({
+        title: "Política de Privacidade",
+        description: "Você precisa aceitar a Política de Privacidade para criar uma conta.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -174,6 +186,26 @@ const Auth = () => {
                     required
                     minLength={6}
                   />
+                </div>
+                <div className="flex items-start space-x-2">
+                  <Checkbox
+                    id="privacy-policy"
+                    checked={acceptedPrivacyPolicy}
+                    onCheckedChange={(checked) => setAcceptedPrivacyPolicy(checked as boolean)}
+                  />
+                  <label
+                    htmlFor="privacy-policy"
+                    className="text-sm leading-relaxed cursor-pointer"
+                  >
+                    Li e aceito a{" "}
+                    <Link
+                      to="/privacy-policy"
+                      className="text-primary hover:underline"
+                      target="_blank"
+                    >
+                      Política de Privacidade
+                    </Link>
+                  </label>
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Criando conta..." : "Criar conta"}

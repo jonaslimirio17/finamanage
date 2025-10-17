@@ -10,6 +10,7 @@ import Onboarding from "./pages/Onboarding";
 import Goals from "./pages/Goals";
 import Help from "./pages/Help";
 import Article from "./pages/Article";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/goals" element={<Goals />} />
           <Route path="/help" element={<Help />} />
           <Route path="/help/article/:id" element={<Article />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

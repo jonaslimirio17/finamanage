@@ -298,10 +298,13 @@ const Index = () => {
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground text-center md:text-left">
               Ao prosseguir você aceita nossa{" "}
-              <a href="#politica" className="text-primary underline">
+              <button 
+                onClick={() => navigate("/privacy-policy")}
+                className="text-primary underline"
+              >
                 Política de Privacidade
-              </a>{" "}
-              — você pode solicitar exportação ou exclusão de dados a qualquer momento.
+              </button>
+              {" "}— você pode solicitar exportação ou exclusão de dados a qualquer momento.
             </p>
             <Button 
               variant="ghost" 

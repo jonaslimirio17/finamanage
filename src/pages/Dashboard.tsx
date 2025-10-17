@@ -121,6 +121,29 @@ const Dashboard = () => {
           <IncomeTimeline profileId={user.id} />
         </div>
       </main>
+
+      <footer className="border-t border-border py-6 mt-12">
+        <div className="container mx-auto px-4 text-center">
+          <div className="flex flex-col md:flex-row justify-center items-center gap-4 mb-2">
+            <button
+              onClick={() => navigate("/privacy-policy")}
+              className="text-sm text-primary hover:underline"
+            >
+              Política de Privacidade
+            </button>
+            <span className="hidden md:inline text-muted-foreground">•</span>
+            <button
+              onClick={() => navigate("/help")}
+              className="text-sm text-primary hover:underline"
+            >
+              Ajuda e Suporte
+            </button>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            © 2025 FinManage. Todos os direitos reservados.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };
