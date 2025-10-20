@@ -32,14 +32,14 @@ serve(async (req) => {
     } = await supabaseClient.auth.getUser();
 
     if (authError || !user) {
-      console.error("Authentication error:", authError);
+      console.error("Authentication error");
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log("User authenticated:", user.id);
+    console.log("User authenticated");
 
     // Parse request body
     const body = await req.json();
@@ -77,11 +77,11 @@ serve(async (req) => {
       .single();
 
     if (accountError) {
-      console.error("Error creating account:", accountError);
-      throw accountError;
+      console.error("Error creating account");
+      throw new Error('Failed to create account');
     }
 
-    console.log("Account created successfully:", account.id);
+    console.log("Account created successfully");
 
     // Log the connection event
     await supabaseClient.from('events_logs').insert({
@@ -118,10 +118,9 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error("Error in account-connected webhook:", error);
-    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
+    console.error("Error in account-connected webhook");
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: 'Failed to connect account' }),
       { 
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

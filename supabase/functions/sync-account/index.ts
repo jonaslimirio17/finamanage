@@ -60,7 +60,7 @@ Deno.serve(async (req) => {
       throw new Error('Missing account_id');
     }
 
-    console.log('Starting sync for account:', account_id);
+    console.log('Starting account sync');
 
     // Fetch account details
     const { data: account, error: accountError } = await supabase
@@ -89,7 +89,7 @@ Deno.serve(async (req) => {
     startDate.setMonth(startDate.getMonth() - 12);
 
     // Call aggregator API
-    console.log('Calling aggregator API for account:', account.provider_account_id);
+    console.log('Calling aggregator API');
     
     const aggregatorResponse = await fetch(`${aggregatorUrl}/transactions`, {
       method: 'POST',
@@ -125,14 +125,14 @@ Deno.serve(async (req) => {
         // Normalize transaction data
         const date = normalizeDate(txn.date || txn.transaction_date);
         if (!date) {
-          console.error('Invalid date for transaction:', txn);
+          console.error('Invalid date for transaction');
           errors++;
           continue;
         }
 
         const amount = parseFloat(txn.amount);
         if (isNaN(amount)) {
-          console.error('Invalid amount for transaction:', txn);
+          console.error('Invalid amount for transaction');
           errors++;
           continue;
         }
@@ -178,7 +178,7 @@ Deno.serve(async (req) => {
           .single();
 
         if (insertError) {
-          console.error('Error inserting transaction:', insertError);
+          console.error('Error inserting transaction');
           errors++;
         } else {
           inserted++;
@@ -186,7 +186,7 @@ Deno.serve(async (req) => {
           totalBalance += amount;
         }
       } catch (error) {
-        console.error('Error processing transaction:', error);
+        console.error('Error processing transaction');
         errors++;
       }
     }
@@ -201,12 +201,12 @@ Deno.serve(async (req) => {
       .eq('id', account.id);
 
     if (updateError) {
-      console.error('Error updating account:', updateError);
+      console.error('Error updating account');
     }
 
     // Call categorize-transactions if we inserted any transactions
     if (insertedIds.length > 0) {
-      console.log(`Categorizing ${insertedIds.length} transactions`);
+      console.log('Categorizing transactions');
       
       try {
         const { error: categorizeError } = await supabase.functions.invoke('categorize-transactions', {
@@ -217,10 +217,10 @@ Deno.serve(async (req) => {
         });
 
         if (categorizeError) {
-          console.error('Error categorizing transactions:', categorizeError);
+          console.error('Error categorizing transactions');
         }
       } catch (error) {
-        console.error('Failed to call categorize-transactions:', error);
+        console.error('Failed to call categorize-transactions');
       }
     }
 
@@ -249,18 +249,18 @@ Deno.serve(async (req) => {
       total: transactions.length,
     };
 
-    console.log('Sync completed:', result);
+    console.log('Sync completed');
 
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
-    console.error('Error in sync-account function:', error);
+    console.error('Error in sync-account function');
     
     return new Response(
       JSON.stringify({ 
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: 'Failed to sync account',
         status: 'error',
       }), 
       {

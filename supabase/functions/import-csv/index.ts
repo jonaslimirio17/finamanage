@@ -193,14 +193,14 @@ serve(async (req) => {
     } = await supabaseClient.auth.getUser();
 
     if (authError || !user) {
-      console.error("Authentication error:", authError);
+      console.error("Authentication error");
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log("User authenticated:", user.id);
+    console.log("User authenticated");
 
     // Parse multipart form data
     const formData = await req.formData();
@@ -290,8 +290,8 @@ serve(async (req) => {
         .single();
 
       if (accountError) {
-        console.error("Error creating account:", accountError);
-        throw accountError;
+        console.error("Error creating account");
+        throw new Error('Failed to create account');
       }
       accountId = newAccount.id;
     } else {
@@ -352,17 +352,17 @@ serve(async (req) => {
           });
         
         if (insertError) {
-          console.error("Error inserting transaction:", insertError);
+          console.error("Error inserting transaction");
           result.failed_rows++;
-          result.errors.push(insertError.message);
+          result.errors.push('Failed to insert transaction');
         } else {
           result.inserted++;
         }
         
       } catch (error) {
-        console.error("Error processing transaction:", error);
+        console.error("Error processing transaction");
         result.failed_rows++;
-        result.errors.push(error instanceof Error ? error.message : 'Unknown error');
+        result.errors.push('Transaction processing failed');
       }
     }
 
@@ -401,10 +401,9 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error("Error in import-csv function:", error);
-    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
+    console.error("Error in import-csv function");
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: 'Failed to import file' }),
       { 
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

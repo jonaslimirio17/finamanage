@@ -116,7 +116,7 @@ async function detectRecurringPattern(
     
     return false;
   } catch (error) {
-    console.error('Error detecting recurring pattern:', error);
+    console.error('Error detecting recurring pattern');
     return false;
   }
 }
@@ -154,7 +154,7 @@ Deno.serve(async (req) => {
       throw new Error('Unauthorized: profile_id mismatch');
     }
 
-    console.log(`Categorizing ${transaction_ids.length} transactions for profile ${profile_id}`);
+    console.log('Categorizing transactions');
 
     let categorized = 0;
     let unclassified = 0;
@@ -173,7 +173,7 @@ Deno.serve(async (req) => {
           .single();
 
         if (fetchError || !txn) {
-          console.error('Transaction not found or unauthorized:', txnId);
+          console.error('Transaction not found or unauthorized');
           skipped++;
           continue;
         }
@@ -224,13 +224,13 @@ Deno.serve(async (req) => {
           .eq('id', txnId);
 
         if (updateError) {
-          console.error('Error updating transaction:', updateError);
+          console.error('Error updating transaction');
           skipped++;
         } else {
           categorized++;
         }
       } catch (error) {
-        console.error('Error processing transaction:', error);
+        console.error('Error processing transaction');
         skipped++;
       }
     }
@@ -260,18 +260,18 @@ Deno.serve(async (req) => {
       total: transaction_ids.length,
     };
 
-    console.log('Categorization completed:', result);
+    console.log('Categorization completed');
 
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
-    console.error('Error in categorize-transactions function:', error);
+    console.error('Error in categorize-transactions function');
     
     return new Response(
       JSON.stringify({ 
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: 'Failed to categorize transactions',
         status: 'error',
       }), 
       {

@@ -65,7 +65,7 @@ serve(async (req) => {
       }
     });
 
-    console.log('Support ticket created:', ticket.id);
+    console.log('Support ticket created');
 
     return new Response(
       JSON.stringify({ 
@@ -76,9 +76,9 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error: any) {
-    console.error('Error creating support ticket:', error);
+    console.error('Error creating support ticket');
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: 'Failed to create support ticket' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }

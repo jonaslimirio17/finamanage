@@ -21,7 +21,7 @@ Deno.serve(async (req) => {
       throw new Error('Missing profile_id');
     }
 
-    console.log('Generating feedback for profile:', profile_id);
+    console.log('Generating feedback for user');
 
     // Get profile data
     const { data: profile, error: profileError } = await supabase
@@ -172,18 +172,18 @@ Deno.serve(async (req) => {
       notifications: notificationsToInsert,
     };
 
-    console.log('Feedback generation completed:', result);
+    console.log('Feedback generation completed');
 
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
-    console.error('Error in generate-feedback function:', error);
+    console.error('Error in generate-feedback function');
     
     return new Response(
       JSON.stringify({ 
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: 'Failed to generate feedback',
         status: 'error',
       }), 
       {
