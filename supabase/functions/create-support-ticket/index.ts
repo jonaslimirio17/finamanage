@@ -1,10 +1,23 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.75.0";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Validation schema
+const ticketSchema = z.object({
+  name: z.string().min(1, 'Nome é obrigatório').max(100, 'Nome deve ter no máximo 100 caracteres'),
+  email: z.string().email('Email inválido').max(255, 'Email deve ter no máximo 255 caracteres'),
+  subject: z.string().min(1, 'Assunto é obrigatório').max(200, 'Assunto deve ter no máximo 200 caracteres'),
+  category: z.string().min(1, 'Categoria é obrigatória'),
+  priority: z.string().optional(),
+  description: z.string().min(20, 'Descrição deve ter pelo menos 20 caracteres').max(5000, 'Descrição deve ter no máximo 5000 caracteres'),
+  attachments: z.array(z.any()).optional(),
+  profile_id: z.string().uuid().optional().nullable()
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -17,23 +30,20 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { name, email, subject, category, priority, description, attachments, profile_id } = await req.json();
+    const body = await req.json();
 
-    // Validate required fields
-    if (!name || !email || !subject || !category || !description) {
+    // Validate input using zod schema
+    const validation = ticketSchema.safeParse(body);
+    
+    if (!validation.success) {
+      const errors = validation.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
       return new Response(
-        JSON.stringify({ error: 'Missing required fields' }),
+        JSON.stringify({ error: 'Validation failed', details: errors }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Validate description length
-    if (description.length < 20) {
-      return new Response(
-        JSON.stringify({ error: 'Descrição deve ter pelo menos 20 caracteres' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    const { name, email, subject, category, priority, description, attachments, profile_id } = validation.data;
 
     // Create support ticket
     const { data: ticket, error: ticketError } = await supabase

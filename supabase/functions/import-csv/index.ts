@@ -213,6 +213,15 @@ serve(async (req) => {
       );
     }
 
+    // Validate file size (max 5MB)
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > MAX_FILE_SIZE) {
+      return new Response(
+        JSON.stringify({ error: 'File size exceeds 5MB limit' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     console.log("Processing file:", file.name, "Type:", file.type, "Size:", file.size);
 
     const fileContent = await file.text();
@@ -264,6 +273,18 @@ serve(async (req) => {
     }
     
     console.log(`Parsed ${parsedTransactions.length} transactions`);
+
+    // Validate row count (max 10,000 rows)
+    const MAX_ROWS = 10000;
+    if (parsedTransactions.length > MAX_ROWS) {
+      return new Response(
+        JSON.stringify({ 
+          error: `File contains ${parsedTransactions.length} transactions. Maximum allowed is ${MAX_ROWS} transactions per upload.`,
+          ...result
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Get or create import account
     let { data: accounts } = await supabaseClient
