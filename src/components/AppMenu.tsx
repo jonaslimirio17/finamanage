@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Menu, Home, HelpCircle, Target, LogIn, LogOut, Shield, User } from "lucide-react";
+import { Menu, Home, HelpCircle, Target, LogIn, LogOut, Shield, User, Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -22,6 +23,7 @@ export const AppMenu = ({ user }: AppMenuProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { theme, setTheme } = useTheme();
 
   const handleNavigation = (path: string) => {
     navigate(path);
@@ -96,6 +98,26 @@ export const AppMenu = ({ user }: AppMenuProps) => {
               ) : null
             )}
           </nav>
+
+          <Separator className="my-4" />
+
+          <Button
+            variant="ghost"
+            className="justify-start gap-3"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          >
+            {theme === "dark" ? (
+              <>
+                <Sun className="h-5 w-5" />
+                <span>Modo Claro</span>
+              </>
+            ) : (
+              <>
+                <Moon className="h-5 w-5" />
+                <span>Modo Escuro</span>
+              </>
+            )}
+          </Button>
 
           <Separator className="my-4" />
 
