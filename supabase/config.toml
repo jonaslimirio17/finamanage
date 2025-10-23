@@ -1,1 +1,22 @@
 project_id = "mukmiafnuzbwnuqdtfou"
+
+[functions.account-connected]
+verify_jwt = false
+
+[functions.categorize-transactions]
+verify_jwt = true
+
+[functions.create-support-ticket]
+verify_jwt = false
+
+[functions.import-csv]
+verify_jwt = true
+
+[functions.sync-account]
+verify_jwt = true
+
+[functions.generate-feedback]
+verify_jwt = true
+
+[functions.delete-account]
+verify_jwt = true

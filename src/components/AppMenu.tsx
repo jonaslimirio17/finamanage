@@ -13,6 +13,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { DeleteAccountDialog } from "@/components/dashboard/DeleteAccountDialog";
 
 interface AppMenuProps {
   user?: any;
@@ -122,14 +123,17 @@ export const AppMenu = ({ user }: AppMenuProps) => {
           <Separator className="my-4" />
 
           {user ? (
-            <Button
-              variant="outline"
-              className="justify-start gap-3"
-              onClick={handleLogout}
-            >
-              <LogOut className="h-5 w-5" />
-              <span>Sair</span>
-            </Button>
+            <div className="space-y-2">
+              <Button
+                variant="outline"
+                className="w-full justify-start gap-3"
+                onClick={handleLogout}
+              >
+                <LogOut className="h-5 w-5" />
+                <span>Sair</span>
+              </Button>
+              <DeleteAccountDialog />
+            </div>
           ) : (
             <Button
               variant="default"
