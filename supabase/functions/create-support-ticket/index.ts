@@ -7,6 +7,41 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Rate limiting map: IP -> { count, timestamp }
+const rateLimitMap = new Map<string, { count: number; timestamp: number }>();
+const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour in milliseconds
+const MAX_REQUESTS_PER_WINDOW = 5;
+
+// Cleanup old entries every 10 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, data] of rateLimitMap.entries()) {
+    if (now - data.timestamp > RATE_LIMIT_WINDOW) {
+      rateLimitMap.delete(ip);
+    }
+  }
+}, 10 * 60 * 1000);
+
+// Simple spam detection patterns
+const SPAM_PATTERNS = [
+  /(.)\1{10,}/i, // Repeated characters
+  /https?:\/\//gi, // Multiple URLs
+  /\b(viagra|casino|bitcoin|crypto)\b/gi, // Common spam keywords
+];
+
+function isSpam(text: string): boolean {
+  return SPAM_PATTERNS.some(pattern => {
+    const matches = text.match(pattern);
+    return matches && matches.length > 3;
+  });
+}
+
+function getClientIP(req: Request): string {
+  return req.headers.get('x-forwarded-for')?.split(',')[0] || 
+         req.headers.get('x-real-ip') || 
+         'unknown';
+}
+
 // Validation schema
 const ticketSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório').max(100, 'Nome deve ter no máximo 100 caracteres'),
@@ -25,6 +60,41 @@ serve(async (req) => {
   }
 
   try {
+    // Get client IP for rate limiting
+    const clientIP = getClientIP(req);
+    const now = Date.now();
+    
+    // Check rate limit
+    const rateLimitData = rateLimitMap.get(clientIP);
+    if (rateLimitData) {
+      if (now - rateLimitData.timestamp < RATE_LIMIT_WINDOW) {
+        if (rateLimitData.count >= MAX_REQUESTS_PER_WINDOW) {
+          console.log(`Rate limit exceeded for IP: ${clientIP}`);
+          return new Response(
+            JSON.stringify({ 
+              error: 'Rate limit exceeded. Please try again later.',
+              retry_after: Math.ceil((rateLimitData.timestamp + RATE_LIMIT_WINDOW - now) / 1000 / 60)
+            }),
+            { 
+              status: 429, 
+              headers: { 
+                ...corsHeaders, 
+                'Content-Type': 'application/json',
+                'Retry-After': String(Math.ceil((rateLimitData.timestamp + RATE_LIMIT_WINDOW - now) / 1000))
+              } 
+            }
+          );
+        }
+        rateLimitData.count++;
+      } else {
+        // Reset window
+        rateLimitData.count = 1;
+        rateLimitData.timestamp = now;
+      }
+    } else {
+      rateLimitMap.set(clientIP, { count: 1, timestamp: now });
+    }
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -44,6 +114,16 @@ serve(async (req) => {
     }
 
     const { name, email, subject, category, priority, description, attachments, profile_id } = validation.data;
+
+    // Check for spam patterns
+    const fullText = `${name} ${email} ${subject} ${description}`;
+    if (isSpam(fullText)) {
+      console.log(`Spam detected from IP: ${clientIP}`);
+      return new Response(
+        JSON.stringify({ error: 'Your request could not be processed. Please contact support directly.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Create support ticket
     const { data: ticket, error: ticketError } = await supabase
