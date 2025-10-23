@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Mail, Lock } from "lucide-react";
 
 const Auth = () => {
@@ -22,6 +23,9 @@ const Auth = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isResettingPassword, setIsResettingPassword] = useState(false);
+  const [isPasswordValid, setIsPasswordValid] = useState(false);
+  const [isNewPasswordValid, setIsNewPasswordValid] = useState(false);
+  const [isConfirmPasswordValid, setIsConfirmPasswordValid] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -215,37 +219,33 @@ const Auth = () => {
             <form onSubmit={handleUpdatePassword} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="new-password">Nova senha</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="new-password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    className="pl-10"
-                    required
-                    minLength={6}
-                  />
-                </div>
+                <PasswordInput
+                  id="new-password"
+                  placeholder="••••••••"
+                  value={newPassword}
+                  onChange={setNewPassword}
+                  onValidationChange={setIsNewPasswordValid}
+                  showRequirements={true}
+                  showStrengthBar={true}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirm-password">Confirmar nova senha</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="confirm-password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="pl-10"
-                    required
-                    minLength={6}
-                  />
-                </div>
+                <PasswordInput
+                  id="confirm-password"
+                  placeholder="••••••••"
+                  value={confirmPassword}
+                  onChange={setConfirmPassword}
+                  onValidationChange={setIsConfirmPasswordValid}
+                  showRequirements={false}
+                  showStrengthBar={false}
+                />
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button 
+                type="submit" 
+                className="w-full" 
+                disabled={loading || !isNewPasswordValid || !isConfirmPasswordValid || newPassword !== confirmPassword}
+              >
                 {loading ? "Atualizando..." : "Atualizar senha"}
               </Button>
               <Button
@@ -389,19 +389,15 @@ const Auth = () => {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signup-password">Senha</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="signup-password"
-                      type="password"
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10"
-                      required
-                      minLength={6}
-                    />
-                  </div>
+                  <PasswordInput
+                    id="signup-password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={setPassword}
+                    onValidationChange={setIsPasswordValid}
+                    showRequirements={true}
+                    showStrengthBar={true}
+                  />
                 </div>
                 <div className="flex items-start space-x-2">
                   <Checkbox
@@ -423,7 +419,11 @@ const Auth = () => {
                     </Link>
                   </label>
                 </div>
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button 
+                  type="submit" 
+                  className="w-full" 
+                  disabled={loading || !isPasswordValid || !acceptedPrivacyPolicy}
+                >
                   {loading ? "Criando conta..." : "Criar conta"}
                 </Button>
               </form>

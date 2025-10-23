@@ -14,7 +14,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Trash2 } from "lucide-react";
@@ -136,13 +136,14 @@ export function DeleteAccountDialog() {
         <div className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="password">Senha *</Label>
-            <Input
+            <PasswordInput
               id="password"
-              type="password"
               placeholder="Digite sua senha"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={setPassword}
               disabled={isDeleting}
+              showRequirements={false}
+              showStrengthBar={false}
             />
           </div>
 
