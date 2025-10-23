@@ -140,6 +140,8 @@ const Index = () => {
               src={appMockup} 
               alt="Mockup da tela do FinManage mostrando dashboard"
               className="w-full h-auto rounded-lg shadow-2xl"
+              width="1280"
+              height="720"
             />
           </div>
         </div>
