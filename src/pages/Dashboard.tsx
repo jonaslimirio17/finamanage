@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { User, Session } from "@supabase/supabase-js";
+import { Upload } from "lucide-react";
 import { BalanceCard } from "@/components/dashboard/BalanceCard";
 import { CategoryPieChart } from "@/components/dashboard/CategoryPieChart";
 import { IncomePieChart } from "@/components/dashboard/IncomePieChart";
@@ -89,7 +90,13 @@ const Dashboard = () => {
                 Bem-vindo ao seu painel financeiro, {user.email}!
               </p>
             </div>
-            <LastSyncInfo profileId={user.id} />
+            <div className="flex items-center gap-3">
+              <Button onClick={() => navigate('/import-csv')} variant="outline">
+                <Upload className="mr-2 h-4 w-4" />
+                Importar CSV
+              </Button>
+              <LastSyncInfo profileId={user.id} />
+            </div>
           </div>
 
           {/* Notifications */}
