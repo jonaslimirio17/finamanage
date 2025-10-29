@@ -30,6 +30,8 @@ const Plans = () => {
 
   const premiumPlan = [
     "Tudo do plano Free",
+    "🎓 Acesso à Educação Financeira Premium",
+    "📚 E-books, artigos e vídeos exclusivos",
     "Alertas e dicas automáticas",
     "Relatórios avançados",
     "Conexão com bancos e suporte VIP"

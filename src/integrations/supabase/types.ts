@@ -202,6 +202,60 @@ export type Database = {
           },
         ]
       }
+      educational_content: {
+        Row: {
+          author: string | null
+          content_body: string | null
+          content_type: string
+          created_at: string
+          description: string
+          duration_minutes: number | null
+          file_url: string | null
+          id: string
+          is_published: boolean
+          order_position: number
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          view_count: number
+        }
+        Insert: {
+          author?: string | null
+          content_body?: string | null
+          content_type: string
+          created_at?: string
+          description: string
+          duration_minutes?: number | null
+          file_url?: string | null
+          id?: string
+          is_published?: boolean
+          order_position?: number
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          view_count?: number
+        }
+        Update: {
+          author?: string | null
+          content_body?: string | null
+          content_type?: string
+          created_at?: string
+          description?: string
+          duration_minutes?: number | null
+          file_url?: string | null
+          id?: string
+          is_published?: boolean
+          order_position?: number
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          view_count?: number
+        }
+        Relationships: []
+      }
       events_logs: {
         Row: {
           created_at: string
@@ -378,6 +432,9 @@ export type Database = {
           id: string
           last_login: string | null
           nome: string
+          subscription_expires_at: string | null
+          subscription_plan: Database["public"]["Enums"]["subscription_plan"]
+          subscription_started_at: string | null
         }
         Insert: {
           cpf_hash?: string | null
@@ -388,6 +445,9 @@ export type Database = {
           id: string
           last_login?: string | null
           nome: string
+          subscription_expires_at?: string | null
+          subscription_plan?: Database["public"]["Enums"]["subscription_plan"]
+          subscription_started_at?: string | null
         }
         Update: {
           cpf_hash?: string | null
@@ -398,6 +458,9 @@ export type Database = {
           id?: string
           last_login?: string | null
           nome?: string
+          subscription_expires_at?: string | null
+          subscription_plan?: Database["public"]["Enums"]["subscription_plan"]
+          subscription_started_at?: string | null
         }
         Relationships: []
       }
@@ -640,10 +703,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_premium_user: { Args: { user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      subscription_plan: "free" | "premium"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -770,6 +833,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      subscription_plan: ["free", "premium"],
+    },
   },
 } as const

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Menu, Home, HelpCircle, Target, LogIn, LogOut, Shield, User, Moon, Sun } from "lucide-react";
+import { Menu, Home, HelpCircle, Target, LogIn, LogOut, Shield, User, Moon, Sun, GraduationCap } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import {
@@ -60,6 +60,7 @@ export const AppMenu = ({ user }: AppMenuProps) => {
     { title: "Blog", path: "/blog", icon: HelpCircle, show: true },
     { title: "Dashboard", path: "/dashboard", icon: User, show: !!user },
     { title: "Metas", path: "/goals", icon: Target, show: !!user },
+    { title: "Educação Financeira 👑", path: "/education", icon: GraduationCap, show: !!user },
     { title: "Ajuda", path: "/help", icon: HelpCircle, show: true },
     { title: "Política de Privacidade", path: "/privacy-policy", icon: Shield, show: true },
   ];
