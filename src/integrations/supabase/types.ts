@@ -432,6 +432,7 @@ export type Database = {
           id: string
           last_login: string | null
           nome: string
+          phone: string | null
           subscription_expires_at: string | null
           subscription_plan: Database["public"]["Enums"]["subscription_plan"]
           subscription_started_at: string | null
@@ -445,6 +446,7 @@ export type Database = {
           id: string
           last_login?: string | null
           nome: string
+          phone?: string | null
           subscription_expires_at?: string | null
           subscription_plan?: Database["public"]["Enums"]["subscription_plan"]
           subscription_started_at?: string | null
@@ -458,6 +460,7 @@ export type Database = {
           id?: string
           last_login?: string | null
           nome?: string
+          phone?: string | null
           subscription_expires_at?: string | null
           subscription_plan?: Database["public"]["Enums"]["subscription_plan"]
           subscription_started_at?: string | null
