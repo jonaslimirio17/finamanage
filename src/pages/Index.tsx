@@ -103,10 +103,10 @@ const Index = () => {
         <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
           <div className="space-y-6">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
-              Comece a controlar suas finanças hoje — rápido e sem complicação.
+              Domine suas finanças. Viva o presente.
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground">
-              Conecte sua conta bancária ou importe um extrato. FinManage organiza gastos, mostra metas e dá recomendações práticas.
+              O FinManage transforma o controle do seu dinheiro em algo simples, rápido e que cabe no seu ritmo de vida universitário. Sem planilhas confusas. Sem burocracia. Só clareza e liberdade.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button 
@@ -116,23 +116,23 @@ const Index = () => {
                   trackEvent("cta_create_account_click");
                   navigate("/auth");
                 }}
-                aria-label="Criar minha conta no FinManage"
+                aria-label="Comece grátis agora"
               >
-                Criar minha conta
+                Comece grátis agora
               </Button>
               <Button 
                 size="lg" 
-                variant="ghost" 
+                variant="outline" 
                 className="text-base"
-                onClick={handleScrollToDemo}
-                aria-label="Ver demonstração do FinManage"
+                onClick={() => navigate("/plans")}
+                aria-label="Ver planos"
               >
-                Quero ver uma demo
+                Ver planos
               </Button>
             </div>
             <p className="text-sm text-muted-foreground flex items-start gap-2">
               <Shield className="w-4 h-4 mt-0.5 flex-shrink-0" />
-              Cadastro em 30s — conexão opcional em seguida.
+              Sem cartões. Sem taxas. Só você e seus planos.
             </p>
           </div>
           <div className="relative">
@@ -150,26 +150,37 @@ const Index = () => {
       {/* Benefits Section */}
       <section className="bg-muted/30 py-16">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-8">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Por que escolher o FinManage</h2>
+          <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+            A vida financeira não precisa ser um enigma. O FinManage mostra o caminho.
+          </p>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
-              <Zap className="w-10 h-10 text-primary mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Conexão automática</h3>
+              <div className="text-3xl mb-4">💡</div>
+              <h3 className="text-xl font-semibold mb-2">Visual claro e moderno</h3>
               <p className="text-muted-foreground">
-                Conecte via Open Finance e veja seu orçamento sem esforço.
+                Nada de planilhas complicadas.
               </p>
             </div>
             <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
-              <CheckCircle2 className="w-10 h-10 text-primary mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Recomendações práticas</h3>
+              <div className="text-3xl mb-4">🧭</div>
+              <h3 className="text-xl font-semibold mb-2">Metas reais</h3>
               <p className="text-muted-foreground">
-                Dicas personalizadas para cortar gastos e priorizar dívidas.
+                Economize para a viagem, o curso ou o intercâmbio.
               </p>
             </div>
             <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
-              <Target className="w-10 h-10 text-primary mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Metas que funcionam</h3>
+              <div className="text-3xl mb-4">💬</div>
+              <h3 className="text-xl font-semibold mb-2">Insights automáticos</h3>
               <p className="text-muted-foreground">
-                Projete quanto falta para sua meta e receba um plano simples.
+                Veja onde otimizar seus gastos sem precisar pensar demais.
+              </p>
+            </div>
+            <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
+              <div className="text-3xl mb-4">🔒</div>
+              <h3 className="text-xl font-semibold mb-2">Segurança total</h3>
+              <p className="text-muted-foreground">
+                Criptografia bancária e proteção de dados.
               </p>
             </div>
           </div>
@@ -179,58 +190,70 @@ const Index = () => {
       {/* How It Works */}
       <section id="how-it-works" className="py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Como funciona</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Como funciona</h2>
+          <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+            É como um coach financeiro no seu bolso — só que sem julgamentos.
+          </p>
           <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             <div className="text-center space-y-4">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-                <span className="text-2xl font-bold text-primary">1</span>
+                <span className="text-2xl font-bold text-primary">1️⃣</span>
               </div>
               <h3 className="text-xl font-semibold">Crie sua conta</h3>
-              <p className="text-muted-foreground">Cadastro rápido com e-mail.</p>
+              <p className="text-muted-foreground">Em menos de 2 minutos.</p>
             </div>
             <div className="text-center space-y-4">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-                <span className="text-2xl font-bold text-primary">2</span>
+                <span className="text-2xl font-bold text-primary">2️⃣</span>
               </div>
-              <h3 className="text-xl font-semibold">Conecte ou importe</h3>
-              <p className="text-muted-foreground">Abra o widget do banco ou carregue um CSV.</p>
+              <h3 className="text-xl font-semibold">Adicione seus gastos</h3>
+              <p className="text-muted-foreground">Ou conecte sua conta bancária.</p>
             </div>
             <div className="text-center space-y-4">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-                <span className="text-2xl font-bold text-primary">3</span>
+                <span className="text-2xl font-bold text-primary">3️⃣</span>
               </div>
-              <h3 className="text-xl font-semibold">Receba insights</h3>
-              <p className="text-muted-foreground">Dashboard e recomendações personalizadas.</p>
+              <h3 className="text-xl font-semibold">Acompanhe suas metas</h3>
+              <p className="text-muted-foreground">E veja seu progresso crescer.</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Social Proof */}
-      <section className="bg-muted/30 py-8">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-muted-foreground flex items-center justify-center gap-2">
-            <Shield className="w-5 h-5" />
-            Usado por beta testers — segurança e privacidade em primeiro lugar.
-          </p>
+      {/* Testimonials */}
+      <section className="bg-muted/30 py-16">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Depoimentos</h2>
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <div className="bg-card p-6 rounded-lg border border-border">
+              <p className="text-muted-foreground mb-4 italic">
+                "Antes eu nunca sabia para onde meu dinheiro ia. Agora, consigo juntar para o que realmente importa."
+              </p>
+              <p className="font-semibold">— Letícia, 21 anos, UFG</p>
+            </div>
+            <div className="bg-card p-6 rounded-lg border border-border">
+              <p className="text-muted-foreground mb-4 italic">
+                "FinManage virou parte da minha rotina. É leve, direto e faz sentido."
+              </p>
+              <p className="font-semibold">— Pedro, 23 anos, Engenharia</p>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Secondary CTA */}
       <section className="py-16">
         <div className="container mx-auto px-4 text-center space-y-6">
-          <h2 className="text-3xl md:text-4xl font-bold">Pronto para começar?</h2>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" onClick={() => {
-              trackEvent("cta_create_account_click");
-              navigate("/auth");
-            }}>
-              Criar minha conta
-            </Button>
-            <Button size="lg" variant="secondary" onClick={() => navigate("/auth")}>
-              Importar extrato
-            </Button>
-          </div>
+          <h2 className="text-3xl md:text-4xl font-bold">Está pronto para ter controle sem perder a leveza?</h2>
+          <Button size="lg" onClick={() => {
+            trackEvent("cta_create_account_click");
+            navigate("/auth");
+          }}>
+            Comece grátis agora
+          </Button>
+          <p className="text-muted-foreground">
+            Sem cartões. Sem taxas. Só você e seus planos.
+          </p>
         </div>
       </section>
 
@@ -243,9 +266,9 @@ const Index = () => {
               <div className="flex gap-3">
                 <HelpCircle className="w-6 h-6 text-primary flex-shrink-0 mt-0.5" />
                 <div>
-                  <h3 className="font-semibold mb-2">Quais dados vocês acessam?</h3>
+                  <h3 className="font-semibold mb-2">O app é gratuito?</h3>
                   <p className="text-muted-foreground">
-                    Apenas extratos e produtos financeiros que você autorizar. Não acessamos senhas.
+                    Sim! Você pode começar pelo plano Free sem pagar nada.
                   </p>
                 </div>
               </div>
@@ -254,9 +277,9 @@ const Index = () => {
               <div className="flex gap-3">
                 <HelpCircle className="w-6 h-6 text-primary flex-shrink-0 mt-0.5" />
                 <div>
-                  <h3 className="font-semibold mb-2">É seguro?</h3>
+                  <h3 className="font-semibold mb-2">Posso cancelar quando quiser?</h3>
                   <p className="text-muted-foreground">
-                    Usamos criptografia TLS e só armazenamos dados necessários. Você pode revogar o acesso a qualquer momento.
+                    Claro! Sem fidelidade, sem pegadinhas.
                   </p>
                 </div>
               </div>
@@ -265,9 +288,20 @@ const Index = () => {
               <div className="flex gap-3">
                 <HelpCircle className="w-6 h-6 text-primary flex-shrink-0 mt-0.5" />
                 <div>
-                  <h3 className="font-semibold mb-2">Posso usar sem conectar conta?</h3>
+                  <h3 className="font-semibold mb-2">É seguro conectar minha conta bancária?</h3>
                   <p className="text-muted-foreground">
-                    Sim — você pode importar CSV ou adicionar transações manualmente.
+                    Sim. Usamos criptografia bancária — seus dados permanecem 100% protegidos.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-card p-6 rounded-lg border border-border">
+              <div className="flex gap-3">
+                <HelpCircle className="w-6 h-6 text-primary flex-shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="font-semibold mb-2">Preciso entender de finanças?</h3>
+                  <p className="text-muted-foreground">
+                    Não! O FinManage foi feito exatamente para quem está começando.
                   </p>
                 </div>
               </div>
