@@ -90,20 +90,12 @@ serve(async (req) => {
       );
     }
 
-    // Buscar user_id do auth.users
-    const { data: authUser } = await supabaseAdmin.auth.admin.listUsers();
-    const user = authUser.users.find(u => u.email === resetRecord.profiles?.email);
-
-    if (!user) {
-      return new Response(
-        JSON.stringify({ error: "Usuário não encontrado" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    // O profile_id já é o user_id do auth.users
+    const userId = resetRecord.profile_id;
 
     // Atualizar senha
     const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
-      user.id,
+      userId,
       { password: new_password }
     );
 
@@ -129,7 +121,7 @@ serve(async (req) => {
 
     // Invalidar sessões se solicitado
     if (logout_all) {
-      await supabaseAdmin.auth.admin.signOut(user.id, 'global');
+      await supabaseAdmin.auth.admin.signOut(userId, 'global');
     }
 
     // Enviar e-mail de confirmação
