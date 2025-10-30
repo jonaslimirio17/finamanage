@@ -317,44 +317,12 @@ const Auth = () => {
                     />
                   </div>
                 </div>
-                <Dialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
-                  <DialogTrigger asChild>
-                    <button
-                      type="button"
-                      className="text-sm text-primary hover:underline w-full text-right"
-                    >
-                      Esqueci minha senha
-                    </button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Recuperar senha</DialogTitle>
-                      <DialogDescription>
-                        Digite seu e-mail cadastrado para receber as instruções de recuperação.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <form onSubmit={handlePasswordReset} className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="reset-email">E-mail</Label>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                          <Input
-                            id="reset-email"
-                            type="email"
-                            placeholder="seu@email.com"
-                            value={resetEmail}
-                            onChange={(e) => setResetEmail(e.target.value)}
-                            className="pl-10"
-                            required
-                          />
-                        </div>
-                      </div>
-                      <Button type="submit" className="w-full" disabled={loading}>
-                        {loading ? "Enviando..." : "Enviar e-mail de recuperação"}
-                      </Button>
-                    </form>
-                  </DialogContent>
-                </Dialog>
+                <Link 
+                  to="/forgot-password"
+                  className="text-sm text-primary hover:underline block w-full text-right"
+                >
+                  Esqueci minha senha
+                </Link>
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Entrando..." : "Entrar"}
                 </Button>
