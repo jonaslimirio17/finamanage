@@ -395,6 +395,59 @@ export type Database = {
         }
         Relationships: []
       }
+      password_resets: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          profile_id: string | null
+          request_ip: string | null
+          request_user_agent: string | null
+          token_hash: string
+          used: boolean
+          used_at: string | null
+          used_ip: string | null
+          used_user_agent: string | null
+          verification_attempts: number
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          profile_id?: string | null
+          request_ip?: string | null
+          request_user_agent?: string | null
+          token_hash: string
+          used?: boolean
+          used_at?: string | null
+          used_ip?: string | null
+          used_user_agent?: string | null
+          verification_attempts?: number
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          profile_id?: string | null
+          request_ip?: string | null
+          request_user_agent?: string | null
+          token_hash?: string
+          used?: boolean
+          used_at?: string | null
+          used_ip?: string | null
+          used_user_agent?: string | null
+          verification_attempts?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "password_resets_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pre_signups: {
         Row: {
           created_at: string
@@ -706,6 +759,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_expired_password_resets: { Args: never; Returns: undefined }
       is_premium_user: { Args: { user_id: string }; Returns: boolean }
     }
     Enums: {
