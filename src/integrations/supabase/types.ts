@@ -14,16 +14,756 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      account_deletion_logs: {
+        Row: {
+          deleted_at: string
+          email: string
+          id: string
+          profile_id: string
+          reason: string | null
+        }
+        Insert: {
+          deleted_at?: string
+          email: string
+          id?: string
+          profile_id: string
+          reason?: string | null
+        }
+        Update: {
+          deleted_at?: string
+          email?: string
+          id?: string
+          profile_id?: string
+          reason?: string | null
+        }
+        Relationships: []
+      }
+      accounts: {
+        Row: {
+          account_type: string
+          balance: number
+          connected_at: string
+          id: string
+          last_sync: string | null
+          mask: string | null
+          profile_id: string
+          provider: string
+          provider_account_id: string
+          refresh_token_hash: string | null
+        }
+        Insert: {
+          account_type: string
+          balance?: number
+          connected_at?: string
+          id?: string
+          last_sync?: string | null
+          mask?: string | null
+          profile_id: string
+          provider: string
+          provider_account_id: string
+          refresh_token_hash?: string | null
+        }
+        Update: {
+          account_type?: string
+          balance?: number
+          connected_at?: string
+          id?: string
+          last_sync?: string | null
+          mask?: string | null
+          profile_id?: string
+          provider?: string
+          provider_account_id?: string
+          refresh_token_hash?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accounts_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      consents: {
+        Row: {
+          consent_type: string
+          created_at: string
+          details: Json | null
+          expires_at: string | null
+          granted_at: string
+          id: string
+          profile_id: string
+        }
+        Insert: {
+          consent_type: string
+          created_at?: string
+          details?: Json | null
+          expires_at?: string | null
+          granted_at?: string
+          id?: string
+          profile_id: string
+        }
+        Update: {
+          consent_type?: string
+          created_at?: string
+          details?: Json | null
+          expires_at?: string | null
+          granted_at?: string
+          id?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consents_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      credit_profiles: {
+        Row: {
+          bureau: string
+          created_at: string
+          id: string
+          last_check: string | null
+          profile_id: string
+          raw_report: Json | null
+          score: number | null
+        }
+        Insert: {
+          bureau: string
+          created_at?: string
+          id?: string
+          last_check?: string | null
+          profile_id: string
+          raw_report?: Json | null
+          score?: number | null
+        }
+        Update: {
+          bureau?: string
+          created_at?: string
+          id?: string
+          last_check?: string | null
+          profile_id?: string
+          raw_report?: Json | null
+          score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_profiles_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      debts: {
+        Row: {
+          created_at: string
+          creditor: string
+          due_date: string | null
+          id: string
+          interest_rate: number | null
+          principal: number
+          profile_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          creditor: string
+          due_date?: string | null
+          id?: string
+          interest_rate?: number | null
+          principal: number
+          profile_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          creditor?: string
+          due_date?: string | null
+          id?: string
+          interest_rate?: number | null
+          principal?: number
+          profile_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "debts_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      educational_content: {
+        Row: {
+          author: string | null
+          content_body: string | null
+          content_type: string
+          created_at: string
+          description: string
+          duration_minutes: number | null
+          file_url: string | null
+          id: string
+          is_published: boolean
+          order_position: number
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          view_count: number
+        }
+        Insert: {
+          author?: string | null
+          content_body?: string | null
+          content_type: string
+          created_at?: string
+          description: string
+          duration_minutes?: number | null
+          file_url?: string | null
+          id?: string
+          is_published?: boolean
+          order_position?: number
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          view_count?: number
+        }
+        Update: {
+          author?: string | null
+          content_body?: string | null
+          content_type?: string
+          created_at?: string
+          description?: string
+          duration_minutes?: number | null
+          file_url?: string | null
+          id?: string
+          is_published?: boolean
+          order_position?: number
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          view_count?: number
+        }
+        Relationships: []
+      }
+      events_logs: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          payload: Json | null
+          profile_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          payload?: Json | null
+          profile_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          payload?: Json | null
+          profile_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_logs_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      faqs: {
+        Row: {
+          answer: string
+          created_at: string
+          id: string
+          order_position: number
+          question: string
+          tags: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          id?: string
+          order_position?: number
+          question: string
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          id?: string
+          order_position?: number
+          question?: string
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      goals: {
+        Row: {
+          created_at: string
+          current_amount: number
+          id: string
+          profile_id: string
+          recurrence: string | null
+          status: string
+          target_amount: number
+          target_date: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          current_amount?: number
+          id?: string
+          profile_id: string
+          recurrence?: string | null
+          status?: string
+          target_amount: number
+          target_date?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          current_amount?: number
+          id?: string
+          profile_id?: string
+          recurrence?: string | null
+          status?: string
+          target_amount?: number
+          target_date?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goals_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          cta: string | null
+          id: string
+          is_read: boolean
+          profile_id: string
+          summary: string
+          title: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          cta?: string | null
+          id?: string
+          is_read?: boolean
+          profile_id: string
+          summary: string
+          title: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          cta?: string | null
+          id?: string
+          is_read?: boolean
+          profile_id?: string
+          summary?: string
+          title?: string
+          type?: string
+        }
+        Relationships: []
+      }
+      password_resets: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          profile_id: string | null
+          request_ip: string | null
+          request_user_agent: string | null
+          token_hash: string
+          used: boolean
+          used_at: string | null
+          used_ip: string | null
+          used_user_agent: string | null
+          verification_attempts: number
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          profile_id?: string | null
+          request_ip?: string | null
+          request_user_agent?: string | null
+          token_hash: string
+          used?: boolean
+          used_at?: string | null
+          used_ip?: string | null
+          used_user_agent?: string | null
+          verification_attempts?: number
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          profile_id?: string | null
+          request_ip?: string | null
+          request_user_agent?: string | null
+          token_hash?: string
+          used?: boolean
+          used_at?: string | null
+          used_ip?: string | null
+          used_user_agent?: string | null
+          verification_attempts?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "password_resets_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pre_signups: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          source_page: string | null
+          utm_campaign: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          source_page?: string | null
+          utm_campaign?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          source_page?: string | null
+          utm_campaign?: string | null
+          utm_source?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          cpf_hash: string | null
+          created_at: string
+          email: string
+          email_notifications: boolean | null
+          estimated_income: number | null
+          id: string
+          last_login: string | null
+          nome: string
+          phone: string | null
+          subscription_expires_at: string | null
+          subscription_plan: Database["public"]["Enums"]["subscription_plan"]
+          subscription_started_at: string | null
+        }
+        Insert: {
+          cpf_hash?: string | null
+          created_at?: string
+          email: string
+          email_notifications?: boolean | null
+          estimated_income?: number | null
+          id: string
+          last_login?: string | null
+          nome: string
+          phone?: string | null
+          subscription_expires_at?: string | null
+          subscription_plan?: Database["public"]["Enums"]["subscription_plan"]
+          subscription_started_at?: string | null
+        }
+        Update: {
+          cpf_hash?: string | null
+          created_at?: string
+          email?: string
+          email_notifications?: boolean | null
+          estimated_income?: number | null
+          id?: string
+          last_login?: string | null
+          nome?: string
+          phone?: string | null
+          subscription_expires_at?: string | null
+          subscription_plan?: Database["public"]["Enums"]["subscription_plan"]
+          subscription_started_at?: string | null
+        }
+        Relationships: []
+      }
+      support_agents: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          is_active: boolean
+          name: string
+          role: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          is_active?: boolean
+          name: string
+          role?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          role?: string
+        }
+        Relationships: []
+      }
+      support_articles: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          summary: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+          views: number
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          summary: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          views?: number
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          summary?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          views?: number
+        }
+        Relationships: []
+      }
+      support_tickets: {
+        Row: {
+          assigned_to: string | null
+          attachments: Json | null
+          category: string
+          created_at: string
+          description: string
+          email: string
+          id: string
+          name: string
+          priority: string
+          profile_id: string | null
+          status: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          attachments?: Json | null
+          category: string
+          created_at?: string
+          description: string
+          email: string
+          id?: string
+          name: string
+          priority?: string
+          profile_id?: string | null
+          status?: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          attachments?: Json | null
+          category?: string
+          created_at?: string
+          description?: string
+          email?: string
+          id?: string
+          name?: string
+          priority?: string
+          profile_id?: string | null
+          status?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_tickets_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "support_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_tickets_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ticket_comments: {
+        Row: {
+          attachments: Json | null
+          comment: string
+          created_at: string
+          id: string
+          profile_id: string | null
+          ticket_id: string
+        }
+        Insert: {
+          attachments?: Json | null
+          comment: string
+          created_at?: string
+          id?: string
+          profile_id?: string | null
+          ticket_id: string
+        }
+        Update: {
+          attachments?: Json | null
+          comment?: string
+          created_at?: string
+          id?: string
+          profile_id?: string | null
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_comments_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ticket_comments_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transactions: {
+        Row: {
+          account_id: string
+          amount: number
+          category: string | null
+          created_at: string
+          currency: string
+          date: string
+          id: string
+          imported_from: string
+          merchant: string | null
+          profile_id: string
+          provider_transaction_id: string | null
+          raw_description: string | null
+          subcategory: string | null
+          tags: string[] | null
+          type: string
+        }
+        Insert: {
+          account_id: string
+          amount: number
+          category?: string | null
+          created_at?: string
+          currency?: string
+          date: string
+          id?: string
+          imported_from: string
+          merchant?: string | null
+          profile_id: string
+          provider_transaction_id?: string | null
+          raw_description?: string | null
+          subcategory?: string | null
+          tags?: string[] | null
+          type: string
+        }
+        Update: {
+          account_id?: string
+          amount?: number
+          category?: string | null
+          created_at?: string
+          currency?: string
+          date?: string
+          id?: string
+          imported_from?: string
+          merchant?: string | null
+          profile_id?: string
+          provider_transaction_id?: string | null
+          raw_description?: string | null
+          subcategory?: string | null
+          tags?: string[] | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cleanup_expired_password_resets: { Args: never; Returns: undefined }
+      is_premium_user: { Args: { user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      subscription_plan: "free" | "premium"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +890,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      subscription_plan: ["free", "premium"],
+    },
   },
 } as const
