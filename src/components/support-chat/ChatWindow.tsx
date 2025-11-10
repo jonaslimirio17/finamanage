@@ -7,6 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatMessage } from "./ChatMessage";
 import { SupportEscalationForm } from "./SupportEscalationForm";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Message {
   id: string;
@@ -42,30 +43,29 @@ export const ChatWindow = ({ onClose }: ChatWindowProps) => {
 
   const sendMessageToN8N = async (userMessage: string) => {
     try {
-      // TODO: Replace with actual N8N webhook URL
-      const N8N_WEBHOOK_URL = "https://your-n8n-instance.com/webhook/chatbot";
-      
-      const response = await fetch(N8N_WEBHOOK_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      let sessionId = sessionStorage.getItem("chatSessionId");
+      if (!sessionId) {
+        sessionId = crypto.randomUUID();
+        sessionStorage.setItem("chatSessionId", sessionId);
+      }
+
+      const { data, error } = await supabase.functions.invoke('chatbot-n8n', {
+        body: {
           message: userMessage,
-          sessionId: sessionStorage.getItem("chatSessionId") || crypto.randomUUID(),
+          sessionId,
           conversationHistory: messages.map(m => ({
             role: m.sender === "user" ? "user" : "assistant",
             content: m.text,
           })),
-        }),
+        },
       });
 
-      if (!response.ok) {
-        throw new Error("Falha ao conectar com o serviço");
+      if (error) {
+        console.error("Error calling chatbot function:", error);
+        throw error;
       }
 
-      const data = await response.json();
-      return data.response || "Desculpe, não consegui processar sua mensagem.";
+      return data?.response || "Desculpe, não consegui processar sua mensagem.";
     } catch (error) {
       console.error("Error sending message to N8N:", error);
       return "Desculpe, estou com dificuldades técnicas. Por favor, tente novamente ou entre em contato com nosso suporte.";
