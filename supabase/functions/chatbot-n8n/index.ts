@@ -39,7 +39,7 @@ serve(async (req) => {
     console.log('N8N response:', data);
 
     return new Response(
-      JSON.stringify({ response: data.response || data.message || "Desculpe, não consegui processar sua mensagem." }),
+      JSON.stringify({ response: data.output || data.response || data.message || "Desculpe, não consegui processar sua mensagem." }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200 
