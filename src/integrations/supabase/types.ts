@@ -520,6 +520,33 @@ export type Database = {
         }
         Relationships: []
       }
+      receipt_uploads: {
+        Row: {
+          created_at: string
+          extracted_data: Json | null
+          file_path: string
+          id: string
+          profile_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          extracted_data?: Json | null
+          file_path: string
+          id?: string
+          profile_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          extracted_data?: Json | null
+          file_path?: string
+          id?: string
+          profile_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
       support_agents: {
         Row: {
           created_at: string
@@ -753,6 +780,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      whatsapp_sessions: {
+        Row: {
+          context: Json | null
+          id: string
+          last_message_at: string
+          phone_number: string
+          profile_id: string
+          state: string
+        }
+        Insert: {
+          context?: Json | null
+          id?: string
+          last_message_at?: string
+          phone_number: string
+          profile_id: string
+          state?: string
+        }
+        Update: {
+          context?: Json | null
+          id?: string
+          last_message_at?: string
+          phone_number?: string
+          profile_id?: string
+          state?: string
+        }
+        Relationships: []
       }
     }
     Views: {
