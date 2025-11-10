@@ -169,15 +169,17 @@ export const ChatWindow = ({ onClose }: ChatWindowProps) => {
 
       {/* Footer */}
       <div className="p-4 border-t space-y-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowEscalation(true)}
-          className="w-full"
-        >
-          <HelpCircle className="h-4 w-4 mr-2" />
-          Falar com atendente humano
-        </Button>
+        {messages.length > 1 && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowEscalation(true)}
+            className="w-full"
+          >
+            <HelpCircle className="h-4 w-4 mr-2" />
+            Falar com atendente humano
+          </Button>
+        )}
         <div className="flex gap-2">
           <Input
             value={inputValue}
