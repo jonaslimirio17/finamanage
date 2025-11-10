@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { MessageSquare, FileText, CheckCircle, Clock, TrendingUp } from "lucide-react";
@@ -19,6 +19,7 @@ export const WhatsAppStats = ({ userId }: WhatsAppStatsProps) => {
 
   useEffect(() => {
     loadStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   const loadStats = async () => {
