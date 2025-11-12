@@ -113,30 +113,22 @@ const Index = () => {
                 size="lg" 
                 className="text-base"
                 onClick={() => {
-                  trackEvent("cta_scroll_to_form");
-                  const form = document.getElementById('pre-signup-form');
-                  form?.scrollIntoView({ behavior: 'smooth' });
+                  trackEvent("cta_create_account_click");
+                  navigate("/auth");
                 }}
-                aria-label="Quero ser avisado do lançamento"
+                aria-label="Comece grátis agora"
               >
-                Quero ser avisado do lançamento
+                Comece grátis agora
               </Button>
               <Button 
                 size="lg" 
                 variant="outline" 
                 className="text-base"
-                onClick={handleScrollToDemo}
-                aria-label="Ver como funciona"
+                onClick={() => navigate("/plans")}
+                aria-label="Ver planos"
               >
-                Ver como funciona
+                Ver planos
               </Button>
-            </div>
-            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full">
-              <span className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
-              </span>
-              <span className="text-sm font-semibold">Lançamento em breve • Vagas limitadas</span>
             </div>
             <p className="text-sm text-muted-foreground flex items-start gap-2">
               <Shield className="w-4 h-4 mt-0.5 flex-shrink-0" />
@@ -319,89 +311,67 @@ const Index = () => {
       </section>
 
       {/* Pre-signup Form */}
-      <section id="pre-signup-form" className="py-16 bg-gradient-to-b from-primary/5 to-background">
-        <div className="container mx-auto px-4 max-w-2xl">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Seja um dos Primeiros</h2>
-            <p className="text-lg text-muted-foreground">
-              Cadastre-se agora e receba <span className="text-primary font-semibold">acesso antecipado</span> quando lançarmos.
-              Primeiros usuários terão benefícios exclusivos! 🎁
-            </p>
-          </div>
-          
-          <div className="bg-card p-8 rounded-lg shadow-lg border border-border">
-            <form onSubmit={handlePreSignup} className="space-y-4">
-              <div className="space-y-2">
-                <label htmlFor="email-signup" className="text-sm font-medium">
-                  Email
-                </label>
-                <Input
-                  id="email-signup"
-                  type="email"
-                  placeholder="seu@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="text-base"
-                  aria-label="Digite seu e-mail"
-                />
-              </div>
-              
-              <div className="flex items-start gap-2">
-                <Checkbox
-                  id="terms"
-                  checked={agreedToTerms}
-                  onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
-                  required
-                  aria-label="Aceitar política de privacidade"
-                />
-                <label htmlFor="terms" className="text-sm text-muted-foreground leading-tight cursor-pointer">
-                  Concordo em receber atualizações sobre o lançamento e aceito a{" "}
-                  <span className="text-primary underline cursor-pointer">
-                    Política de Privacidade (LGPD)
-                  </span>
-                </label>
-              </div>
-              
-              <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
-                {isSubmitting ? "Processando..." : "Garantir meu acesso antecipado"}
-              </Button>
-              
-              <p className="text-xs text-muted-foreground text-center flex items-center justify-center gap-1">
-                <Shield className="w-3 h-3" />
-                Seus dados estão seguros. Nunca compartilhamos com terceiros.
-              </p>
-            </form>
-            
-            <div className="mt-6 pt-6 border-t grid grid-cols-3 gap-4 text-center">
-              <div>
-                <div className="text-2xl font-bold text-primary">+500</div>
-                <div className="text-xs text-muted-foreground">Já cadastrados</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-primary">100%</div>
-                <div className="text-xs text-muted-foreground">Gratuito</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-primary">OCR</div>
-                <div className="text-xs text-muted-foreground">Automático</div>
-              </div>
+      <section className="py-16">
+        <div className="container mx-auto px-4 max-w-xl">
+          <form onSubmit={handlePreSignup} className="space-y-4">
+            <Input
+              type="email"
+              placeholder="Seu melhor e-mail"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="text-base"
+              aria-label="Digite seu e-mail"
+            />
+            <div className="flex items-start gap-2">
+              <Checkbox
+                id="terms"
+                checked={agreedToTerms}
+                onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
+                required
+                aria-label="Aceitar política de privacidade"
+              />
+              <label htmlFor="terms" className="text-sm text-muted-foreground leading-tight">
+                Quero receber comunicações e concordo com a{" "}
+                <a href="#politica" className="text-primary underline">
+                  Política de Privacidade (LGPD)
+                </a>
+                . Entendo que precisarei autorizar o acesso às minhas contas para usar a sincronização automática.
+              </label>
             </div>
-          </div>
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? "Processando..." : "Continuar"}
+            </Button>
+            <p className="text-xs text-muted-foreground text-center">
+              <Shield className="w-3 h-3 inline mr-1" />
+              Nunca compartilhamos seu e-mail com terceiros sem consentimento.
+            </p>
+          </form>
         </div>
       </section>
 
       {/* Footer */}
       <footer className="border-t border-border py-8">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col items-center gap-4 text-center">
-            <h2 className="text-2xl font-bold text-primary">FinManage</h2>
-            <p className="text-sm text-muted-foreground max-w-md">
-              Transforme sua relação com o dinheiro. Gestão financeira inteligente para universitários.
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-sm text-muted-foreground text-center md:text-left">
+              Ao prosseguir você aceita nossa{" "}
+              <button 
+                onClick={() => navigate("/privacy-policy")}
+                className="text-primary underline"
+              >
+                Política de Privacidade
+              </button>
+              {" "}— você pode solicitar exportação ou exclusão de dados a qualquer momento.
             </p>
-            <p className="text-xs text-muted-foreground">
-              © 2025 FinManage. Todos os direitos reservados.
-            </p>
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate("/help")}
+              className="flex items-center gap-2"
+            >
+              <HelpCircle className="w-4 h-4" />
+              Ajuda e Suporte
+            </Button>
           </div>
         </div>
       </footer>
