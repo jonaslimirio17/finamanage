@@ -28,7 +28,7 @@ import ComingSoon from "./pages/ComingSoon";
 const queryClient = new QueryClient();
 
 // Landing page only mode - set to false to restore all routes
-const LANDING_ONLY_MODE = true;
+const LANDING_ONLY_MODE = false;
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
