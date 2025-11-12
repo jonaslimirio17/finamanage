@@ -52,7 +52,12 @@ export const AppMenu = ({ user }: AppMenuProps) => {
 
   const isActive = (path: string) => location.pathname === path;
 
-  const menuItems = [
+  // Landing page mode - simplified menu
+  const LANDING_MODE = true;
+  
+  const menuItems = LANDING_MODE ? [
+    { title: "Início", path: "/", icon: Home, show: true },
+  ] : [
     { title: "Início", path: "/", icon: Home, show: true },
     { title: "Recursos", path: "/features", icon: Target, show: true },
     { title: "Planos", path: "/plans", icon: Target, show: true },
@@ -128,7 +133,7 @@ export const AppMenu = ({ user }: AppMenuProps) => {
 
           <Separator className="my-4" />
 
-          {user ? (
+          {!LANDING_MODE && user ? (
             <div className="space-y-2">
               <Button
                 variant="outline"
@@ -140,7 +145,7 @@ export const AppMenu = ({ user }: AppMenuProps) => {
               </Button>
               <DeleteAccountDialog />
             </div>
-          ) : (
+          ) : !LANDING_MODE ? (
             <Button
               variant="default"
               className="justify-start gap-3"
@@ -149,6 +154,23 @@ export const AppMenu = ({ user }: AppMenuProps) => {
               <LogIn className="h-5 w-5" />
               <span>Entrar / Criar conta</span>
             </Button>
+          ) : (
+            <div className="space-y-3 pt-2">
+              <p className="text-sm text-muted-foreground text-center">
+                Cadastre-se para ser notificado do lançamento!
+              </p>
+              <Button
+                variant="default"
+                className="w-full"
+                onClick={() => {
+                  setOpen(false);
+                  const form = document.getElementById('pre-signup-form');
+                  form?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                Quero ser avisado
+              </Button>
+            </div>
           )}
         </div>
 
