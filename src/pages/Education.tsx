@@ -23,6 +23,9 @@ interface Content {
   author?: string;
 }
 
+// TEMPORÁRIO: Bypass de autenticação para análise por IAs
+const BYPASS_AUTH = true;
+
 const Education = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
@@ -34,6 +37,12 @@ const Education = () => {
   const [activeTab, setActiveTab] = useState("all");
 
   useEffect(() => {
+    if (BYPASS_AUTH) {
+      // Mock user para bypass
+      setUser({ id: 'demo-user', email: 'demo@finmanage.com' });
+      return;
+    }
+    
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       if (!session) {

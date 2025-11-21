@@ -16,6 +16,9 @@ import { LastSyncInfo } from "@/components/dashboard/LastSyncInfo";
 import { NotificationsList } from "@/components/dashboard/NotificationsList";
 import { AppMenu } from "@/components/AppMenu";
 
+// TEMPORÁRIO: Bypass de autenticação para análise por IAs
+const BYPASS_AUTH = true;
+
 const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -23,6 +26,12 @@ const Dashboard = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    if (BYPASS_AUTH) {
+      // Mock user para bypass
+      setUser({ id: 'demo-user', email: 'demo@finmanage.com' } as User);
+      return;
+    }
+    
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
