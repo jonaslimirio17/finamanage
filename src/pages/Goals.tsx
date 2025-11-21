@@ -10,9 +10,6 @@ import { GoalsList } from "@/components/goals/GoalsList";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AppMenu } from "@/components/AppMenu";
 
-// TEMPORÁRIO: Bypass de autenticação para análise por IAs
-const BYPASS_AUTH = true;
-
 const Goals = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -23,12 +20,6 @@ const Goals = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (BYPASS_AUTH) {
-      // Mock user para bypass
-      setUser({ id: 'demo-user', email: 'demo@finmanage.com' } as User);
-      return;
-    }
-    
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
