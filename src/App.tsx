@@ -21,6 +21,7 @@ import Education from "./pages/Education";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import WhatsAppSettings from "./pages/WhatsAppSettings";
+import SecuritySettings from "./pages/SecuritySettings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -49,6 +50,7 @@ const App = () => (
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/whatsapp" element={<WhatsAppSettings />} />
+          <Route path="/security" element={<SecuritySettings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

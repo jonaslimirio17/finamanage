@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { PasswordInput } from "@/components/ui/password-input";
 import { Mail, Lock } from "lucide-react";
 import { checkPasswordLeaked } from "@/lib/passwordValidation";
+import { TwoFactorVerification } from "@/components/auth/TwoFactorVerification";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -28,6 +29,8 @@ const Auth = () => {
   const [isPasswordValid, setIsPasswordValid] = useState(false);
   const [isNewPasswordValid, setIsNewPasswordValid] = useState(false);
   const [isConfirmPasswordValid, setIsConfirmPasswordValid] = useState(false);
+  const [showMFAVerification, setShowMFAVerification] = useState(false);
+  const [mfaFactorId, setMfaFactorId] = useState<string>("");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -130,12 +133,31 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        // Check if error is MFA required
+        if (error.message?.includes('MFA') || error.message?.includes('factor')) {
+          throw error;
+        }
+        throw error;
+      }
+
+      // Check if MFA is required
+      if (data.user) {
+        const { data: factors } = await supabase.auth.mfa.listFactors();
+        const verifiedFactor = factors?.totp?.find((f: any) => f.status === 'verified');
+        
+        if (verifiedFactor) {
+          setMfaFactorId(verifiedFactor.id);
+          setShowMFAVerification(true);
+          setLoading(false);
+          return;
+        }
+      }
 
       toast({
         title: "Login realizado!",
@@ -150,6 +172,14 @@ const Auth = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleMFAVerified = () => {
+    toast({
+      title: "Login realizado!",
+      description: "Redirecionando para o dashboard...",
+    });
+    navigate("/dashboard");
   };
 
   const handlePasswordReset = async (e: React.FormEvent) => {
@@ -242,6 +272,21 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
+  if (showMFAVerification) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <TwoFactorVerification
+          factorId={mfaFactorId}
+          onVerified={handleMFAVerified}
+          onBack={() => {
+            setShowMFAVerification(false);
+            setMfaFactorId("");
+          }}
+        />
+      </div>
+    );
+  }
 
   if (isResettingPassword) {
     return (

@@ -62,6 +62,7 @@ export const AppMenu = ({ user }: AppMenuProps) => {
     { title: "Metas", path: "/goals", icon: Target, show: !!user },
     { title: "WhatsApp Bot", path: "/whatsapp", icon: MessageSquare, show: !!user },
     { title: "Educação Financeira 👑", path: "/education", icon: GraduationCap, show: !!user },
+    { title: "Segurança", path: "/security", icon: Shield, show: !!user },
     { title: "Ajuda", path: "/help", icon: HelpCircle, show: true },
     { title: "Política de Privacidade", path: "/privacy-policy", icon: Shield, show: true },
   ];
