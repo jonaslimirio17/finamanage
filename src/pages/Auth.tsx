@@ -11,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Mail, Lock } from "lucide-react";
+import { checkPasswordLeaked } from "@/lib/passwordValidation";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -70,9 +71,31 @@ const Auth = () => {
       return;
     }
 
+    if (!isPasswordValid) {
+      toast({
+        title: "Senha inválida",
+        description: "Por favor, atenda a todos os requisitos de senha.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
+      // Check if password has been leaked
+      const leakCheck = await checkPasswordLeaked(password);
+      
+      if (leakCheck.leaked) {
+        toast({
+          title: "⚠️ Senha Comprometida",
+          description: leakCheck.message || "Esta senha foi encontrada em vazamentos de dados. Por favor, escolha uma senha diferente.",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -169,10 +192,10 @@ const Auth = () => {
       return;
     }
 
-    if (newPassword.length < 6) {
+    if (!isNewPasswordValid) {
       toast({
-        title: "Senha muito curta",
-        description: "A senha deve ter pelo menos 6 caracteres.",
+        title: "Senha inválida",
+        description: "Por favor, atenda a todos os requisitos de senha.",
         variant: "destructive",
       });
       return;
@@ -181,6 +204,19 @@ const Auth = () => {
     setLoading(true);
 
     try {
+      // Check if password has been leaked
+      const leakCheck = await checkPasswordLeaked(newPassword);
+      
+      if (leakCheck.leaked) {
+        toast({
+          title: "⚠️ Senha Comprometida",
+          description: leakCheck.message || "Esta senha foi encontrada em vazamentos de dados. Por favor, escolha uma senha diferente.",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       const { error } = await supabase.auth.updateUser({
         password: newPassword,
       });
