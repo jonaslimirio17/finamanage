@@ -11,9 +11,6 @@ import { WhatsAppStats } from "@/components/whatsapp/WhatsAppStats";
 import { MessageSquare, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-// TEMPORÁRIO: Bypass de autenticação para análise por IAs
-const BYPASS_AUTH = true;
-
 export default function WhatsAppSettings() {
   const [user, setUser] = useState<any>(null);
   const [session, setSession] = useState<any>(null);
@@ -21,12 +18,6 @@ export default function WhatsAppSettings() {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (BYPASS_AUTH) {
-      // Mock user para bypass
-      setUser({ id: 'demo-user', email: 'demo@finmanage.com' });
-      return;
-    }
-    
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
