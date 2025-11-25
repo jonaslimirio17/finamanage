@@ -213,9 +213,7 @@ const Index = () => {
               <p className="font-semibold">— Letícia, 21 anos, UFG</p>
             </div>
             <div className="bg-card p-6 rounded-lg border border-border">
-              <p className="text-muted-foreground mb-4 italic">
-                "FinManage virou parte da minha rotina. É leve, direto e faz sentido."
-              </p>
+              <p className="text-muted-foreground mb-4 italic">"Eu achava que pedia iFood ‘de vez em nunca’. Quando puxei o extrato, apareceu quase R$ 500 no mês. Fiquei em choque."</p>
               <p className="font-semibold">— Pedro, 23 anos, Engenharia</p>
             </div>
           </div>
