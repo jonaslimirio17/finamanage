@@ -93,7 +93,7 @@ const Article = () => {
   return (
     <>
       <Helmet>
-        <title>{article.title} | FinManage</title>
+        <title>{article.title} | FinaManage</title>
         <meta name="description" content={article.summary} />
       </Helmet>
 

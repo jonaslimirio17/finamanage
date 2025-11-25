@@ -405,7 +405,7 @@ export default function Onboarding() {
                 htmlFor="consent"
                 className="text-sm leading-relaxed cursor-pointer"
               >
-                Autorizo a FinManage a acessar meus extratos e produtos financeiros para 
+                Autorizo a FinaManage a acessar meus extratos e produtos financeiros para 
                 consolidar, categorizar e gerar recomendações. Posso revogar o consentimento 
                 a qualquer momento. Dados serão usados conforme{" "}
                 <a 

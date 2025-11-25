@@ -76,7 +76,7 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-primary">FinManage</h1>
+          <h1 className="text-2xl font-bold text-primary">FinaManage</h1>
           <AppMenu user={user} />
         </div>
       </header>
@@ -138,7 +138,7 @@ const Dashboard = () => {
             </button>
           </div>
           <p className="text-sm text-muted-foreground">
-            © 2025 FinManage. Todos os direitos reservados.
+            © 2025 FinaManage. Todos os direitos reservados.
           </p>
         </div>
       </footer>

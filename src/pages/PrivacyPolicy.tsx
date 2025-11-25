@@ -8,13 +8,13 @@ const PrivacyPolicy = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Política de Privacidade - FinManage</title>
-        <meta name="description" content="Política de privacidade do FinManage - Saiba como tratamos seus dados pessoais" />
+        <title>Política de Privacidade - FinaManage</title>
+        <meta name="description" content="Política de privacidade do FinaManage - Saiba como tratamos seus dados pessoais" />
       </Helmet>
 
       <header className="border-b border-border">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-primary">FinManage</h1>
+          <h1 className="text-2xl font-bold text-primary">FinaManage</h1>
           <Button onClick={() => navigate(-1)} variant="outline">
             Voltar
           </Button>
@@ -28,7 +28,7 @@ const PrivacyPolicy = () => {
           <section className="mb-8 p-6 bg-muted rounded-lg">
             <h2 className="text-2xl font-semibold mb-4">Resumo rápido (em 1 minuto)</h2>
             <p className="text-muted-foreground">
-              Nós, da FinManage, tratamos apenas os dados pessoais necessários para oferecer o app de gestão financeira 
+              Nós, da FinaManage, tratamos apenas os dados pessoais necessários para oferecer o app de gestão financeira
               (contas, transações, dívidas, metas). Você autoriza o compartilhamento via Open Finance quando conecta uma 
               conta; pode revogar esse consentimento a qualquer momento. Guardamos logs do consentimento, protegemos os 
               dados com medidas técnicas e organizacionais e damos a você todos os direitos previstos na LGPD (acesso, 
@@ -40,11 +40,11 @@ const PrivacyPolicy = () => {
 
           <section className="mb-8">
             <h3 className="text-2xl font-semibold mb-3">1. Quem somos (controlador)</h3>
-            <p className="mb-2"><strong>FinManage</strong></p>
+            <p className="mb-2"><strong>FinaManage</strong></p>
             <p className="mb-2">CNPJ: [A DEFINIR]</p>
             <p className="mb-2">Endereço: [A DEFINIR]</p>
-            <p className="mb-2">E-mail para contato: contato@finmanage.com.br</p>
-            <p>Encarregado (DPO): dpo@finmanage.com.br</p>
+            <p className="mb-2">E-mail para contato: contato@finamanage.com.br</p>
+            <p>Encarregado (DPO): dpo@finamanage.com.br</p>
           </section>
 
           <section className="mb-8">
@@ -52,7 +52,7 @@ const PrivacyPolicy = () => {
             <p>
               Esta política explica quais dados coletamos, por que os coletamos, como usamos, por quanto tempo guardamos, 
               com quem compartilhamos, as medidas de segurança que adotamos e como você pode exercer seus direitos. 
-              Aplicável a usuários do site, landing pages, app e APIs da FinManage.
+              Aplicável a usuários do site, landing pages, app e APIs da FinaManage.
             </p>
           </section>
 
@@ -184,7 +184,7 @@ const PrivacyPolicy = () => {
             </ul>
             <p className="mb-2">Para exercer qualquer direito:</p>
             <p>
-              Envie e-mail para dpo@finmanage.com.br ou use o formulário em Configurações → Privacidade. Responderemos 
+              Envie e-mail para dpo@finamanage.com.br ou use o formulário em Configurações → Privacidade. Responderemos 
               no menor tempo possível e dentro de prazo razoável.
             </p>
           </section>
@@ -247,8 +247,8 @@ const PrivacyPolicy = () => {
             <p className="mb-4">
               Para dúvidas, solicitações ou reclamações relacionadas a privacidade e proteção de dados, contate:
             </p>
-            <p className="mb-2"><strong>FinManage — Encarregado de Dados (DPO)</strong></p>
-            <p className="mb-2">E-mail: dpo@finmanage.com.br</p>
+            <p className="mb-2"><strong>FinaManage — Encarregado de Dados (DPO)</strong></p>
+            <p className="mb-2">E-mail: dpo@finamanage.com.br</p>
             <p className="mb-2">Endereço: [A DEFINIR]</p>
             <p>Se preferir, abra um chamado em Ajuda → Suporte no app (categoria "Privacidade / LGPD").</p>
           </section>
@@ -266,7 +266,7 @@ const PrivacyPolicy = () => {
 
       <footer className="border-t border-border mt-12">
         <div className="container mx-auto px-4 py-6 text-center text-muted-foreground">
-          <p>© 2025 FinManage. Todos os direitos reservados.</p>
+          <p>© 2025 FinaManage. Todos os direitos reservados.</p>
         </div>
       </footer>
     </div>

@@ -56,7 +56,7 @@ const Help = () => {
   return (
     <>
       <Helmet>
-        <title>Ajuda | FinManage — FAQ e Suporte</title>
+        <title>Ajuda | FinaManage — FAQ e Suporte</title>
         <meta 
           name="description" 
           content="Perguntas frequentes, base de conhecimento e formulário rápido para abrir um chamado ao suporte." 
@@ -68,7 +68,7 @@ const Help = () => {
         <header className="border-b border-border sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <h1 className="text-2xl font-bold text-primary cursor-pointer" onClick={() => navigate("/")}>
-              FinManage
+              FinaManage
             </h1>
             <AppMenu user={user} />
           </div>
