@@ -21,7 +21,7 @@ export const Logo = ({ className = "", onClick }: LogoProps) => {
     <img
       src={logo}
       alt="FinaManage"
-      className={`h-24 w-48 object-contain cursor-pointer ${className}`}
+      className={`h-32 w-64 object-contain cursor-pointer ${className}`}
       onClick={handleClick}
     />
   );
