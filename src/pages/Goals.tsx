@@ -10,6 +10,8 @@ import { GoalsList } from "@/components/goals/GoalsList";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AppMenu } from "@/components/AppMenu";
 
+import { Logo } from "@/components/Logo";
+
 const Goals = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -83,7 +85,7 @@ const Goals = () => {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-primary">FinaManage</h1>
+          <Logo />
           <AppMenu user={user} />
         </div>
       </header>

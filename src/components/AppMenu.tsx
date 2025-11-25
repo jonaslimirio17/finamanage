@@ -19,6 +19,8 @@ interface AppMenuProps {
   user?: any;
 }
 
+import { Logo } from "@/components/Logo";
+
 export const AppMenu = ({ user }: AppMenuProps) => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -77,7 +79,9 @@ export const AppMenu = ({ user }: AppMenuProps) => {
       </SheetTrigger>
       <SheetContent side="right" className="w-[300px] sm:w-[400px]">
         <SheetHeader>
-          <SheetTitle className="text-2xl font-bold text-primary">FinManage</SheetTitle>
+          <SheetTitle className="flex items-center justify-center">
+            <Logo className="h-10" />
+          </SheetTitle>
         </SheetHeader>
         
         <div className="mt-8 flex flex-col gap-2">
@@ -155,7 +159,7 @@ export const AppMenu = ({ user }: AppMenuProps) => {
 
         <div className="absolute bottom-6 left-6 right-6">
           <p className="text-xs text-muted-foreground text-center">
-            © 2025 FinManage. Todos os direitos reservados.
+            © 2025 FinaManage. Todos os direitos reservados.
           </p>
         </div>
       </SheetContent>

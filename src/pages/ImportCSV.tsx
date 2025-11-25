@@ -10,6 +10,8 @@ import { User, Session } from "@supabase/supabase-js";
 import { Upload, FileText, ArrowLeft } from "lucide-react";
 import { AppMenu } from "@/components/AppMenu";
 
+import { Logo } from "@/components/Logo";
+
 const ImportCSV = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -128,7 +130,7 @@ const ImportCSV = () => {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-primary">FinaManage</h1>
+          <Logo />
           <AppMenu user={user} />
         </div>
       </header>
