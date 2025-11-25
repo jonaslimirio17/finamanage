@@ -8,72 +8,73 @@ import appMockup from "@/assets/app-mockup.png";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { AppMenu } from "@/components/AppMenu";
-
 const Index = () => {
   const [email, setEmail] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [user, setUser] = useState<any>(null);
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const navigate = useNavigate();
-
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({
+      data: {
+        session
+      }
+    }) => {
       setUser(session?.user ?? null);
     });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+    const {
+      data: {
+        subscription
+      }
+    } = supabase.auth.onAuthStateChange((_, session) => {
       setUser(session?.user ?? null);
     });
-
     return () => subscription.unsubscribe();
   }, []);
-
   const handleScrollToDemo = () => {
-    document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("how-it-works")?.scrollIntoView({
+      behavior: "smooth"
+    });
     trackEvent("cta_demo_click");
   };
-
   const trackEvent = (eventType: string) => {
     if (typeof window !== "undefined" && (window as any).dataLayer) {
       (window as any).dataLayer.push({
         event: eventType,
-        timestamp: new Date().toISOString(),
+        timestamp: new Date().toISOString()
       });
     }
   };
-
   const handlePreSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!agreedToTerms) {
       toast({
         title: "Consentimento necessário",
         description: "Por favor, aceite a Política de Privacidade para continuar.",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     setIsSubmitting(true);
     trackEvent("pre_signup_submitted");
-
     try {
       // Salvar lead em pre_signups (será criado via migration)
-      const { error } = await supabase.from("pre_signups").insert({
+      const {
+        error
+      } = await supabase.from("pre_signups").insert({
         email,
         source_page: "landing",
         utm_source: new URLSearchParams(window.location.search).get("utm_source"),
-        utm_campaign: new URLSearchParams(window.location.search).get("utm_campaign"),
+        utm_campaign: new URLSearchParams(window.location.search).get("utm_campaign")
       });
-
       if (error) throw error;
-
       toast({
         title: "Checamos seu e-mail!",
-        description: "Verifique sua caixa de entrada para continuar.",
+        description: "Verifique sua caixa de entrada para continuar."
       });
-
       setEmail("");
       setAgreedToTerms(false);
     } catch (error) {
@@ -81,15 +82,13 @@ const Index = () => {
       toast({
         title: "Erro ao processar",
         description: "Tente novamente em alguns instantes.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       {/* Header with Menu */}
       <header className="border-b border-border sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
@@ -109,24 +108,13 @@ const Index = () => {
               O FinManage transforma o controle do seu dinheiro em algo simples, rápido e que cabe no seu ritmo de vida universitário. Sem planilhas confusas. Sem burocracia. Só clareza e liberdade.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button 
-                size="lg" 
-                className="text-base"
-                onClick={() => {
-                  trackEvent("cta_create_account_click");
-                  navigate("/auth");
-                }}
-                aria-label="Comece grátis agora"
-              >
+              <Button size="lg" className="text-base" onClick={() => {
+              trackEvent("cta_create_account_click");
+              navigate("/auth");
+            }} aria-label="Comece grátis agora">
                 Comece grátis agora
               </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="text-base"
-                onClick={() => navigate("/plans")}
-                aria-label="Ver planos"
-              >
+              <Button size="lg" variant="outline" className="text-base" onClick={() => navigate("/plans")} aria-label="Ver planos">
                 Ver planos
               </Button>
             </div>
@@ -136,13 +124,7 @@ const Index = () => {
             </p>
           </div>
           <div className="relative">
-            <img 
-              src={appMockup} 
-              alt="Mockup da tela do FinManage mostrando dashboard"
-              className="w-full h-auto rounded-lg shadow-2xl"
-              width="1280"
-              height="720"
-            />
+            <img src={appMockup} alt="Mockup da tela do FinManage mostrando dashboard" className="w-full h-auto rounded-lg shadow-2xl" width="1280" height="720" />
           </div>
         </div>
       </section>
@@ -226,9 +208,8 @@ const Index = () => {
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Depoimentos</h2>
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <div className="bg-card p-6 rounded-lg border border-border">
-              <p className="text-muted-foreground mb-4 italic">
-                "Antes eu nunca sabia para onde meu dinheiro ia. Agora, consigo juntar para o que realmente importa."
-              </p>
+              <p className="text-muted-foreground mb-4 italic">"Netflix, Disney+, academia… metade eu nem lembrava que existia. Tava perdendo mais de 100 reais por mês de bobeira. Cancelei no mesmo dia.."
+            </p>
               <p className="font-semibold">— Letícia, 21 anos, UFG</p>
             </div>
             <div className="bg-card p-6 rounded-lg border border-border">
@@ -246,9 +227,9 @@ const Index = () => {
         <div className="container mx-auto px-4 text-center space-y-6">
           <h2 className="text-3xl md:text-4xl font-bold">Está pronto para ter controle sem perder a leveza?</h2>
           <Button size="lg" onClick={() => {
-            trackEvent("cta_create_account_click");
-            navigate("/auth");
-          }}>
+          trackEvent("cta_create_account_click");
+          navigate("/auth");
+        }}>
             Comece grátis agora
           </Button>
           <p className="text-muted-foreground">
@@ -314,23 +295,9 @@ const Index = () => {
       <section className="py-16">
         <div className="container mx-auto px-4 max-w-xl">
           <form onSubmit={handlePreSignup} className="space-y-4">
-            <Input
-              type="email"
-              placeholder="Seu melhor e-mail"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="text-base"
-              aria-label="Digite seu e-mail"
-            />
+            <Input type="email" placeholder="Seu melhor e-mail" value={email} onChange={e => setEmail(e.target.value)} required className="text-base" aria-label="Digite seu e-mail" />
             <div className="flex items-start gap-2">
-              <Checkbox
-                id="terms"
-                checked={agreedToTerms}
-                onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
-                required
-                aria-label="Aceitar política de privacidade"
-              />
+              <Checkbox id="terms" checked={agreedToTerms} onCheckedChange={checked => setAgreedToTerms(checked as boolean)} required aria-label="Aceitar política de privacidade" />
               <label htmlFor="terms" className="text-sm text-muted-foreground leading-tight">
                 Quero receber comunicações e concordo com a{" "}
                 <a href="#politica" className="text-primary underline">
@@ -356,27 +323,18 @@ const Index = () => {
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground text-center md:text-left">
               Ao prosseguir você aceita nossa{" "}
-              <button 
-                onClick={() => navigate("/privacy-policy")}
-                className="text-primary underline"
-              >
+              <button onClick={() => navigate("/privacy-policy")} className="text-primary underline">
                 Política de Privacidade
               </button>
               {" "}— você pode solicitar exportação ou exclusão de dados a qualquer momento.
             </p>
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate("/help")}
-              className="flex items-center gap-2"
-            >
+            <Button variant="ghost" onClick={() => navigate("/help")} className="flex items-center gap-2">
               <HelpCircle className="w-4 h-4" />
               Ajuda e Suporte
             </Button>
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
