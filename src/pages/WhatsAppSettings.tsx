@@ -106,7 +106,7 @@ export default function WhatsAppSettings() {
               <CardHeader>
                 <CardTitle>Como funciona?</CardTitle>
                 <CardDescription>
-                  Aprenda a usar o bot WhatsApp do FinManage
+                  Aprenda a usar o bot WhatsApp do FinaManage
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">

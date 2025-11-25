@@ -92,7 +92,7 @@ const Index = () => {
       {/* Header with Menu */}
       <header className="border-b border-border sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-primary">FinManage</h1>
+          <h1 className="text-2xl font-bold text-primary">FinaManage</h1>
           <AppMenu user={user} />
         </div>
       </header>
@@ -105,7 +105,7 @@ const Index = () => {
               Domine suas finanças. Viva o presente.
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground">
-              O FinManage transforma o controle do seu dinheiro em algo simples, rápido e que cabe no seu ritmo de vida universitário. Sem planilhas confusas. Sem burocracia. Só clareza e liberdade.
+              O FinaManage transforma o controle do seu dinheiro em algo simples, rápido e que cabe no seu ritmo de vida universitário. Sem planilhas confusas. Sem burocracia. Só clareza e liberdade.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button size="lg" className="text-base" onClick={() => {
@@ -124,7 +124,7 @@ const Index = () => {
             </p>
           </div>
           <div className="relative">
-            <img src={appMockup} alt="Mockup da tela do FinManage mostrando dashboard" className="w-full h-auto rounded-lg shadow-2xl" width="1280" height="720" />
+            <img src={appMockup} alt="Mockup da tela do FinaManage mostrando dashboard" className="w-full h-auto rounded-lg shadow-2xl" width="1280" height="720" />
           </div>
         </div>
       </section>
@@ -132,9 +132,9 @@ const Index = () => {
       {/* Benefits Section */}
       <section className="bg-muted/30 py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Por que escolher o FinManage</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Por que escolher o FinaManage</h2>
           <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-            A vida financeira não precisa ser um enigma. O FinManage mostra o caminho.
+            A vida financeira não precisa ser um enigma. O FinaManage mostra o caminho.
           </p>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
@@ -280,7 +280,7 @@ const Index = () => {
                 <div>
                   <h3 className="font-semibold mb-2">Preciso entender de finanças?</h3>
                   <p className="text-muted-foreground">
-                    Não! O FinManage foi feito exatamente para quem está começando.
+                    Não! O FinaManage foi feito exatamente para quem está começando.
                   </p>
                 </div>
               </div>

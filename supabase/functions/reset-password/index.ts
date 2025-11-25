@@ -127,9 +127,9 @@ serve(async (req) => {
     // Enviar e-mail de confirmação
     if (resetRecord.profiles?.email) {
       const { error: emailError } = await resend.emails.send({
-        from: "FinManage <onboarding@resend.dev>",
+        from: "FinaManage <onboarding@resend.dev>",
         to: [resetRecord.profiles.email],
-        subject: "FinManage — Senha alterada com sucesso",
+        subject: "FinaManage — Senha alterada com sucesso",
         html: `
           <!DOCTYPE html>
           <html>
@@ -139,7 +139,7 @@ serve(async (req) => {
             </head>
             <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
               <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-                <h1 style="color: white; margin: 0; font-size: 28px;">FinManage</h1>
+                <h1 style="color: white; margin: 0; font-size: 28px;">FinaManage</h1>
               </div>
               
               <div style="background: #ffffff; padding: 40px 30px; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 10px 10px;">
@@ -164,12 +164,12 @@ serve(async (req) => {
                 
                 <p style="margin-top: 30px; font-size: 14px; color: #999;">
                   Atenciosamente,<br>
-                  <strong>Equipe FinManage</strong>
+                  <strong>Equipe FinaManage</strong>
                 </p>
               </div>
               
               <div style="text-align: center; padding: 20px; font-size: 12px; color: #999;">
-                <p>© ${new Date().getFullYear()} FinManage. Todos os direitos reservados.</p>
+                <p>© ${new Date().getFullYear()} FinaManage. Todos os direitos reservados.</p>
               </div>
             </body>
           </html>
