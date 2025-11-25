@@ -5,6 +5,8 @@ import { AppMenu } from "@/components/AppMenu";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
+import { Logo } from "@/components/Logo";
+
 const Plans = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
@@ -41,9 +43,7 @@ const Plans = () => {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-primary cursor-pointer" onClick={() => navigate("/")}>
-            FinaManage
-          </h1>
+          <Logo />
           <AppMenu user={user} />
         </div>
       </header>

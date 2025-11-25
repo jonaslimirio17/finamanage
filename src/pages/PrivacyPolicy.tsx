@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 
+import { Logo } from "@/components/Logo";
+
 const PrivacyPolicy = () => {
   const navigate = useNavigate();
 
@@ -14,7 +16,7 @@ const PrivacyPolicy = () => {
 
       <header className="border-b border-border">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-primary">FinaManage</h1>
+          <Logo />
           <Button onClick={() => navigate(-1)} variant="outline">
             Voltar
           </Button>

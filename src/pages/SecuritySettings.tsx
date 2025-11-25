@@ -9,6 +9,8 @@ import { AppMenu } from "@/components/AppMenu";
 import { TwoFactorSettings } from "@/components/auth/TwoFactorSettings";
 import { Shield } from "lucide-react";
 
+import { Logo } from "@/components/Logo";
+
 const SecuritySettings = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -49,9 +51,7 @@ const SecuritySettings = () => {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-primary cursor-pointer" onClick={() => navigate("/dashboard")}>
-            FinaManage
-          </h1>
+          <Logo onClick={() => navigate("/dashboard")} />
           <AppMenu user={user} />
         </div>
       </header>

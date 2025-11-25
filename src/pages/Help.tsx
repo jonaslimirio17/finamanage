@@ -22,6 +22,8 @@ const CATEGORIES = [
   "Outros"
 ];
 
+import { Logo } from "@/components/Logo";
+
 const Help = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -67,9 +69,7 @@ const Help = () => {
         {/* Header */}
         <header className="border-b border-border sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-primary cursor-pointer" onClick={() => navigate("/")}>
-              FinaManage
-            </h1>
+            <Logo />
             <AppMenu user={user} />
           </div>
         </header>
