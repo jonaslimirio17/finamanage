@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import logo from "@/assets/finamanage-logo.svg";
+import logo from "@/assets/finamanage-logo.png";
 
 interface LogoProps {
   className?: string;
