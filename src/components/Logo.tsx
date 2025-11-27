@@ -18,11 +18,14 @@ export const Logo = ({ className = "", onClick }: LogoProps) => {
   };
 
   return (
-    <img
-      src={logo}
-      alt="FinaManage"
-      className={`h-24 cursor-pointer ${className}`}
-      onClick={handleClick}
-    />
+    <div className="h-16 overflow-hidden flex items-center">
+      <img
+        src={logo}
+        alt="FinaManage"
+        className={`h-16 cursor-pointer transition-transform hover:scale-105 ${className}`}
+        style={{ transform: 'scale(1.3)', transformOrigin: 'left center' }}
+        onClick={handleClick}
+      />
+    </div>
   );
 };
