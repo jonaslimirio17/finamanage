@@ -4,13 +4,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search } from "lucide-react";
+import { Search, Download } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { FAQSection } from "@/components/help/FAQSection";
 import { SupportTicketForm } from "@/components/help/SupportTicketForm";
 import { UserTicketsList } from "@/components/help/UserTicketsList";
 import { ArticlesList } from "@/components/help/ArticlesList";
 import { AppMenu } from "@/components/AppMenu";
+import { jsPDF } from "jspdf";
+import { useToast } from "@/hooks/use-toast";
 
 const CATEGORIES = [
   "Conta e Login",
@@ -29,6 +31,7 @@ const Help = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -53,6 +56,126 @@ const Help = () => {
       event_type: 'search_kb',
       payload: { query: searchQuery }
     });
+  };
+
+  const exportFAQToPDF = async () => {
+    try {
+      toast({
+        title: "Gerando PDF...",
+        description: "Por favor, aguarde.",
+      });
+
+      // Fetch all FAQs
+      const { data: faqs, error } = await supabase
+        .from('faqs')
+        .select('*')
+        .order('order_position', { ascending: true });
+
+      if (error) throw error;
+
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 20;
+      const maxWidth = pageWidth - 2 * margin;
+      let yPosition = 20;
+
+      // Header with logo text
+      doc.setFontSize(24);
+      doc.setFont("helvetica", "bold");
+      doc.text("FinaManage", margin, yPosition);
+      
+      yPosition += 10;
+      doc.setFontSize(18);
+      doc.text("Perguntas Frequentes (FAQ)", margin, yPosition);
+      
+      yPosition += 5;
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(100, 100, 100);
+      doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')}`, margin, yPosition);
+      
+      // Add line separator
+      yPosition += 5;
+      doc.setDrawColor(200, 200, 200);
+      doc.line(margin, yPosition, pageWidth - margin, yPosition);
+      
+      yPosition += 15;
+      doc.setTextColor(0, 0, 0);
+
+      // Add FAQs
+      faqs?.forEach((faq, index) => {
+        // Check if we need a new page
+        if (yPosition > pageHeight - 40) {
+          doc.addPage();
+          yPosition = 20;
+        }
+
+        // Question number and text
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(101, 198, 244); // Brand color
+        const questionText = `${index + 1}. ${faq.question}`;
+        const questionLines = doc.splitTextToSize(questionText, maxWidth);
+        doc.text(questionLines, margin, yPosition);
+        yPosition += questionLines.length * 7;
+
+        // Answer
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(0, 0, 0);
+        const answerLines = doc.splitTextToSize(faq.answer, maxWidth);
+        doc.text(answerLines, margin, yPosition);
+        yPosition += answerLines.length * 5 + 3;
+
+        // Tags
+        if (faq.tags && faq.tags.length > 0) {
+          doc.setFontSize(8);
+          doc.setTextColor(100, 100, 100);
+          doc.text(`Tags: ${faq.tags.join(', ')}`, margin, yPosition);
+          yPosition += 5;
+        }
+
+        yPosition += 8;
+      });
+
+      // Footer on last page
+      const totalPages = doc.internal.pages.length - 1;
+      for (let i = 1; i <= totalPages; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(150, 150, 150);
+        doc.text(
+          `Página ${i} de ${totalPages} | FinaManage © ${new Date().getFullYear()}`,
+          pageWidth / 2,
+          pageHeight - 10,
+          { align: 'center' }
+        );
+      }
+
+      // Save the PDF
+      doc.save(`FinaManage-FAQ-${new Date().toISOString().split('T')[0]}.pdf`);
+
+      toast({
+        title: "PDF gerado com sucesso!",
+        description: "O arquivo foi baixado para seu dispositivo.",
+      });
+
+      // Log export event
+      await supabase.from('events_logs').insert({
+        profile_id: user?.id || null,
+        event_type: 'export_faq_pdf',
+        payload: { faq_count: faqs?.length || 0 }
+      });
+
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast({
+        title: "Erro ao gerar PDF",
+        description: "Ocorreu um erro ao gerar o documento. Tente novamente.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -126,11 +249,20 @@ const Help = () => {
           </div>
 
           {/* FAQ Section */}
-          <FAQSection 
-            searchQuery={searchQuery} 
-            selectedCategory={selectedCategory}
-            userId={user?.id}
-          />
+          <div className="mb-8">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold">Perguntas Frequentes</h2>
+              <Button onClick={exportFAQToPDF} variant="outline" size="sm">
+                <Download className="mr-2 h-4 w-4" />
+                Exportar FAQ (PDF)
+              </Button>
+            </div>
+            <FAQSection 
+              searchQuery={searchQuery} 
+              selectedCategory={selectedCategory}
+              userId={user?.id}
+            />
+          </div>
 
           {/* Knowledge Base Articles */}
           <ArticlesList 
