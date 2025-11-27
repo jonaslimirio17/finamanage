@@ -23,7 +23,7 @@ export const Logo = ({ className = "", onClick }: LogoProps) => {
         src={logo}
         alt="FinaManage"
         className={`h-16 cursor-pointer transition-transform hover:scale-105 ${className}`}
-        style={{ transform: 'scale(1.3)', transformOrigin: 'left center' }}
+        style={{ transform: 'scale(1.5)', transformOrigin: 'left center' }}
         onClick={handleClick}
       />
     </div>
