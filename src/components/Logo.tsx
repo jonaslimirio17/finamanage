@@ -18,7 +18,7 @@ export const Logo = ({ className = "", onClick }: LogoProps) => {
   };
 
   return (
-    <div className="h-24 overflow-hidden flex items-center">
+    <div className="h-24 min-w-[280px] overflow-hidden flex items-center">
       <img
         src={logo}
         alt="FinaManage"
