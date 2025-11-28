@@ -188,22 +188,22 @@ const Index = () => {
           </p>
           <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             <div className="text-center space-y-4">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-                <span className="text-2xl font-bold text-primary">1️⃣</span>
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto transition-transform duration-200 hover:scale-110">
+                <span className="text-3xl font-bold text-primary">1</span>
               </div>
               <h3 className="text-xl font-semibold">Crie sua conta</h3>
               <p className="text-muted-foreground">Em menos de 2 minutos.</p>
             </div>
             <div className="text-center space-y-4">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-                <span className="text-2xl font-bold text-primary">2️⃣</span>
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto transition-transform duration-200 hover:scale-110">
+                <span className="text-3xl font-bold text-primary">2</span>
               </div>
               <h3 className="text-xl font-semibold">Adicione seus gastos</h3>
               <p className="text-muted-foreground">Ou conecte sua conta bancária.</p>
             </div>
             <div className="text-center space-y-4">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-                <span className="text-2xl font-bold text-primary">3️⃣</span>
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto transition-transform duration-200 hover:scale-110">
+                <span className="text-3xl font-bold text-primary">3</span>
               </div>
               <h3 className="text-xl font-semibold">Acompanhe suas metas</h3>
               <p className="text-muted-foreground">E veja seu progresso crescer.</p>
