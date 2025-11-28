@@ -139,7 +139,7 @@ const Index = () => {
             A vida financeira não precisa ser um enigma. O FinaManage mostra o caminho.
           </p>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
+            <div className="bg-card p-6 rounded-lg shadow-sm border border-border animate-fade-in" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
               <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
                 <Lightbulb className="w-6 h-6 text-primary" />
               </div>
@@ -148,7 +148,7 @@ const Index = () => {
                 Nada de planilhas complicadas.
               </p>
             </div>
-            <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
+            <div className="bg-card p-6 rounded-lg shadow-sm border border-border animate-fade-in" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
               <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
                 <Target className="w-6 h-6 text-primary" />
               </div>
@@ -157,7 +157,7 @@ const Index = () => {
                 Economize para a viagem, o curso ou o intercâmbio.
               </p>
             </div>
-            <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
+            <div className="bg-card p-6 rounded-lg shadow-sm border border-border animate-fade-in" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
               <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
                 <MessageSquare className="w-6 h-6 text-primary" />
               </div>
@@ -166,7 +166,7 @@ const Index = () => {
                 Veja onde otimizar seus gastos sem precisar pensar demais.
               </p>
             </div>
-            <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
+            <div className="bg-card p-6 rounded-lg shadow-sm border border-border animate-fade-in" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
               <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
                 <LockKeyhole className="w-6 h-6 text-primary" />
               </div>
