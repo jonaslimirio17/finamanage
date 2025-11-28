@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Link, Zap, Target, Shield, CheckCircle2, HelpCircle } from "lucide-react";
+import { Link, Zap, Target, Shield, CheckCircle2, HelpCircle, Lightbulb, MessageSquare, LockKeyhole } from "lucide-react";
 import appMockup from "@/assets/app-mockup.png";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -140,28 +140,36 @@ const Index = () => {
           </p>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
-              <div className="text-3xl mb-4">💡</div>
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                <Lightbulb className="w-6 h-6 text-primary" />
+              </div>
               <h3 className="text-xl font-semibold mb-2">Visual claro e moderno</h3>
               <p className="text-muted-foreground">
                 Nada de planilhas complicadas.
               </p>
             </div>
             <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
-              <div className="text-3xl mb-4">🧭</div>
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                <Target className="w-6 h-6 text-primary" />
+              </div>
               <h3 className="text-xl font-semibold mb-2">Metas reais</h3>
               <p className="text-muted-foreground">
                 Economize para a viagem, o curso ou o intercâmbio.
               </p>
             </div>
             <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
-              <div className="text-3xl mb-4">💬</div>
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                <MessageSquare className="w-6 h-6 text-primary" />
+              </div>
               <h3 className="text-xl font-semibold mb-2">Insights automáticos</h3>
               <p className="text-muted-foreground">
                 Veja onde otimizar seus gastos sem precisar pensar demais.
               </p>
             </div>
             <div className="bg-card p-6 rounded-lg shadow-sm border border-border">
-              <div className="text-3xl mb-4">🔒</div>
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                <LockKeyhole className="w-6 h-6 text-primary" />
+              </div>
               <h3 className="text-xl font-semibold mb-2">Segurança total</h3>
               <p className="text-muted-foreground">
                 Criptografia bancária e proteção de dados.
