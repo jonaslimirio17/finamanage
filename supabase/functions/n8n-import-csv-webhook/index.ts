@@ -11,6 +11,8 @@ interface ParseResult {
   duplicates: number;
   failed_rows: number;
   errors: string[];
+  categorized: number;
+  unclassified: number;
 }
 
 // Generate unique hash for transaction deduplication using Web Crypto API
@@ -64,6 +66,93 @@ function normalizeCurrency(currencyStr: string): string {
   
   const normalized = currencyStr.toLowerCase().trim();
   return currencyMap[normalized] || currencyStr.toUpperCase() || 'BRL';
+}
+
+// Categorize transaction based on keywords
+function categorizeTransaction(description: string, merchant: string | null, amount: number, type: string): {
+  category: string;
+  subcategory: string | null;
+} {
+  const text = (description + ' ' + (merchant || '')).toLowerCase();
+  
+  // Income categorization for credit transactions
+  if (type === 'credit' || amount > 0) {
+    if (text.match(/salario|salary|pagamento|vencimento|folha/)) {
+      return { category: 'Renda', subcategory: 'Salário' };
+    }
+    if (text.match(/freelance|autonomo|prestação de serviço|honorarios/)) {
+      return { category: 'Renda', subcategory: 'Freelance' };
+    }
+    if (text.match(/investimento|dividendo|rendimento|juros|aplicação/)) {
+      return { category: 'Renda', subcategory: 'Investimentos' };
+    }
+    if (text.match(/transferencia recebida|pix recebido|ted recebido|doc recebido/)) {
+      return { category: 'Renda', subcategory: 'Transferências' };
+    }
+    return { category: 'Renda', subcategory: 'Outras' };
+  }
+  
+  // Expense categorization for debit transactions
+  // Subscriptions (streaming, software, etc.)
+  if (text.match(/netflix|spotify|amazon prime|disney|hbo|youtube premium|apple music|deezer/)) {
+    return { category: 'Assinaturas', subcategory: 'Streaming' };
+  }
+  if (text.match(/adobe|microsoft|google workspace|dropbox|notion|canva/)) {
+    return { category: 'Assinaturas', subcategory: 'Software' };
+  }
+  
+  // Food & Dining
+  if (text.match(/restaurante|lanche|padaria|cafe|pizzaria|ifood|rappi|uber eats|food|bar/)) {
+    return { category: 'Alimentação', subcategory: 'Restaurantes' };
+  }
+  if (text.match(/supermercado|mercado|hortifruti|açougue|grocery|extra|carrefour|pão de açúcar/i)) {
+    return { category: 'Alimentação', subcategory: 'Supermercado' };
+  }
+  
+  // Transportation
+  if (text.match(/uber|99|taxi|combustivel|gasolina|posto|shell|ipiranga/)) {
+    return { category: 'Transporte', subcategory: 'Combustível e Transportes' };
+  }
+  if (text.match(/estacionamento|parking|zona azul/)) {
+    return { category: 'Transporte', subcategory: 'Estacionamento' };
+  }
+  
+  // Bills & Utilities
+  if (text.match(/luz|energia|eletric|cemig|cpfl|enel/)) {
+    return { category: 'Contas', subcategory: 'Energia' };
+  }
+  if (text.match(/agua|saneamento|sabesp|cedae/)) {
+    return { category: 'Contas', subcategory: 'Água' };
+  }
+  if (text.match(/internet|telefone|celular|tim|claro|vivo|oi|net|sky/)) {
+    return { category: 'Contas', subcategory: 'Telecomunicações' };
+  }
+  if (text.match(/aluguel|condominio|rent|condomínio/)) {
+    return { category: 'Contas', subcategory: 'Moradia' };
+  }
+  
+  // Entertainment
+  if (text.match(/cinema|teatro|show|entretenimento|ingresso|ticket/)) {
+    return { category: 'Entretenimento', subcategory: 'Lazer' };
+  }
+  
+  // Shopping
+  if (text.match(/magazine|loja|shop|mercado livre|shopee|amazon|americanas|casas bahia/)) {
+    return { category: 'Compras', subcategory: 'Varejo' };
+  }
+  
+  // Health
+  if (text.match(/farmacia|drogaria|hospital|clinica|medico|saude|plano de saude|unimed|amil|sulamerica/)) {
+    return { category: 'Saúde', subcategory: 'Medicamentos e Consultas' };
+  }
+  
+  // Education
+  if (text.match(/escola|universidade|curso|faculdade|livro|education|livraria/)) {
+    return { category: 'Educação', subcategory: null };
+  }
+  
+  // Unclassified - will be marked for review
+  return { category: 'Sem categoria', subcategory: null };
 }
 
 // Parse OFX file
@@ -213,7 +302,9 @@ serve(async (req) => {
       inserted: 0,
       duplicates: 0,
       failed_rows: 0,
-      errors: []
+      errors: [],
+      categorized: 0,
+      unclassified: 0
     };
     
     // Detect file type and parse accordingly
@@ -310,11 +401,27 @@ serve(async (req) => {
         const normalizedDate = normalizeDate(txn.date);
         const normalizedAmount = normalizeAmount(String(txn.amount));
         const normalizedCurrency = normalizeCurrency(txn.currency || 'BRL');
+        const transactionType = txn.type?.toLowerCase() === 'credit' ? 'credit' : 'debit';
         
         if (!normalizedDate || normalizedAmount === null) {
           result.failed_rows++;
           result.errors.push(`Invalid data in row: date=${txn.date}, amount=${txn.amount}`);
           continue;
+        }
+        
+        // Apply categorization
+        const { category, subcategory } = categorizeTransaction(
+          txn.description || txn.raw || '',
+          txn.merchant || null,
+          normalizedAmount,
+          transactionType
+        );
+        
+        // Track categorization stats
+        if (category === 'Sem categoria') {
+          result.unclassified++;
+        } else {
+          result.categorized++;
         }
         
         // Generate deduplication hash
@@ -337,7 +444,8 @@ serve(async (req) => {
           continue;
         }
         
-        // Insert transaction
+        // Insert transaction with categorization
+        const tags = category === 'Sem categoria' ? ['needs_review'] : [];
         const { error: insertError } = await supabaseClient
           .from('transactions')
           .insert({
@@ -349,8 +457,10 @@ serve(async (req) => {
             currency: normalizedCurrency,
             merchant: txn.merchant || 'Unknown',
             raw_description: txn.raw || txn.description || '',
-            category: txn.category || null,
-            type: txn.type?.toLowerCase() === 'credit' ? 'credit' : 'debit',
+            category: category,
+            subcategory: subcategory,
+            tags: tags,
+            type: transactionType,
             imported_from: `n8n:${file_name}`
           });
         
@@ -381,6 +491,8 @@ serve(async (req) => {
         inserted: result.inserted,
         duplicates: result.duplicates,
         failed_rows: result.failed_rows,
+        categorized: result.categorized,
+        unclassified: result.unclassified,
         errors: result.errors.slice(0, 10) // Limit errors logged
       }
     });
@@ -393,9 +505,11 @@ serve(async (req) => {
           inserted: result.inserted,
           duplicates: result.duplicates,
           failed_rows: result.failed_rows,
+          categorized: result.categorized,
+          unclassified: result.unclassified,
           errors: result.errors
         },
-        message: `Successfully processed ${parsedTransactions.length} transactions: ${result.inserted} inserted, ${result.duplicates} duplicates, ${result.failed_rows} failed`
+        message: `✅ ${result.inserted} transações importadas\n📊 ${result.categorized} categorizadas, ${result.unclassified} para revisar\n🔄 ${result.duplicates} duplicadas, ${result.failed_rows} com erro`
       }),
       { 
         status: 200, 
