@@ -461,7 +461,7 @@ serve(async (req) => {
             subcategory: subcategory,
             tags: tags,
             type: transactionType,
-            imported_from: `n8n:${file_name}`
+            imported_from: `csv:${file_name}`
           });
         
         if (insertError) {
@@ -484,9 +484,10 @@ serve(async (req) => {
     // Log the import event with detailed summary
     await supabaseClient.from('events_logs').insert({
       profile_id: profile_id,
-      event_type: 'n8n_csv_import_completed',
+      event_type: 'csv_import_completed',
       payload: {
         filename: file_name,
+        source: 'whatsapp',
         total_rows: parsedTransactions.length,
         inserted: result.inserted,
         duplicates: result.duplicates,
