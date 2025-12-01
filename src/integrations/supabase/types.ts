@@ -712,6 +712,48 @@ export type Database = {
           },
         ]
       }
+      transaction_rules: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          is_active: boolean
+          keywords: string[]
+          priority: number
+          profile_id: string
+          subcategory: string | null
+          tags: string[] | null
+          transaction_type: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          keywords?: string[]
+          priority?: number
+          profile_id: string
+          subcategory?: string | null
+          tags?: string[] | null
+          transaction_type: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          keywords?: string[]
+          priority?: number
+          profile_id?: string
+          subcategory?: string | null
+          tags?: string[] | null
+          transaction_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           account_id: string
