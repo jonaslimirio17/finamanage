@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.n8n-transactions-webhook]
 verify_jwt = false
+
+[functions.extract-receipt-data]
+verify_jwt = false
