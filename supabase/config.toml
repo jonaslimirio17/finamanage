@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.whatsapp-commands]
 verify_jwt = false
+
+[functions.n8n-transactions-webhook]
+verify_jwt = false
