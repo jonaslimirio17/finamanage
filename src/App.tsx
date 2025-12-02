@@ -15,6 +15,7 @@ import Article from "./pages/Article";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Features from "./pages/Features";
 import Plans from "./pages/Plans";
+import Subscription from "./pages/Subscription";
 import About from "./pages/About";
 import Blog from "./pages/Blog";
 import Education from "./pages/Education";
@@ -44,6 +45,7 @@ const App = () => (
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/features" element={<Features />} />
           <Route path="/plans" element={<Plans />} />
+          <Route path="/subscription" element={<Subscription />} />
           <Route path="/about" element={<About />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/education" element={<Education />} />

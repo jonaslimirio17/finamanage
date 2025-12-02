@@ -85,6 +85,119 @@ export type Database = {
           },
         ]
       }
+      asaas_payments: {
+        Row: {
+          asaas_payment_id: string
+          bank_slip_url: string | null
+          created_at: string | null
+          due_date: string
+          id: string
+          invoice_url: string | null
+          payment_date: string | null
+          payment_method: string
+          pix_copy_paste: string | null
+          pix_qrcode: string | null
+          profile_id: string
+          status: string
+          subscription_id: string | null
+          value: number
+        }
+        Insert: {
+          asaas_payment_id: string
+          bank_slip_url?: string | null
+          created_at?: string | null
+          due_date: string
+          id?: string
+          invoice_url?: string | null
+          payment_date?: string | null
+          payment_method: string
+          pix_copy_paste?: string | null
+          pix_qrcode?: string | null
+          profile_id: string
+          status: string
+          subscription_id?: string | null
+          value: number
+        }
+        Update: {
+          asaas_payment_id?: string
+          bank_slip_url?: string | null
+          created_at?: string | null
+          due_date?: string
+          id?: string
+          invoice_url?: string | null
+          payment_date?: string | null
+          payment_method?: string
+          pix_copy_paste?: string | null
+          pix_qrcode?: string | null
+          profile_id?: string
+          status?: string
+          subscription_id?: string | null
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asaas_payments_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "asaas_payments_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "asaas_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      asaas_subscriptions: {
+        Row: {
+          asaas_customer_id: string
+          asaas_subscription_id: string
+          created_at: string | null
+          id: string
+          next_due_date: string | null
+          payment_method: string
+          profile_id: string
+          status: string
+          updated_at: string | null
+          value: number
+        }
+        Insert: {
+          asaas_customer_id: string
+          asaas_subscription_id: string
+          created_at?: string | null
+          id?: string
+          next_due_date?: string | null
+          payment_method: string
+          profile_id: string
+          status: string
+          updated_at?: string | null
+          value?: number
+        }
+        Update: {
+          asaas_customer_id?: string
+          asaas_subscription_id?: string
+          created_at?: string | null
+          id?: string
+          next_due_date?: string | null
+          payment_method?: string
+          profile_id?: string
+          status?: string
+          updated_at?: string | null
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asaas_subscriptions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       consents: {
         Row: {
           consent_type: string
