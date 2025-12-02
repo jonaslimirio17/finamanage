@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
 import { CheckoutModal } from "@/components/subscription/CheckoutModal";
 
-export type PlanType = 'monthly' | 'semiannual' | 'annual';
+export type PlanType = 'monthly' | 'quarterly' | 'semiannual' | 'annual';
 
 const Plans = () => {
   const navigate = useNavigate();
@@ -59,7 +59,7 @@ const Plans = () => {
           </h1>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto mb-12">
+        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6 max-w-7xl mx-auto mb-12">
           {/* Free Plan */}
           <div className="bg-card p-6 rounded-lg border-2 border-border hover:border-primary/50 transition-colors">
             <div className="mb-4">
@@ -90,7 +90,7 @@ const Plans = () => {
             <div className="mb-4">
               <h2 className="text-xl font-bold mb-2">🚀 Mensal</h2>
               <div className="flex items-baseline gap-2">
-                <p className="text-2xl font-bold text-primary">R$ 14,90</p>
+                <p className="text-2xl font-bold text-primary">R$ 19,90</p>
                 <span className="text-muted-foreground text-sm">/mês</span>
               </div>
             </div>
@@ -119,23 +119,63 @@ const Plans = () => {
             </Button>
           </div>
 
-          {/* Semiannual Plan */}
-          <div className="bg-card p-6 rounded-lg border-2 border-primary hover:border-primary/80 transition-colors relative">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-semibold">
-              Popular
-            </div>
-            
+          {/* Quarterly Plan */}
+          <div className="bg-card p-6 rounded-lg border-2 border-border hover:border-primary/50 transition-colors">
             <div className="mb-4">
-              <h2 className="text-xl font-bold mb-2">⚡ Semestral</h2>
+              <h2 className="text-xl font-bold mb-2">⚡ Trimestral</h2>
               <div className="flex items-baseline gap-2">
-                <p className="text-2xl font-bold text-primary">R$ 12,90</p>
+                <p className="text-2xl font-bold text-primary">R$ 16,63</p>
                 <span className="text-muted-foreground text-sm">/mês</span>
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                R$ 77,40 a cada 6 meses
+                R$ 49,90 a cada 3 meses
               </p>
               <p className="text-xs font-semibold text-green-600 dark:text-green-400 mt-1">
-                Economize 13%
+                Economize 16%
+              </p>
+            </div>
+            
+            <ul className="space-y-3 mb-6 min-h-[200px]">
+              {premiumPlan.map((feature, index) => (
+                <li key={index} className="flex items-start gap-2 text-sm">
+                  <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+
+            <Button 
+              className="w-full"
+              onClick={() => {
+                if (user) {
+                  setSelectedPlan('quarterly');
+                  setCheckoutOpen(true);
+                } else {
+                  navigate("/auth");
+                }
+              }}
+            >
+              Assinar
+            </Button>
+          </div>
+
+          {/* Semiannual Plan - Popular */}
+          <div className="bg-card p-6 rounded-lg border-2 border-primary hover:border-primary/80 transition-colors relative">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-semibold">
+              ⭐ Mais Popular
+            </div>
+            
+            <div className="mb-4">
+              <h2 className="text-xl font-bold mb-2">💎 Semestral</h2>
+              <div className="flex items-baseline gap-2">
+                <p className="text-2xl font-bold text-primary">R$ 14,98</p>
+                <span className="text-muted-foreground text-sm">/mês</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                R$ 89,90 a cada 6 meses
+              </p>
+              <p className="text-xs font-semibold text-green-600 dark:text-green-400 mt-1">
+                Economize 25%
               </p>
             </div>
             
@@ -163,7 +203,7 @@ const Plans = () => {
             </Button>
           </div>
 
-          {/* Annual Plan */}
+          {/* Annual Plan - Best Value */}
           <div className="bg-card p-6 rounded-lg border-2 border-border hover:border-primary/50 transition-colors relative">
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-600 text-white px-3 py-1 rounded-full text-xs font-semibold">
               Melhor valor
@@ -172,14 +212,14 @@ const Plans = () => {
             <div className="mb-4">
               <h2 className="text-xl font-bold mb-2">🏆 Anual</h2>
               <div className="flex items-baseline gap-2">
-                <p className="text-2xl font-bold text-primary">R$ 10,90</p>
+                <p className="text-2xl font-bold text-primary">R$ 12,49</p>
                 <span className="text-muted-foreground text-sm">/mês</span>
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                R$ 130,80 por ano
+                R$ 149,90 por ano
               </p>
               <p className="text-xs font-semibold text-green-600 dark:text-green-400 mt-1">
-                Economize 27%
+                Economize 37%
               </p>
             </div>
             
