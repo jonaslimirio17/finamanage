@@ -13,7 +13,6 @@ interface CheckoutModalProps {
 
 const planDetails = {
   monthly: { value: 19.90, label: 'R$ 19,90/mês', cycle: 'MONTHLY' },
-  quarterly: { value: 49.90, label: 'R$ 49,90 a cada 3 meses (R$ 16,63/mês)', cycle: 'QUARTERLY' },
   semiannual: { value: 89.90, label: 'R$ 89,90 a cada 6 meses (R$ 14,98/mês)', cycle: 'SEMIANNUAL' },
   annual: { value: 149.90, label: 'R$ 149,90 por ano (R$ 12,49/mês)', cycle: 'YEARLY' },
 };

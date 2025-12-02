@@ -21,12 +21,11 @@ type FormData = z.infer<typeof formSchema>;
 
 interface PixPaymentProps {
   onSuccess: () => void;
-  planType: 'monthly' | 'quarterly' | 'semiannual' | 'annual';
+  planType: 'monthly' | 'semiannual' | 'annual';
 }
 
 const planDetails = {
   monthly: { value: 19.90, label: 'R$ 19,90/mês', cycle: 'MONTHLY' },
-  quarterly: { value: 49.90, label: 'R$ 49,90/trimestre', cycle: 'QUARTERLY' },
   semiannual: { value: 89.90, label: 'R$ 89,90/semestre', cycle: 'SEMIANNUAL' },
   annual: { value: 149.90, label: 'R$ 149,90/ano', cycle: 'YEARLY' },
 };

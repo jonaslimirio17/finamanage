@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
 import { CheckoutModal } from "@/components/subscription/CheckoutModal";
 
-export type PlanType = 'monthly' | 'quarterly' | 'semiannual' | 'annual';
+export type PlanType = 'monthly' | 'semiannual' | 'annual';
 
 const Plans = () => {
   const navigate = useNavigate();
@@ -59,7 +59,7 @@ const Plans = () => {
           </h1>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6 max-w-7xl mx-auto mb-12">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto mb-12">
           {/* Free Plan */}
           <div className="bg-card p-6 rounded-lg border-2 border-border hover:border-primary/50 transition-colors">
             <div className="mb-4">
@@ -119,20 +119,26 @@ const Plans = () => {
             </Button>
           </div>
 
-          {/* Quarterly Plan */}
-          <div className="bg-card p-6 rounded-lg border-2 border-border hover:border-primary/50 transition-colors">
+          {/* Annual Plan - RECOMMENDED (HIGHLIGHTED) */}
+          <div className="bg-card p-6 rounded-lg border-2 border-primary hover:border-primary/80 transition-all scale-105 shadow-xl z-10 relative">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-xs font-bold shadow-lg">
+              🏆 Recomendado
+            </div>
+            
             <div className="mb-4">
-              <h2 className="text-xl font-bold mb-2">⚡ Trimestral</h2>
-              <div className="flex items-baseline gap-2">
-                <p className="text-2xl font-bold text-primary">R$ 16,63</p>
-                <span className="text-muted-foreground text-sm">/mês</span>
+              <h2 className="text-xl font-bold mb-2">💎 Anual</h2>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground line-through">
+                  R$ 238,80 se pago mensalmente
+                </p>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-3xl font-bold text-primary">R$ 149,90</p>
+                  <span className="text-muted-foreground text-sm">/ano</span>
+                </div>
+                <p className="text-sm font-bold text-green-600 dark:text-green-400">
+                  💰 Economize R$ 88,90 por ano
+                </p>
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                R$ 49,90 a cada 3 meses
-              </p>
-              <p className="text-xs font-semibold text-green-600 dark:text-green-400 mt-1">
-                Economize 16%
-              </p>
             </div>
             
             <ul className="space-y-3 mb-6 min-h-[200px]">
@@ -145,28 +151,24 @@ const Plans = () => {
             </ul>
 
             <Button 
-              className="w-full"
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
               onClick={() => {
                 if (user) {
-                  setSelectedPlan('quarterly');
+                  setSelectedPlan('annual');
                   setCheckoutOpen(true);
                 } else {
                   navigate("/auth");
                 }
               }}
             >
-              Assinar
+              Economizar 37% agora
             </Button>
           </div>
 
-          {/* Semiannual Plan - Popular */}
-          <div className="bg-card p-6 rounded-lg border-2 border-primary hover:border-primary/80 transition-colors relative">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-semibold">
-              ⭐ Mais Popular
-            </div>
-            
+          {/* Semiannual Plan */}
+          <div className="bg-card p-6 rounded-lg border-2 border-border hover:border-primary/50 transition-colors">
             <div className="mb-4">
-              <h2 className="text-xl font-bold mb-2">💎 Semestral</h2>
+              <h2 className="text-xl font-bold mb-2">⚡ Semestral</h2>
               <div className="flex items-baseline gap-2">
                 <p className="text-2xl font-bold text-primary">R$ 14,98</p>
                 <span className="text-muted-foreground text-sm">/mês</span>
@@ -202,53 +204,25 @@ const Plans = () => {
               Assinar
             </Button>
           </div>
-
-          {/* Annual Plan - Best Value */}
-          <div className="bg-card p-6 rounded-lg border-2 border-border hover:border-primary/50 transition-colors relative">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-600 text-white px-3 py-1 rounded-full text-xs font-semibold">
-              Melhor valor
-            </div>
-            
-            <div className="mb-4">
-              <h2 className="text-xl font-bold mb-2">🏆 Anual</h2>
-              <div className="flex items-baseline gap-2">
-                <p className="text-2xl font-bold text-primary">R$ 12,49</p>
-                <span className="text-muted-foreground text-sm">/mês</span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                R$ 149,90 por ano
-              </p>
-              <p className="text-xs font-semibold text-green-600 dark:text-green-400 mt-1">
-                Economize 37%
-              </p>
-            </div>
-            
-            <ul className="space-y-3 mb-6 min-h-[200px]">
-              {premiumPlan.map((feature, index) => (
-                <li key={index} className="flex items-start gap-2 text-sm">
-                  <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
-
-            <Button 
-              className="w-full"
-              onClick={() => {
-                if (user) {
-                  setSelectedPlan('annual');
-                  setCheckoutOpen(true);
-                } else {
-                  navigate("/auth");
-                }
-              }}
-            >
-              Assinar
-            </Button>
-          </div>
         </div>
 
-        <div className="text-center">
+        {/* Trust Elements */}
+        <div className="text-center space-y-4">
+          <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
+              <span>✅ Garantia de 7 dias</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
+              <span>🔒 Pagamento 100% seguro</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
+              <span>⚡ Acesso imediato</span>
+            </div>
+          </div>
+          
           <p className="text-muted-foreground">
             Todos os planos são sem fidelidade.
             <br />
