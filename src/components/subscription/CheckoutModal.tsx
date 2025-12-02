@@ -3,14 +3,23 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CreditCardForm } from "./CreditCardForm";
 import { PixPayment } from "./PixPayment";
+import type { PlanType } from "@/pages/Plans";
 
 interface CheckoutModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  planType: PlanType;
 }
 
-export const CheckoutModal = ({ open, onOpenChange }: CheckoutModalProps) => {
+const planDetails = {
+  monthly: { value: 14.90, label: 'R$ 14,90/mês', cycle: 'MONTHLY' },
+  semiannual: { value: 77.40, label: 'R$ 77,40 a cada 6 meses (R$ 12,90/mês)', cycle: 'SEMIANNUAL' },
+  annual: { value: 130.80, label: 'R$ 130,80 por ano (R$ 10,90/mês)', cycle: 'YEARLY' },
+};
+
+export const CheckoutModal = ({ open, onOpenChange, planType }: CheckoutModalProps) => {
   const [activeTab, setActiveTab] = useState<string>("credit_card");
+  const plan = planDetails[planType];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -21,7 +30,7 @@ export const CheckoutModal = ({ open, onOpenChange }: CheckoutModalProps) => {
 
         <div className="mb-4">
           <p className="text-muted-foreground">
-            Escolha a forma de pagamento para sua assinatura mensal de <strong>R$ 14,90</strong>
+            Escolha a forma de pagamento para sua assinatura: <strong>{plan.label}</strong>
           </p>
         </div>
 
@@ -32,11 +41,17 @@ export const CheckoutModal = ({ open, onOpenChange }: CheckoutModalProps) => {
           </TabsList>
 
           <TabsContent value="credit_card" className="mt-6">
-            <CreditCardForm onSuccess={() => onOpenChange(false)} />
+            <CreditCardForm 
+              onSuccess={() => onOpenChange(false)}
+              planType={planType}
+            />
           </TabsContent>
 
           <TabsContent value="pix" className="mt-6">
-            <PixPayment onSuccess={() => onOpenChange(false)} />
+            <PixPayment 
+              onSuccess={() => onOpenChange(false)}
+              planType={planType}
+            />
           </TabsContent>
         </Tabs>
       </DialogContent>
