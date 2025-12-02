@@ -26,9 +26,17 @@ type FormData = z.infer<typeof formSchema>;
 
 interface CreditCardFormProps {
   onSuccess: () => void;
+  planType: 'monthly' | 'semiannual' | 'annual';
 }
 
-export const CreditCardForm = ({ onSuccess }: CreditCardFormProps) => {
+const planDetails = {
+  monthly: { value: 14.90, label: 'R$ 14,90/mês', cycle: 'MONTHLY' },
+  semiannual: { value: 77.40, label: 'R$ 77,40/semestre', cycle: 'SEMIANNUAL' },
+  annual: { value: 130.80, label: 'R$ 130,80/ano', cycle: 'YEARLY' },
+};
+
+export const CreditCardForm = ({ onSuccess, planType }: CreditCardFormProps) => {
+  const plan = planDetails[planType];
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -77,6 +85,8 @@ export const CreditCardForm = ({ onSuccess }: CreditCardFormProps) => {
       const { data: result, error } = await supabase.functions.invoke('asaas-create-subscription', {
         body: {
           payment_method: 'CREDIT_CARD',
+          cycle: plan.cycle,
+          value: plan.value,
           name: data.name,
           cpf: data.cpf,
           email: data.email,
@@ -270,7 +280,7 @@ export const CreditCardForm = ({ onSuccess }: CreditCardFormProps) => {
 
         <Button type="submit" className="w-full" disabled={loading}>
           {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Assinar R$ 14,90/mês
+          Assinar {plan.label}
         </Button>
       </form>
     </Form>

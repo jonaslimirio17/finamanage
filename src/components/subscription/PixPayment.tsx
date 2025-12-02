@@ -21,9 +21,17 @@ type FormData = z.infer<typeof formSchema>;
 
 interface PixPaymentProps {
   onSuccess: () => void;
+  planType: 'monthly' | 'semiannual' | 'annual';
 }
 
-export const PixPayment = ({ onSuccess }: PixPaymentProps) => {
+const planDetails = {
+  monthly: { value: 14.90, label: 'R$ 14,90/mês', cycle: 'MONTHLY' },
+  semiannual: { value: 77.40, label: 'R$ 77,40/semestre', cycle: 'SEMIANNUAL' },
+  annual: { value: 130.80, label: 'R$ 130,80/ano', cycle: 'YEARLY' },
+};
+
+export const PixPayment = ({ onSuccess, planType }: PixPaymentProps) => {
+  const plan = planDetails[planType];
   const [loading, setLoading] = useState(false);
   const [pixData, setPixData] = useState<any>(null);
   const [copied, setCopied] = useState(false);
@@ -63,6 +71,8 @@ export const PixPayment = ({ onSuccess }: PixPaymentProps) => {
       const { data: result, error } = await supabase.functions.invoke('asaas-create-subscription', {
         body: {
           payment_method: 'PIX',
+          cycle: plan.cycle,
+          value: plan.value,
           name: data.name,
           cpf: data.cpf,
           email: data.email,
@@ -262,7 +272,7 @@ export const PixPayment = ({ onSuccess }: PixPaymentProps) => {
 
         <Button type="submit" className="w-full" disabled={loading}>
           {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Gerar PIX R$ 14,90
+          Gerar PIX {plan.label}
         </Button>
       </form>
     </Form>

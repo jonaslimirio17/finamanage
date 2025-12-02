@@ -7,6 +7,8 @@ const corsHeaders = {
 
 interface CreateSubscriptionRequest {
   payment_method: 'CREDIT_CARD' | 'PIX';
+  cycle: 'MONTHLY' | 'SEMIANNUAL' | 'YEARLY';
+  value: number;
   name: string;
   cpf: string;
   email: string;
@@ -48,7 +50,7 @@ Deno.serve(async (req) => {
     }
 
     const body: CreateSubscriptionRequest = await req.json();
-    const { payment_method, name, cpf, email, phone, creditCard } = body;
+    const { payment_method, cycle, value, name, cpf, email, phone, creditCard } = body;
 
     // Validar CPF
     const cleanCpf = cpf.replace(/\D/g, '');
@@ -98,15 +100,23 @@ Deno.serve(async (req) => {
 
     // 2. Criar assinatura
     const nextDueDate = new Date();
-    nextDueDate.setMonth(nextDueDate.getMonth() + 1);
+    
+    // Calcular próxima data de vencimento baseada no ciclo
+    if (cycle === 'MONTHLY') {
+      nextDueDate.setMonth(nextDueDate.getMonth() + 1);
+    } else if (cycle === 'SEMIANNUAL') {
+      nextDueDate.setMonth(nextDueDate.getMonth() + 6);
+    } else if (cycle === 'YEARLY') {
+      nextDueDate.setFullYear(nextDueDate.getFullYear() + 1);
+    }
 
     const subscriptionPayload: any = {
       customer: customerId,
       billingType: payment_method,
-      value: 14.90,
-      cycle: 'MONTHLY',
+      value: value,
+      cycle: cycle,
       nextDueDate: nextDueDate.toISOString().split('T')[0],
-      description: 'Assinatura Premium FinaManage',
+      description: `Assinatura Premium FinaManage - ${cycle === 'MONTHLY' ? 'Mensal' : cycle === 'SEMIANNUAL' ? 'Semestral' : 'Anual'}`,
     };
 
     // Se for cartão, adicionar dados do cartão
@@ -151,7 +161,7 @@ Deno.serve(async (req) => {
         asaas_customer_id: customerId,
         status: subscriptionData.status,
         payment_method,
-        value: 14.90,
+        value: value,
         next_due_date: subscriptionData.nextDueDate,
       });
 

@@ -7,10 +7,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
 import { CheckoutModal } from "@/components/subscription/CheckoutModal";
 
+export type PlanType = 'monthly' | 'semiannual' | 'annual';
+
 const Plans = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<PlanType>('monthly');
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -56,18 +59,18 @@ const Plans = () => {
           </h1>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-12">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto mb-12">
           {/* Free Plan */}
-          <div className="bg-card p-8 rounded-lg border-2 border-border hover:border-primary/50 transition-colors">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold mb-2">💸 Gratuito para começar</h2>
-              <p className="text-3xl font-bold text-primary">R$ 0</p>
+          <div className="bg-card p-6 rounded-lg border-2 border-border hover:border-primary/50 transition-colors">
+            <div className="mb-4">
+              <h2 className="text-xl font-bold mb-2">💸 Gratuito</h2>
+              <p className="text-2xl font-bold text-primary">R$ 0</p>
             </div>
             
-            <ul className="space-y-4 mb-8">
+            <ul className="space-y-3 mb-6 min-h-[200px]">
               {freePlan.map((feature, index) => (
-                <li key={index} className="flex items-start gap-3">
-                  <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                <li key={index} className="flex items-start gap-2 text-sm">
+                  <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                   <span>{feature}</span>
                 </li>
               ))}
@@ -82,27 +85,20 @@ const Plans = () => {
             </Button>
           </div>
 
-          {/* Premium Plan */}
-          <div className="bg-card p-8 rounded-lg border-2 border-primary hover:border-primary/80 transition-colors relative">
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">
-              Popular
-            </div>
-            
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold mb-2">🚀 Premium</h2>
+          {/* Monthly Plan */}
+          <div className="bg-card p-6 rounded-lg border-2 border-border hover:border-primary/50 transition-colors">
+            <div className="mb-4">
+              <h2 className="text-xl font-bold mb-2">🚀 Mensal</h2>
               <div className="flex items-baseline gap-2">
-                <p className="text-3xl font-bold text-primary">R$ 14,90</p>
-                <span className="text-muted-foreground">/mês</span>
+                <p className="text-2xl font-bold text-primary">R$ 14,90</p>
+                <span className="text-muted-foreground text-sm">/mês</span>
               </div>
-              <p className="text-sm text-muted-foreground mt-1">
-                Menos que um café por semana!
-              </p>
             </div>
             
-            <ul className="space-y-4 mb-8">
+            <ul className="space-y-3 mb-6 min-h-[200px]">
               {premiumPlan.map((feature, index) => (
-                <li key={index} className="flex items-start gap-3">
-                  <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                <li key={index} className="flex items-start gap-2 text-sm">
+                  <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                   <span>{feature}</span>
                 </li>
               ))}
@@ -112,13 +108,102 @@ const Plans = () => {
               className="w-full"
               onClick={() => {
                 if (user) {
+                  setSelectedPlan('monthly');
                   setCheckoutOpen(true);
                 } else {
                   navigate("/auth");
                 }
               }}
             >
-              Quero o Premium
+              Assinar
+            </Button>
+          </div>
+
+          {/* Semiannual Plan */}
+          <div className="bg-card p-6 rounded-lg border-2 border-primary hover:border-primary/80 transition-colors relative">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-semibold">
+              Popular
+            </div>
+            
+            <div className="mb-4">
+              <h2 className="text-xl font-bold mb-2">⚡ Semestral</h2>
+              <div className="flex items-baseline gap-2">
+                <p className="text-2xl font-bold text-primary">R$ 12,90</p>
+                <span className="text-muted-foreground text-sm">/mês</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                R$ 77,40 a cada 6 meses
+              </p>
+              <p className="text-xs font-semibold text-green-600 dark:text-green-400 mt-1">
+                Economize 13%
+              </p>
+            </div>
+            
+            <ul className="space-y-3 mb-6 min-h-[200px]">
+              {premiumPlan.map((feature, index) => (
+                <li key={index} className="flex items-start gap-2 text-sm">
+                  <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+
+            <Button 
+              className="w-full"
+              onClick={() => {
+                if (user) {
+                  setSelectedPlan('semiannual');
+                  setCheckoutOpen(true);
+                } else {
+                  navigate("/auth");
+                }
+              }}
+            >
+              Assinar
+            </Button>
+          </div>
+
+          {/* Annual Plan */}
+          <div className="bg-card p-6 rounded-lg border-2 border-border hover:border-primary/50 transition-colors relative">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-600 text-white px-3 py-1 rounded-full text-xs font-semibold">
+              Melhor valor
+            </div>
+            
+            <div className="mb-4">
+              <h2 className="text-xl font-bold mb-2">🏆 Anual</h2>
+              <div className="flex items-baseline gap-2">
+                <p className="text-2xl font-bold text-primary">R$ 10,90</p>
+                <span className="text-muted-foreground text-sm">/mês</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                R$ 130,80 por ano
+              </p>
+              <p className="text-xs font-semibold text-green-600 dark:text-green-400 mt-1">
+                Economize 27%
+              </p>
+            </div>
+            
+            <ul className="space-y-3 mb-6 min-h-[200px]">
+              {premiumPlan.map((feature, index) => (
+                <li key={index} className="flex items-start gap-2 text-sm">
+                  <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+
+            <Button 
+              className="w-full"
+              onClick={() => {
+                if (user) {
+                  setSelectedPlan('annual');
+                  setCheckoutOpen(true);
+                } else {
+                  navigate("/auth");
+                }
+              }}
+            >
+              Assinar
             </Button>
           </div>
         </div>
@@ -132,7 +217,11 @@ const Plans = () => {
         </div>
       </main>
 
-      <CheckoutModal open={checkoutOpen} onOpenChange={setCheckoutOpen} />
+      <CheckoutModal 
+        open={checkoutOpen} 
+        onOpenChange={setCheckoutOpen}
+        planType={selectedPlan}
+      />
 
       <footer className="border-t border-border py-6 mt-12">
         <div className="container mx-auto px-4 text-center">
