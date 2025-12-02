@@ -7,7 +7,7 @@ const corsHeaders = {
 
 interface CreateSubscriptionRequest {
   payment_method: 'CREDIT_CARD' | 'PIX';
-  cycle: 'MONTHLY' | 'QUARTERLY' | 'SEMIANNUAL' | 'YEARLY';
+  cycle: 'MONTHLY' | 'SEMIANNUAL' | 'YEARLY';
   value: number;
   name: string;
   cpf: string;
@@ -104,8 +104,6 @@ Deno.serve(async (req) => {
     // Calcular próxima data de vencimento baseada no ciclo
     if (cycle === 'MONTHLY') {
       nextDueDate.setMonth(nextDueDate.getMonth() + 1);
-    } else if (cycle === 'QUARTERLY') {
-      nextDueDate.setMonth(nextDueDate.getMonth() + 3);
     } else if (cycle === 'SEMIANNUAL') {
       nextDueDate.setMonth(nextDueDate.getMonth() + 6);
     } else if (cycle === 'YEARLY') {
@@ -118,7 +116,7 @@ Deno.serve(async (req) => {
       value: value,
       cycle: cycle,
       nextDueDate: nextDueDate.toISOString().split('T')[0],
-      description: `Assinatura Premium FinaManage - ${cycle === 'MONTHLY' ? 'Mensal' : cycle === 'QUARTERLY' ? 'Trimestral' : cycle === 'SEMIANNUAL' ? 'Semestral' : 'Anual'}`,
+      description: `Assinatura Premium FinaManage - ${cycle === 'MONTHLY' ? 'Mensal' : cycle === 'SEMIANNUAL' ? 'Semestral' : 'Anual'}`,
     };
 
     // Se for cartão, adicionar dados do cartão
