@@ -4,12 +4,13 @@ import { Check } from "lucide-react";
 import { AppMenu } from "@/components/AppMenu";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-
 import { Logo } from "@/components/Logo";
+import { CheckoutModal } from "@/components/subscription/CheckoutModal";
 
 const Plans = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -109,7 +110,13 @@ const Plans = () => {
 
             <Button 
               className="w-full"
-              onClick={() => navigate("/auth")}
+              onClick={() => {
+                if (user) {
+                  setCheckoutOpen(true);
+                } else {
+                  navigate("/auth");
+                }
+              }}
             >
               Quero o Premium
             </Button>
@@ -124,6 +131,8 @@ const Plans = () => {
           </p>
         </div>
       </main>
+
+      <CheckoutModal open={checkoutOpen} onOpenChange={setCheckoutOpen} />
 
       <footer className="border-t border-border py-6 mt-12">
         <div className="container mx-auto px-4 text-center">

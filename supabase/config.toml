@@ -3,6 +3,18 @@ project_id = "sfadxlahyfzeirhvdbhf"
 [functions.import-csv]
 verify_jwt = true
 
+[functions.asaas-create-subscription]
+verify_jwt = true
+
+[functions.asaas-webhook]
+verify_jwt = false
+
+[functions.asaas-cancel-subscription]
+verify_jwt = true
+
+[functions.asaas-get-payment-status]
+verify_jwt = true
+
 [functions.n8n-import-csv-webhook]
 verify_jwt = false
 
