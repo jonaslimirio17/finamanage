@@ -206,13 +206,15 @@ const ImportStatement = () => {
         accountId = newAccount.id;
       }
 
-      // Insert transaction
+      // Insert transaction - map expense/income to debit/credit
+      const dbType = (extractedData.type === 'income' || extractedData.type === 'credit') ? 'credit' : 'debit';
+      
       const { error } = await supabase.from('transactions').insert({
         profile_id: user.id,
         account_id: accountId,
         date: extractedData.date || new Date().toISOString().split('T')[0],
         amount: Math.abs(extractedData.amount || 0),
-        type: extractedData.type || 'expense',
+        type: dbType,
         merchant: extractedData.merchant || null,
         category: extractedData.category || 'Sem categoria',
         raw_description: extractedData.raw_description || '',
@@ -330,13 +332,15 @@ const ImportStatement = () => {
         accountId = newAccount.id;
       }
 
-      // Insert transaction
+      // Insert transaction - map expense/income to debit/credit
+      const dbType = manualForm.type === 'income' ? 'credit' : 'debit';
+      
       const { error } = await supabase.from('transactions').insert({
         profile_id: user.id,
         account_id: accountId,
         date: manualForm.date,
         amount: Math.abs(parseFloat(manualForm.amount)),
-        type: manualForm.type,
+        type: dbType,
         merchant: manualForm.merchant || null,
         category: manualForm.category || 'Sem categoria',
         raw_description: manualForm.description,
