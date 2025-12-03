@@ -15,27 +15,45 @@ export const UpcomingDebts = ({ profileId }: { profileId: string }) => {
   const [debts, setDebts] = useState<Debt[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchDebts = async () => {
+    const today = new Date();
+    const thirtyDaysFromNow = new Date();
+    thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+
+    const { data, error } = await supabase
+      .from('debts')
+      .select('*')
+      .eq('profile_id', profileId)
+      .gte('due_date', today.toISOString().split('T')[0])
+      .lte('due_date', thirtyDaysFromNow.toISOString().split('T')[0])
+      .order('due_date', { ascending: true });
+
+    if (!error && data) {
+      setDebts(data);
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchDebts = async () => {
-      const today = new Date();
-      const thirtyDaysFromNow = new Date();
-      thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
-
-      const { data, error } = await supabase
-        .from('debts')
-        .select('*')
-        .eq('profile_id', profileId)
-        .gte('due_date', today.toISOString().split('T')[0])
-        .lte('due_date', thirtyDaysFromNow.toISOString().split('T')[0])
-        .order('due_date', { ascending: true });
-
-      if (!error && data) {
-        setDebts(data);
-      }
-      setLoading(false);
-    };
-
     fetchDebts();
+
+    const channel = supabase
+      .channel('debts-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'debts',
+          filter: `profile_id=eq.${profileId}`
+        },
+        () => fetchDebts()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [profileId]);
 
   return (

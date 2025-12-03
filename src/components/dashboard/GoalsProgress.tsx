@@ -16,22 +16,40 @@ export const GoalsProgress = ({ profileId }: { profileId: string }) => {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchGoals = async () => {
+    const { data, error } = await supabase
+      .from('goals')
+      .select('*')
+      .eq('profile_id', profileId)
+      .eq('status', 'active')
+      .order('target_date', { ascending: true });
+
+    if (!error && data) {
+      setGoals(data);
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchGoals = async () => {
-      const { data, error } = await supabase
-        .from('goals')
-        .select('*')
-        .eq('profile_id', profileId)
-        .eq('status', 'active')
-        .order('target_date', { ascending: true });
-
-      if (!error && data) {
-        setGoals(data);
-      }
-      setLoading(false);
-    };
-
     fetchGoals();
+
+    const channel = supabase
+      .channel('goals-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'goals',
+          filter: `profile_id=eq.${profileId}`
+        },
+        () => fetchGoals()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [profileId]);
 
   return (

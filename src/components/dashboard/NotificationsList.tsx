@@ -42,6 +42,24 @@ export const NotificationsList = ({ profileId }: { profileId: string }) => {
 
   useEffect(() => {
     fetchNotifications();
+
+    const channel = supabase
+      .channel('notifications-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'notifications',
+          filter: `profile_id=eq.${profileId}`
+        },
+        () => fetchNotifications()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [profileId]);
 
   const handleDismiss = async (notificationId: string) => {
