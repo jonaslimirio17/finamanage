@@ -344,7 +344,7 @@ export default function Onboarding() {
                     setImportDialogOpen(true);
                   }}
                 >
-                  Importar CSV/OFX
+                  Importar Extrato
                 </Button>
               </CardContent>
             </Card>

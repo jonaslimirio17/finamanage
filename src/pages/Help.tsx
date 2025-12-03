@@ -17,7 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 const CATEGORIES = [
   "Conta e Login",
   "Conexão e Open Finance",
-  "Importar CSV",
+  "Importar Extrato",
   "Privacidade e LGPD",
   "Pagamentos e Dívidas",
   "Metas e Investimentos",
