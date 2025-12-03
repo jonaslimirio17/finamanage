@@ -88,6 +88,28 @@ serve(async (req) => {
                      `📅 Data: ${data.date}`;
         break;
 
+      case 'monthly_summary':
+        emoji = '📅';
+        messageText = `${emoji} *Relatório Mensal - ${data.month}*\n\n` +
+                     `Olá ${profile.nome}! Aqui está seu resumo do mês:\n\n` +
+                     `💰 Receitas: R$ ${data.income}\n` +
+                     `💸 Despesas: R$ ${data.expenses}\n` +
+                     `📈 Saldo: R$ ${data.balance}\n` +
+                     `💾 Taxa de economia: ${data.savingsRate}%\n\n` +
+                     `🏆 Principais gastos:\n${data.topCategories?.map((cat: any) => 
+                       `• ${cat.name}: R$ ${cat.amount}`
+                     ).join('\n') || 'Nenhum gasto registrado'}`;
+        break;
+
+      case 'high_value_transaction':
+        emoji = '💰';
+        messageText = `${emoji} *Transação de Alto Valor*\n\n` +
+                     `${data.type === 'expense' ? '💸 Despesa' : '💰 Receita'} de R$ ${data.amount} detectada!\n\n` +
+                     `📍 Local: ${data.merchant || 'N/D'}\n` +
+                     `📊 Categoria: ${data.category || 'N/D'}\n` +
+                     `📅 Data: ${data.date}`;
+        break;
+
       default:
         messageText = data.message || 'Você tem uma nova notificação!';
     }

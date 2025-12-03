@@ -152,12 +152,12 @@ serve(async (req) => {
                     '📷 Envie foto/PDF - Registrar comprovante\n\n' +
                     'Digite qualquer comando ou envie um comprovante!';
     } else if (command === 'onboarding') {
-      responseText = '👋 *Bem-vindo ao FinManage!*\n\n' +
+      responseText = '👋 *Bem-vindo ao FinaManage!*\n\n' +
                     'Parece que você ainda não está cadastrado.\n\n' +
                     'Para usar este serviço, você precisa:\n' +
                     '1. Criar uma conta no app\n' +
                     '2. Cadastrar este número de telefone no seu perfil\n\n' +
-                    'Acesse: https://seu-app.com';
+                    'Acesse: https://finamanage.com/auth';
     } else {
       // Unknown command
       responseText = '❓ Comando não reconhecido.\n\n' +
