@@ -405,6 +405,7 @@ export type Database = {
         Row: {
           coupon_code: string
           created_at: string | null
+          discount_type: string | null
           email: string
           id: string
           name: string
@@ -417,6 +418,7 @@ export type Database = {
         Insert: {
           coupon_code: string
           created_at?: string | null
+          discount_type?: string | null
           email: string
           id?: string
           name: string
@@ -429,6 +431,7 @@ export type Database = {
         Update: {
           coupon_code?: string
           created_at?: string | null
+          discount_type?: string | null
           email?: string
           id?: string
           name?: string

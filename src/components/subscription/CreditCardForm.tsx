@@ -5,10 +5,11 @@ import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { Loader2 } from "lucide-react";
+import { Loader2, Gift } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(3, "Nome completo é obrigatório"),
@@ -27,6 +28,8 @@ type FormData = z.infer<typeof formSchema>;
 interface CreditCardFormProps {
   onSuccess: () => void;
   planType: 'monthly' | 'semiannual' | 'annual';
+  couponCode?: string;
+  discountType?: string;
 }
 
 const planDetails = {
@@ -35,7 +38,18 @@ const planDetails = {
   annual: { value: 149.90, label: 'R$ 149,90/ano', cycle: 'YEARLY' },
 };
 
-export const CreditCardForm = ({ onSuccess, planType }: CreditCardFormProps) => {
+const getDiscountLabel = (discountType: string): string => {
+  const labels: Record<string, string> = {
+    free_months_1: '🎁 1 mês grátis aplicado',
+    free_months_2: '🎁 2 meses grátis aplicado',
+    free_months_3: '🎁 3 meses grátis aplicado',
+    percent_30_6m: '🏷️ 30% off por 6 meses',
+    percent_50_6m: '🏷️ 50% off por 6 meses',
+  };
+  return labels[discountType] || '';
+};
+
+export const CreditCardForm = ({ onSuccess, planType, couponCode, discountType }: CreditCardFormProps) => {
   const plan = planDetails[planType];
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -98,6 +112,8 @@ export const CreditCardForm = ({ onSuccess, planType }: CreditCardFormProps) => 
             expiryYear: data.expiryYear,
             ccv: data.ccv,
           },
+          couponCode,
+          discountType,
         },
       });
 
@@ -109,7 +125,9 @@ export const CreditCardForm = ({ onSuccess, planType }: CreditCardFormProps) => 
 
       toast({
         title: "Sucesso!",
-        description: "Sua assinatura Premium foi ativada.",
+        description: couponCode 
+          ? "Sua assinatura Premium foi ativada com o cupom aplicado." 
+          : "Sua assinatura Premium foi ativada.",
       });
 
       onSuccess();
@@ -129,6 +147,16 @@ export const CreditCardForm = ({ onSuccess, planType }: CreditCardFormProps) => 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {/* Coupon Badge */}
+        {discountType && (
+          <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+            <Gift className="h-5 w-5 text-green-500" />
+            <Badge variant="secondary" className="bg-green-500/20 text-green-600">
+              {getDiscountLabel(discountType)}
+            </Badge>
+          </div>
+        )}
+
         <FormField
           control={form.control}
           name="name"

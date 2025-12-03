@@ -65,3 +65,6 @@ verify_jwt = true
 
 [functions.categorize-transactions]
 verify_jwt = true
+
+[functions.validate-coupon]
+verify_jwt = false
