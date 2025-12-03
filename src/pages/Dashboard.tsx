@@ -10,6 +10,7 @@ import { CategoryPieChart } from "@/components/dashboard/CategoryPieChart";
 import { IncomePieChart } from "@/components/dashboard/IncomePieChart";
 import { ExpenseTimeline } from "@/components/dashboard/ExpenseTimeline";
 import { IncomeTimeline } from "@/components/dashboard/IncomeTimeline";
+import { TransactionHistory } from "@/components/dashboard/TransactionHistory";
 import { UpcomingDebts } from "@/components/dashboard/UpcomingDebts";
 import { GoalsProgress } from "@/components/dashboard/GoalsProgress";
 import { LastSyncInfo } from "@/components/dashboard/LastSyncInfo";
@@ -122,6 +123,9 @@ const Dashboard = () => {
           
           <ExpenseTimeline profileId={user.id} />
           <IncomeTimeline profileId={user.id} />
+          
+          {/* Transaction History */}
+          <TransactionHistory profileId={user.id} />
         </div>
       </main>
 
