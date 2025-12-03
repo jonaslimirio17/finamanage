@@ -209,10 +209,22 @@ const ImportStatement = () => {
       // Insert transaction - map expense/income to debit/credit
       const dbType = (extractedData.type === 'income' || extractedData.type === 'credit') ? 'credit' : 'debit';
       
+      // Validate extracted date - use current date if too old (> 1 year)
+      let finalDate = new Date().toISOString().split('T')[0];
+      if (extractedData.date) {
+        const extractedDate = new Date(extractedData.date);
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+        
+        if (extractedDate >= oneYearAgo && extractedDate <= new Date()) {
+          finalDate = extractedData.date;
+        }
+      }
+      
       const { error } = await supabase.from('transactions').insert({
         profile_id: user.id,
         account_id: accountId,
-        date: extractedData.date || new Date().toISOString().split('T')[0],
+        date: finalDate,
         amount: Math.abs(extractedData.amount || 0),
         type: dbType,
         merchant: extractedData.merchant || null,

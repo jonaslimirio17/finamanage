@@ -9,12 +9,15 @@ export const BalanceCard = ({ profileId }: { profileId: string }) => {
 
   const fetchBalance = async () => {
     const { data, error } = await supabase
-      .from('accounts')
-      .select('balance')
+      .from('transactions')
+      .select('type, amount')
       .eq('profile_id', profileId);
 
     if (!error && data) {
-      const total = data.reduce((sum, account) => sum + Number(account.balance), 0);
+      const total = data.reduce((sum, txn) => {
+        const amount = Number(txn.amount);
+        return txn.type === 'credit' ? sum + amount : sum - amount;
+      }, 0);
       setBalance(total);
     }
     setLoading(false);
