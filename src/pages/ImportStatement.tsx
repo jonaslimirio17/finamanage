@@ -579,27 +579,83 @@ const ImportStatement = () => {
 
                     {extractedData && (
                       <div className="space-y-4 p-4 bg-muted rounded-lg">
-                        <h4 className="font-semibold">Dados Extraídos</h4>
-                        <div className="grid gap-3 text-sm">
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Data:</span>
-                            <span>{extractedData.date || 'Não identificada'}</span>
+                        <h4 className="font-semibold">Confirme os Dados</h4>
+                        <p className="text-xs text-muted-foreground">Corrija as informações se necessário</p>
+                        
+                        <div className="grid gap-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="extracted-date">Data</Label>
+                              <Input
+                                id="extracted-date"
+                                type="date"
+                                value={extractedData.date || ''}
+                                onChange={(e) => setExtractedData(prev => prev ? { ...prev, date: e.target.value } : null)}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="extracted-type">Tipo</Label>
+                              <Select
+                                value={extractedData.type || 'expense'}
+                                onValueChange={(value) => setExtractedData(prev => prev ? { ...prev, type: value } : null)}
+                              >
+                                <SelectTrigger id="extracted-type">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="expense">Despesa</SelectItem>
+                                  <SelectItem value="income">Receita</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
                           </div>
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Valor:</span>
-                            <span>R$ {extractedData.amount?.toFixed(2) || '0.00'}</span>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="extracted-amount">Valor (R$)</Label>
+                            <Input
+                              id="extracted-amount"
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              value={extractedData.amount || ''}
+                              onChange={(e) => setExtractedData(prev => prev ? { ...prev, amount: parseFloat(e.target.value) || 0 } : null)}
+                            />
                           </div>
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Estabelecimento:</span>
-                            <span>{extractedData.merchant || 'Não identificado'}</span>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="extracted-merchant">Estabelecimento</Label>
+                            <Input
+                              id="extracted-merchant"
+                              type="text"
+                              value={extractedData.merchant || ''}
+                              onChange={(e) => setExtractedData(prev => prev ? { ...prev, merchant: e.target.value } : null)}
+                            />
                           </div>
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Categoria:</span>
-                            <span>{extractedData.category || 'Sem categoria'}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Tipo:</span>
-                            <span>{extractedData.type === 'income' ? 'Receita' : 'Despesa'}</span>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="extracted-category">Categoria</Label>
+                            <Select
+                              value={extractedData.category || 'Sem categoria'}
+                              onValueChange={(value) => setExtractedData(prev => prev ? { ...prev, category: value } : null)}
+                            >
+                              <SelectTrigger id="extracted-category">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Alimentação">Alimentação</SelectItem>
+                                <SelectItem value="Transporte">Transporte</SelectItem>
+                                <SelectItem value="Moradia">Moradia</SelectItem>
+                                <SelectItem value="Saúde">Saúde</SelectItem>
+                                <SelectItem value="Educação">Educação</SelectItem>
+                                <SelectItem value="Lazer">Lazer</SelectItem>
+                                <SelectItem value="Compras">Compras</SelectItem>
+                                <SelectItem value="Serviços">Serviços</SelectItem>
+                                <SelectItem value="Salário">Salário</SelectItem>
+                                <SelectItem value="Investimentos">Investimentos</SelectItem>
+                                <SelectItem value="Outros">Outros</SelectItem>
+                                <SelectItem value="Sem categoria">Sem categoria</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </div>
                         </div>
                         
@@ -626,7 +682,7 @@ const ImportStatement = () => {
                                 Salvando...
                               </>
                             ) : (
-                              "Confirmar"
+                              "Salvar Transação"
                             )}
                           </Button>
                         </div>
