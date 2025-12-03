@@ -15,9 +15,6 @@ verify_jwt = true
 [functions.asaas-get-payment-status]
 verify_jwt = true
 
-[functions.n8n-import-csv-webhook]
-verify_jwt = false
-
 [functions.whatsapp-webhook]
 verify_jwt = false
 
@@ -30,8 +27,41 @@ verify_jwt = false
 [functions.whatsapp-commands]
 verify_jwt = false
 
-[functions.n8n-transactions-webhook]
-verify_jwt = false
-
 [functions.extract-receipt-data]
 verify_jwt = false
+
+[functions.chatbot]
+verify_jwt = false
+
+[functions.scheduled-notifications]
+verify_jwt = false
+
+[functions.check-leaked-password]
+verify_jwt = false
+
+[functions.create-support-ticket]
+verify_jwt = true
+
+[functions.delete-account]
+verify_jwt = true
+
+[functions.generate-feedback]
+verify_jwt = true
+
+[functions.request-password-reset]
+verify_jwt = false
+
+[functions.reset-password]
+verify_jwt = false
+
+[functions.verify-reset-token]
+verify_jwt = false
+
+[functions.sync-account]
+verify_jwt = true
+
+[functions.account-connected]
+verify_jwt = true
+
+[functions.categorize-transactions]
+verify_jwt = true

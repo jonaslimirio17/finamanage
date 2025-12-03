@@ -41,7 +41,7 @@ export const ChatWindow = ({ onClose }: ChatWindowProps) => {
     }
   }, [messages]);
 
-  const sendMessageToN8N = async (userMessage: string) => {
+  const sendMessage = async (userMessage: string) => {
     try {
       let sessionId = sessionStorage.getItem("chatSessionId");
       if (!sessionId) {
@@ -49,7 +49,7 @@ export const ChatWindow = ({ onClose }: ChatWindowProps) => {
         sessionStorage.setItem("chatSessionId", sessionId);
       }
 
-      const { data, error } = await supabase.functions.invoke('chatbot-n8n', {
+      const { data, error } = await supabase.functions.invoke('chatbot', {
         body: {
           message: userMessage,
           sessionId,
@@ -67,7 +67,7 @@ export const ChatWindow = ({ onClose }: ChatWindowProps) => {
 
       return data?.response || "Desculpe, não consegui processar sua mensagem.";
     } catch (error) {
-      console.error("Error sending message to N8N:", error);
+      console.error("Error sending message:", error);
       return "Desculpe, estou com dificuldades técnicas. Por favor, tente novamente ou entre em contato com nosso suporte.";
     }
   };
@@ -86,8 +86,8 @@ export const ChatWindow = ({ onClose }: ChatWindowProps) => {
     setInputValue("");
     setIsLoading(true);
 
-    // Get bot response from N8N
-    const botResponse = await sendMessageToN8N(inputValue);
+    // Get bot response from Lovable AI
+    const botResponse = await sendMessage(inputValue);
 
     const botMessage: Message = {
       id: crypto.randomUUID(),
