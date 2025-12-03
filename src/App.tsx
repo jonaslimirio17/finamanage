@@ -23,6 +23,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import WhatsAppSettings from "./pages/WhatsAppSettings";
 import SecuritySettings from "./pages/SecuritySettings";
+import FairLanding from "./pages/FairLanding";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -53,6 +54,7 @@ const App = () => (
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/whatsapp" element={<WhatsAppSettings />} />
           <Route path="/security" element={<SecuritySettings />} />
+          <Route path="/feira" element={<FairLanding />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
