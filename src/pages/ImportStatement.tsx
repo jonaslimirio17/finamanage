@@ -9,10 +9,9 @@ import { useToast } from "@/hooks/use-toast";
 import { User, Session } from "@supabase/supabase-js";
 import { Upload, FileText, ArrowLeft } from "lucide-react";
 import { AppMenu } from "@/components/AppMenu";
-
 import { Logo } from "@/components/Logo";
 
-const ImportCSV = () => {
+const ImportStatement = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -21,7 +20,6 @@ const ImportCSV = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -31,7 +29,6 @@ const ImportCSV = () => {
       }
     });
 
-    // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -47,7 +44,6 @@ const ImportCSV = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
-      // Validate file type
       const validTypes = ['.csv', '.ofx'];
       const fileExtension = selectedFile.name.toLowerCase().substring(selectedFile.name.lastIndexOf('.'));
       
@@ -60,7 +56,6 @@ const ImportCSV = () => {
         return;
       }
 
-      // Validate file size (max 20MB)
       if (selectedFile.size > 20 * 1024 * 1024) {
         toast({
           title: "Arquivo muito grande",
@@ -97,11 +92,9 @@ const ImportCSV = () => {
 
       setFile(null);
       
-      // Reset file input
       const fileInput = document.getElementById('file-input') as HTMLInputElement;
       if (fileInput) fileInput.value = '';
 
-      // Redirect to dashboard after 2 seconds
       setTimeout(() => {
         navigate('/dashboard');
       }, 2000);
@@ -216,4 +209,4 @@ const ImportCSV = () => {
   );
 };
 
-export default ImportCSV;
+export default ImportStatement;

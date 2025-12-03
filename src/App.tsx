@@ -8,7 +8,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Onboarding from "./pages/Onboarding";
-import ImportCSV from "./pages/ImportCSV";
+import ImportStatement from "./pages/ImportStatement";
 import Goals from "./pages/Goals";
 import Help from "./pages/Help";
 import Article from "./pages/Article";
@@ -38,7 +38,7 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/import-csv" element={<ImportCSV />} />
+          <Route path="/importar-extrato" element={<ImportStatement />} />
           <Route path="/goals" element={<Goals />} />
           <Route path="/help" element={<Help />} />
           <Route path="/help/article/:id" element={<Article />} />

@@ -96,9 +96,9 @@ const Dashboard = () => {
                 <MessageSquare className="h-4 w-4" />
                 <span className="hidden sm:inline">WhatsApp</span>
               </Button>
-              <Button onClick={() => navigate('/import-csv')} variant="outline" className="gap-2">
+              <Button onClick={() => navigate('/importar-extrato')} variant="outline" className="gap-2">
                 <Upload className="h-4 w-4" />
-                <span className="hidden sm:inline">Importar CSV</span>
+                <span className="hidden sm:inline">Importar Extrato</span>
               </Button>
               <LastSyncInfo profileId={user.id} />
             </div>

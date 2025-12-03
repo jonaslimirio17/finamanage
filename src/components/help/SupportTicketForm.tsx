@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 const CATEGORIES = [
   "Conta e Login",
   "Conexão e Open Finance",
-  "Importar CSV",
+  "Importar Extrato",
   "Privacidade e LGPD",
   "Pagamentos e Dívidas",
   "Metas e Investimentos",

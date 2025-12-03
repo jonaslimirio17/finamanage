@@ -54,7 +54,7 @@ export const ArticlesList = ({ searchQuery, selectedCategory, userId }: Articles
           const categoryMap: Record<string, string[]> = {
             "Conta e Login": ["conta", "login"],
             "Conexão e Open Finance": ["open finance", "conexão"],
-            "Importar CSV": ["importação", "csv"],
+            "Importar Extrato": ["importação", "csv", "extrato", "ofx"],
             "Privacidade e LGPD": ["privacidade", "lgpd"],
             "Pagamentos e Dívidas": ["pagamento", "dívida"],
             "Metas e Investimentos": ["meta", "investimento"],
