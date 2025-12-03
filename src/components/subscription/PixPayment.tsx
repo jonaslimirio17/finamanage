@@ -5,10 +5,11 @@ import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { Loader2, Copy, Check } from "lucide-react";
+import { Loader2, Copy, Check, Gift } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(3, "Nome completo é obrigatório"),
@@ -22,6 +23,8 @@ type FormData = z.infer<typeof formSchema>;
 interface PixPaymentProps {
   onSuccess: () => void;
   planType: 'monthly' | 'semiannual' | 'annual';
+  couponCode?: string;
+  discountType?: string;
 }
 
 const planDetails = {
@@ -30,7 +33,18 @@ const planDetails = {
   annual: { value: 149.90, label: 'R$ 149,90/ano', cycle: 'YEARLY' },
 };
 
-export const PixPayment = ({ onSuccess, planType }: PixPaymentProps) => {
+const getDiscountLabel = (discountType: string): string => {
+  const labels: Record<string, string> = {
+    free_months_1: '🎁 1 mês grátis aplicado',
+    free_months_2: '🎁 2 meses grátis aplicado',
+    free_months_3: '🎁 3 meses grátis aplicado',
+    percent_30_6m: '🏷️ 30% off por 6 meses',
+    percent_50_6m: '🏷️ 50% off por 6 meses',
+  };
+  return labels[discountType] || '';
+};
+
+export const PixPayment = ({ onSuccess, planType, couponCode, discountType }: PixPaymentProps) => {
   const plan = planDetails[planType];
   const [loading, setLoading] = useState(false);
   const [pixData, setPixData] = useState<any>(null);
@@ -77,6 +91,8 @@ export const PixPayment = ({ onSuccess, planType }: PixPaymentProps) => {
           cpf: data.cpf,
           email: data.email,
           phone: data.phone,
+          couponCode,
+          discountType,
         },
       });
 
@@ -91,7 +107,9 @@ export const PixPayment = ({ onSuccess, planType }: PixPaymentProps) => {
 
       toast({
         title: "PIX gerado!",
-        description: "Escaneie o QR Code ou copie o código para pagar.",
+        description: couponCode 
+          ? "Escaneie o QR Code. Cupom aplicado!" 
+          : "Escaneie o QR Code ou copie o código para pagar.",
       });
     } catch (error: any) {
       console.error("Error creating subscription:", error);
@@ -149,6 +167,16 @@ export const PixPayment = ({ onSuccess, planType }: PixPaymentProps) => {
   if (pixData) {
     return (
       <div className="space-y-6">
+        {/* Coupon Badge */}
+        {discountType && (
+          <div className="flex items-center justify-center gap-2 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+            <Gift className="h-5 w-5 text-green-500" />
+            <Badge variant="secondary" className="bg-green-500/20 text-green-600">
+              {getDiscountLabel(discountType)}
+            </Badge>
+          </div>
+        )}
+
         <div className="text-center">
           <h3 className="text-lg font-semibold mb-2">Escaneie o QR Code</h3>
           <p className="text-sm text-muted-foreground mb-4">
@@ -202,6 +230,16 @@ export const PixPayment = ({ onSuccess, planType }: PixPaymentProps) => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {/* Coupon Badge */}
+        {discountType && (
+          <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+            <Gift className="h-5 w-5 text-green-500" />
+            <Badge variant="secondary" className="bg-green-500/20 text-green-600">
+              {getDiscountLabel(discountType)}
+            </Badge>
+          </div>
+        )}
+
         <FormField
           control={form.control}
           name="name"

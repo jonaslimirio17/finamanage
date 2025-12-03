@@ -20,6 +20,8 @@ interface CreateSubscriptionRequest {
     expiryYear: string;
     ccv: string;
   };
+  couponCode?: string;
+  discountType?: string;
 }
 
 Deno.serve(async (req) => {
@@ -30,6 +32,7 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const asaasApiKey = Deno.env.get('ASAAS_API_KEY');
 
     if (!asaasApiKey) {
@@ -41,6 +44,9 @@ Deno.serve(async (req) => {
       global: { headers: { Authorization: authHeader } },
     });
 
+    // Service role client for coupon operations
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -50,7 +56,7 @@ Deno.serve(async (req) => {
     }
 
     const body: CreateSubscriptionRequest = await req.json();
-    const { payment_method, cycle, value, name, cpf, email, phone, creditCard } = body;
+    const { payment_method, cycle, value, name, cpf, email, phone, creditCard, couponCode, discountType } = body;
 
     // Validar CPF
     const cleanCpf = cpf.replace(/\D/g, '');
@@ -64,13 +70,57 @@ Deno.serve(async (req) => {
       .select('id, status')
       .eq('profile_id', user.id)
       .eq('status', 'ACTIVE')
-      .single();
+      .maybeSingle();
 
     if (existingSub) {
       return new Response(
         JSON.stringify({ error: 'Você já possui uma assinatura ativa' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    }
+
+    // Validar cupom se fornecido
+    let validCoupon = null;
+    let finalDiscountType = discountType;
+
+    if (couponCode) {
+      const { data: coupon, error: couponError } = await supabaseAdmin
+        .from('fair_leads')
+        .select('id, coupon_code, prize_won, discount_type, redeemed_at, created_at')
+        .eq('coupon_code', couponCode.toUpperCase().trim())
+        .maybeSingle();
+
+      if (couponError) {
+        console.error('Error fetching coupon:', couponError);
+      } else if (coupon) {
+        // Verificar se já foi usado
+        if (coupon.redeemed_at) {
+          return new Response(
+            JSON.stringify({ error: 'Este cupom já foi utilizado' }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        // Verificar validade (30 dias)
+        const createdAt = new Date(coupon.created_at);
+        const expiresAt = new Date(createdAt);
+        expiresAt.setDate(expiresAt.getDate() + 30);
+
+        if (new Date() > expiresAt) {
+          return new Response(
+            JSON.stringify({ error: 'Este cupom expirou' }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        validCoupon = coupon;
+        finalDiscountType = coupon.discount_type || discountType;
+      } else {
+        return new Response(
+          JSON.stringify({ error: 'Cupom não encontrado' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
     }
 
     // 1. Criar/Atualizar cliente no Asaas
@@ -98,25 +148,50 @@ Deno.serve(async (req) => {
 
     const customerId = customerData.id;
 
-    // 2. Criar assinatura
+    // 2. Calcular próxima data de vencimento baseada no ciclo e cupom
     const nextDueDate = new Date();
     
-    // Calcular próxima data de vencimento baseada no ciclo
-    if (cycle === 'MONTHLY') {
-      nextDueDate.setMonth(nextDueDate.getMonth() + 1);
-    } else if (cycle === 'SEMIANNUAL') {
-      nextDueDate.setMonth(nextDueDate.getMonth() + 6);
-    } else if (cycle === 'YEARLY') {
-      nextDueDate.setFullYear(nextDueDate.getFullYear() + 1);
+    // Aplicar meses grátis se houver cupom
+    if (finalDiscountType) {
+      if (finalDiscountType === 'free_months_1') {
+        nextDueDate.setMonth(nextDueDate.getMonth() + 1);
+      } else if (finalDiscountType === 'free_months_2') {
+        nextDueDate.setMonth(nextDueDate.getMonth() + 2);
+      } else if (finalDiscountType === 'free_months_3') {
+        nextDueDate.setMonth(nextDueDate.getMonth() + 3);
+      }
+    }
+    
+    // Adicionar ciclo padrão se não for meses grátis
+    if (!finalDiscountType || !finalDiscountType.startsWith('free_months')) {
+      if (cycle === 'MONTHLY') {
+        nextDueDate.setMonth(nextDueDate.getMonth() + 1);
+      } else if (cycle === 'SEMIANNUAL') {
+        nextDueDate.setMonth(nextDueDate.getMonth() + 6);
+      } else if (cycle === 'YEARLY') {
+        nextDueDate.setFullYear(nextDueDate.getFullYear() + 1);
+      }
+    }
+
+    // Calcular valor com desconto percentual se aplicável
+    let subscriptionValue = value;
+    let discountAppliedMonths = 0;
+
+    if (finalDiscountType === 'percent_30_6m') {
+      subscriptionValue = value * 0.7; // 30% off
+      discountAppliedMonths = 6;
+    } else if (finalDiscountType === 'percent_50_6m') {
+      subscriptionValue = value * 0.5; // 50% off
+      discountAppliedMonths = 6;
     }
 
     const subscriptionPayload: any = {
       customer: customerId,
       billingType: payment_method,
-      value: value,
+      value: subscriptionValue,
       cycle: cycle,
       nextDueDate: nextDueDate.toISOString().split('T')[0],
-      description: `Assinatura Premium FinaManage - ${cycle === 'MONTHLY' ? 'Mensal' : cycle === 'SEMIANNUAL' ? 'Semestral' : 'Anual'}`,
+      description: `Assinatura Premium FinaManage - ${cycle === 'MONTHLY' ? 'Mensal' : cycle === 'SEMIANNUAL' ? 'Semestral' : 'Anual'}${validCoupon ? ` (Cupom: ${couponCode})` : ''}`,
     };
 
     // Se for cartão, adicionar dados do cartão
@@ -135,6 +210,11 @@ Deno.serve(async (req) => {
         phone: phone.replace(/\D/g, ''),
       };
     }
+
+    console.log('Creating subscription with payload:', { 
+      ...subscriptionPayload, 
+      creditCard: subscriptionPayload.creditCard ? '***REDACTED***' : undefined 
+    });
 
     const subscriptionResponse = await fetch('https://api.asaas.com/v3/subscriptions', {
       method: 'POST',
@@ -161,7 +241,7 @@ Deno.serve(async (req) => {
         asaas_customer_id: customerId,
         status: subscriptionData.status,
         payment_method,
-        value: value,
+        value: subscriptionValue,
         next_due_date: subscriptionData.nextDueDate,
       });
 
@@ -170,7 +250,22 @@ Deno.serve(async (req) => {
       throw subInsertError;
     }
 
-    // 4. Buscar informações do primeiro pagamento
+    // 4. Marcar cupom como usado
+    if (validCoupon) {
+      const { error: couponUpdateError } = await supabaseAdmin
+        .from('fair_leads')
+        .update({ redeemed_at: new Date().toISOString() })
+        .eq('id', validCoupon.id);
+
+      if (couponUpdateError) {
+        console.error('Error marking coupon as used:', couponUpdateError);
+        // Não falhar a operação por causa disso
+      } else {
+        console.log('Coupon marked as used:', couponCode);
+      }
+    }
+
+    // 5. Buscar informações do primeiro pagamento
     const paymentResponse = await fetch(
       `https://api.asaas.com/v3/payments?subscription=${subscriptionData.id}`,
       {
@@ -218,9 +313,35 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 5. Se cartão foi confirmado imediatamente, ativar premium
-    if (payment_method === 'CREDIT_CARD' && firstPayment?.status === 'CONFIRMED') {
-      const expiresAt = new Date(nextDueDate);
+    // 6. Ativar premium imediatamente para:
+    // - Cartão confirmado imediatamente
+    // - Cupom com meses grátis (ativar premium sem esperar pagamento)
+    const shouldActivatePremium = 
+      (payment_method === 'CREDIT_CARD' && firstPayment?.status === 'CONFIRMED') ||
+      (finalDiscountType && finalDiscountType.startsWith('free_months'));
+
+    if (shouldActivatePremium) {
+      // Calcular data de expiração
+      let expiresAt = new Date();
+      
+      if (finalDiscountType?.startsWith('free_months')) {
+        // Para meses grátis, expiração é baseada nos meses grátis + ciclo
+        const freeMonths = parseInt(finalDiscountType.split('_')[2]) || 0;
+        expiresAt.setMonth(expiresAt.getMonth() + freeMonths);
+        
+        // Adicionar o ciclo após os meses grátis
+        if (cycle === 'MONTHLY') {
+          expiresAt.setMonth(expiresAt.getMonth() + 1);
+        } else if (cycle === 'SEMIANNUAL') {
+          expiresAt.setMonth(expiresAt.getMonth() + 6);
+        } else if (cycle === 'YEARLY') {
+          expiresAt.setFullYear(expiresAt.getFullYear() + 1);
+        }
+      } else {
+        // Para pagamento confirmado sem cupom, usar nextDueDate
+        expiresAt = new Date(nextDueDate);
+      }
+
       await supabase
         .from('profiles')
         .update({
@@ -229,6 +350,8 @@ Deno.serve(async (req) => {
           subscription_expires_at: expiresAt.toISOString(),
         })
         .eq('id', user.id);
+        
+      console.log('Premium activated for user:', user.id, 'expires at:', expiresAt.toISOString());
     }
 
     // Retornar resposta
@@ -238,6 +361,8 @@ Deno.serve(async (req) => {
       payment_method,
       status: subscriptionData.status,
       next_due_date: subscriptionData.nextDueDate,
+      coupon_applied: !!validCoupon,
+      discount_type: finalDiscountType,
     };
 
     if (payment_method === 'PIX' && firstPayment) {

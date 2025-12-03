@@ -32,6 +32,15 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
+// Mapeamento de prêmios para tipos de desconto
+const prizeToDiscountType: Record<string, string> = {
+  "1 mês grátis": "free_months_1",
+  "2 meses grátis": "free_months_2",
+  "3 meses grátis": "free_months_3",
+  "30% off 6 meses": "percent_30_6m",
+  "50% off 6 meses": "percent_50_6m",
+};
+
 const FairLanding = () => {
   const [step, setStep] = useState<"form" | "wheel" | "done">("form");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -110,6 +119,9 @@ const FairLanding = () => {
     setCouponCode(newCoupon);
     setWonPrize(prize.label);
 
+    // Determinar o tipo de desconto
+    const discountType = prizeToDiscountType[prize.label] || "unknown";
+
     try {
       const urlParams = new URLSearchParams(window.location.search);
 
@@ -119,6 +131,7 @@ const FairLanding = () => {
         phone: userData.phone || null,
         prize_won: prize.label,
         coupon_code: newCoupon,
+        discount_type: discountType,
         utm_source: urlParams.get("utm_source"),
         utm_campaign: urlParams.get("utm_campaign") || "feira_empreendedorismo",
       });
@@ -312,11 +325,11 @@ const FairLanding = () => {
                 </h3>
                 <ul className="space-y-3">
                   {[
-                    { prize: "1 mês grátis", chance: "40%" },
-                    { prize: "2 meses grátis", chance: "25%" },
-                    { prize: "3 meses grátis", chance: "10%" },
-                    { prize: "30% de desconto", chance: "15%" },
-                    { prize: "50% de desconto", chance: "10%" },
+                    { prize: "1 mês grátis", chance: "50%" },
+                    { prize: "2 meses grátis", chance: "20%" },
+                    { prize: "3 meses grátis", chance: "5%" },
+                    { prize: "30% off por 6 meses", chance: "17%" },
+                    { prize: "50% off por 6 meses", chance: "8%" },
                   ].map((item) => (
                     <li
                       key={item.prize}
