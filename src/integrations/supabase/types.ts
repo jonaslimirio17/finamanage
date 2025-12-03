@@ -401,6 +401,45 @@ export type Database = {
           },
         ]
       }
+      fair_leads: {
+        Row: {
+          coupon_code: string
+          created_at: string | null
+          email: string
+          id: string
+          name: string
+          phone: string | null
+          prize_won: string
+          redeemed_at: string | null
+          utm_campaign: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          coupon_code: string
+          created_at?: string | null
+          email: string
+          id?: string
+          name: string
+          phone?: string | null
+          prize_won: string
+          redeemed_at?: string | null
+          utm_campaign?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          coupon_code?: string
+          created_at?: string | null
+          email?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          prize_won?: string
+          redeemed_at?: string | null
+          utm_campaign?: string | null
+          utm_source?: string | null
+        }
+        Relationships: []
+      }
       faqs: {
         Row: {
           answer: string
