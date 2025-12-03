@@ -12,37 +12,55 @@ export const ExpenseTimeline = ({ profileId }: { profileId: string }) => {
   const [data, setData] = useState<TimelineData[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchData = async () => {
+    const ninetyDaysAgo = new Date();
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+
+    const { data: transactions, error } = await supabase
+      .from('transactions')
+      .select('date, amount')
+      .eq('profile_id', profileId)
+      .eq('type', 'debit')
+      .gte('date', ninetyDaysAgo.toISOString().split('T')[0])
+      .order('date', { ascending: true });
+
+    if (!error && transactions) {
+      const grouped = transactions.reduce((acc, txn) => {
+        const date = txn.date;
+        acc[date] = (acc[date] || 0) + Math.abs(Number(txn.amount));
+        return acc;
+      }, {} as Record<string, number>);
+
+      const chartData = Object.entries(grouped).map(([date, amount]) => ({
+        date: new Date(date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+        amount
+      }));
+
+      setData(chartData);
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      const ninetyDaysAgo = new Date();
-      ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
-
-      const { data: transactions, error } = await supabase
-        .from('transactions')
-        .select('date, amount')
-        .eq('profile_id', profileId)
-        .eq('type', 'expense')
-        .gte('date', ninetyDaysAgo.toISOString().split('T')[0])
-        .order('date', { ascending: true });
-
-      if (!error && transactions) {
-        const grouped = transactions.reduce((acc, txn) => {
-          const date = txn.date;
-          acc[date] = (acc[date] || 0) + Math.abs(Number(txn.amount));
-          return acc;
-        }, {} as Record<string, number>);
-
-        const chartData = Object.entries(grouped).map(([date, amount]) => ({
-          date: new Date(date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
-          amount
-        }));
-
-        setData(chartData);
-      }
-      setLoading(false);
-    };
-
     fetchData();
+
+    const channel = supabase
+      .channel('expense-timeline-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'transactions',
+          filter: `profile_id=eq.${profileId}`
+        },
+        () => fetchData()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [profileId]);
 
   return (

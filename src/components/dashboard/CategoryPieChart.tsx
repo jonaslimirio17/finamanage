@@ -14,36 +14,54 @@ export const CategoryPieChart = ({ profileId }: { profileId: string }) => {
   const [data, setData] = useState<CategoryData[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchData = async () => {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const { data: transactions, error } = await supabase
+      .from('transactions')
+      .select('category, amount')
+      .eq('profile_id', profileId)
+      .eq('type', 'debit')
+      .gte('date', thirtyDaysAgo.toISOString().split('T')[0]);
+
+    if (!error && transactions) {
+      const grouped = transactions.reduce((acc, txn) => {
+        const category = txn.category || 'Sem categoria';
+        acc[category] = (acc[category] || 0) + Math.abs(Number(txn.amount));
+        return acc;
+      }, {} as Record<string, number>);
+
+      const chartData = Object.entries(grouped).map(([name, value]) => ({
+        name,
+        value
+      }));
+
+      setData(chartData);
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-      const { data: transactions, error } = await supabase
-        .from('transactions')
-        .select('category, amount')
-        .eq('profile_id', profileId)
-        .eq('type', 'expense')
-        .gte('date', thirtyDaysAgo.toISOString().split('T')[0]);
-
-      if (!error && transactions) {
-        const grouped = transactions.reduce((acc, txn) => {
-          const category = txn.category || 'Sem categoria';
-          acc[category] = (acc[category] || 0) + Math.abs(Number(txn.amount));
-          return acc;
-        }, {} as Record<string, number>);
-
-        const chartData = Object.entries(grouped).map(([name, value]) => ({
-          name,
-          value
-        }));
-
-        setData(chartData);
-      }
-      setLoading(false);
-    };
-
     fetchData();
+
+    const channel = supabase
+      .channel('category-pie-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'transactions',
+          filter: `profile_id=eq.${profileId}`
+        },
+        () => fetchData()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [profileId]);
 
   return (
