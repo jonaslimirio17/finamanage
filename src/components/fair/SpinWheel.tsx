@@ -12,12 +12,19 @@ interface SpinWheelProps {
   disabled?: boolean;
 }
 
+// Valores com desconto limitado a 6 meses (R$19,90/mês):
+// - 1 mês grátis = R$19,90
+// - 2 meses grátis = R$39,80
+// - 3 meses grátis = R$59,70
+// - 30% desc/6m = R$35,82
+// - 50% desc/6m = R$59,70
+// Custo esperado por lead: ~R$26,50
 const prizes: Prize[] = [
-  { label: "1 mês grátis", color: "hsl(var(--primary))", probability: 40 },
-  { label: "2 meses grátis", color: "hsl(142 76% 36%)", probability: 25 },
-  { label: "3 meses grátis", color: "hsl(48 96% 53%)", probability: 10 },
-  { label: "30% desconto", color: "hsl(0 84% 60%)", probability: 15 },
-  { label: "50% desconto", color: "hsl(271 91% 65%)", probability: 10 },
+  { label: "1 mês grátis", color: "hsl(var(--primary))", probability: 50 },
+  { label: "2 meses grátis", color: "hsl(142 76% 36%)", probability: 20 },
+  { label: "3 meses grátis", color: "hsl(48 96% 53%)", probability: 5 },
+  { label: "30% off 6 meses", color: "hsl(0 84% 60%)", probability: 17 },
+  { label: "50% off 6 meses", color: "hsl(271 91% 65%)", probability: 8 },
 ];
 
 const SpinWheel = ({ onSpinEnd, disabled }: SpinWheelProps) => {
