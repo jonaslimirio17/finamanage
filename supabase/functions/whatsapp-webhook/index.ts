@@ -6,6 +6,22 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Normalize phone number to just digits (removing country code variations)
+function normalizePhoneNumber(phone: string): string {
+  // Remove all non-numeric characters
+  let normalized = phone.replace(/\D/g, '');
+  
+  // Remove leading zeros
+  normalized = normalized.replace(/^0+/, '');
+  
+  // If starts with 55 (Brazil), keep it; otherwise add 55
+  if (!normalized.startsWith('55') && normalized.length <= 11) {
+    normalized = '55' + normalized;
+  }
+  
+  return normalized;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -51,35 +67,48 @@ serve(async (req) => {
     }
 
     const message = messages[0];
-    const from = message.from; // Phone number
+    const from = message.from; // Phone number from WhatsApp (format: 5511999999999)
     const messageType = message.type;
     const messageId = message.id;
 
     console.log(`Processing message from ${from}, type: ${messageType}`);
 
+    // Normalize the phone number for comparison
+    const normalizedFrom = normalizePhoneNumber(from);
+    console.log(`Normalized phone: ${normalizedFrom}`);
+
     // Find or create session for this phone number
+    // First, try to find existing session
     const { data: existingSession } = await supabase
       .from('whatsapp_sessions')
       .select('*')
-      .eq('phone_number', from)
-      .single();
+      .eq('phone_number', normalizedFrom)
+      .maybeSingle();
 
     let session = existingSession;
 
     if (!session) {
-      // Try to find user by phone number in profiles
-      const { data: profile } = await supabase
+      // Try to find user by phone number in profiles (check multiple formats)
+      const { data: profiles } = await supabase
         .from('profiles')
-        .select('id')
-        .eq('phone', from)
-        .single();
+        .select('id, phone')
+        .not('phone', 'is', null);
 
-      if (profile) {
+      // Find profile with matching normalized phone
+      const matchedProfile = profiles?.find(p => {
+        const normalizedProfilePhone = normalizePhoneNumber(p.phone || '');
+        return normalizedProfilePhone === normalizedFrom;
+      });
+
+      if (matchedProfile) {
+        console.log(`Found matching profile: ${matchedProfile.id}`);
+        
+        // Create new session
         const { data: newSession } = await supabase
           .from('whatsapp_sessions')
           .insert({
-            profile_id: profile.id,
-            phone_number: from,
+            profile_id: matchedProfile.id,
+            phone_number: normalizedFrom,
             state: 'idle',
             context: {}
           })
@@ -87,7 +116,9 @@ serve(async (req) => {
           .single();
         
         session = newSession;
+        console.log('Created new WhatsApp session');
       } else {
+        console.log('No matching profile found, sending onboarding message');
         // User not found, send onboarding message
         await supabase.functions.invoke('whatsapp-commands', {
           body: {

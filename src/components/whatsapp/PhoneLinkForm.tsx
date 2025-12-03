@@ -209,12 +209,19 @@ export const PhoneLinkForm = ({ userId }: PhoneLinkFormProps) => {
         )}
       </div>
 
-      <div className="bg-muted/50 p-4 rounded-lg space-y-2">
-        <h4 className="font-semibold text-sm">📱 Número do FinManage:</h4>
-        <p className="text-sm font-mono">+55 11 99999-9999</p>
-        <p className="text-xs text-muted-foreground">
-          Salve este número nos seus contatos e envie "Olá" para começar
-        </p>
+      <div className="bg-muted/50 p-4 rounded-lg space-y-3">
+        <h4 className="font-semibold text-sm">📱 Como conectar:</h4>
+        <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
+          <li>Salve seu número acima</li>
+          <li>Adicione o número do FinaManage nos seus contatos</li>
+          <li>Envie uma mensagem "Olá" para ativar</li>
+          <li>Comece a enviar comprovantes!</li>
+        </ol>
+        <div className="pt-2 border-t border-border/50">
+          <p className="text-xs text-muted-foreground">
+            💡 <strong>Dica:</strong> Após vincular, envie fotos de comprovantes bancários para registrar transações automaticamente
+          </p>
+        </div>
       </div>
     </div>
   );
