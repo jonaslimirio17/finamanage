@@ -226,13 +226,18 @@ const ImportStatement = () => {
 
       toast({
         title: "Transação salva!",
-        description: "A transação foi adicionada com sucesso.",
+        description: "A transação foi adicionada com sucesso. Redirecionando...",
       });
 
       // Reset
       setImageFile(null);
       setImagePreview(null);
       setExtractedData(null);
+
+      // Redirect to dashboard to show updated data
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 1500);
 
     } catch (error: any) {
       console.error('Error saving transaction:', error);
