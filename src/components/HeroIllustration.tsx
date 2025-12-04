@@ -1,18 +1,14 @@
-import { useEffect, useState, memo } from "react";
+import { useEffect, useState } from "react";
 
-const HeroIllustration = memo(() => {
+const HeroIllustration = () => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Defer animation start to avoid forced reflow during paint
-    const timer = requestAnimationFrame(() => {
-      setMounted(true);
-    });
-    return () => cancelAnimationFrame(timer);
+    setMounted(true);
   }, []);
 
   return (
-    <div className="relative w-full max-w-lg mx-auto" style={{ contain: 'layout style paint' }}>
+    <div className="relative w-full max-w-lg mx-auto">
       {/* Mobile Version - Simplified */}
       <svg
         viewBox="0 0 280 260"
@@ -231,10 +227,33 @@ const HeroIllustration = memo(() => {
         </circle>
       </svg>
 
+      <style>{`
+        @keyframes float-slow {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-8px); }
+        }
+        @keyframes float-medium {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-6px); }
+        }
+        @keyframes float-fast {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
+        }
+        .animate-float-slow {
+          animation: float-slow 4s ease-in-out infinite;
+        }
+        .animate-float-medium {
+          animation: float-medium 3s ease-in-out infinite;
+          animation-delay: 0.5s;
+        }
+        .animate-float-fast {
+          animation: float-fast 3.5s ease-in-out infinite;
+          animation-delay: 1s;
+        }
+      `}</style>
     </div>
   );
-});
-
-HeroIllustration.displayName = 'HeroIllustration';
+};
 
 export default HeroIllustration;

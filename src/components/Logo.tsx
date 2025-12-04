@@ -1,11 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import logo from '@/assets/finamanage-logo.svg';
-
+import logo from '@/assets/finamanage-logo.png';
 interface LogoProps {
   className?: string;
   onClick?: () => void;
 }
-
 export const Logo = ({
   className = "",
   onClick
@@ -18,21 +16,7 @@ export const Logo = ({
       navigate("/");
     }
   };
-  return (
-    <div 
-      className={`flex items-center cursor-pointer transition-transform hover:scale-105 ${className}`} 
-      onClick={handleClick}
-    >
-      <img 
-        src={logo} 
-        alt="FinaManage" 
-        loading="eager"
-        fetchPriority="high"
-        decoding="async"
-        width={252}
-        height={126}
-        className="h-[126px] w-auto"
-      />
-    </div>
-  );
+  return <div className={`flex items-center cursor-pointer transition-transform hover:scale-105 ${className}`} onClick={handleClick}>
+      <img src={logo} alt="FinaManage" loading="eager" className="h-[126px] w-auto" />
+    </div>;
 };
