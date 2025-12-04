@@ -68,3 +68,6 @@ verify_jwt = true
 
 [functions.validate-coupon]
 verify_jwt = false
+
+[functions.pre-signup]
+verify_jwt = false
