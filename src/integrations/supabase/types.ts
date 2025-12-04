@@ -1042,6 +1042,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_article_view: {
+        Args: { article_id: string }
+        Returns: undefined
+      }
       increment_content_view: {
         Args: { content_id: string }
         Returns: undefined

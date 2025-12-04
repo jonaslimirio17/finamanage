@@ -45,18 +45,17 @@ const Article = () => {
 
         setArticle(data);
 
-        // Increment view count
-        await supabase
-          .from('support_articles')
-          .update({ views: (data.views || 0) + 1 })
-          .eq('id', id);
+        // Increment view count using secure RPC function
+        await supabase.rpc('increment_article_view', { article_id: id });
 
-        // Log article view event
-        await supabase.from('events_logs').insert({
-          profile_id: user?.id || null,
-          event_type: 'kb_article_view',
-          payload: { article_id: id }
-        });
+        // Log article view event (only for authenticated users)
+        if (user?.id) {
+          await supabase.from('events_logs').insert({
+            profile_id: user.id,
+            event_type: 'kb_article_view',
+            payload: { article_id: id }
+          });
+        }
       } catch (error) {
         console.error('Error fetching article:', error);
       } finally {
