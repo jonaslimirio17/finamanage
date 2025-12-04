@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Link, Zap, Target, Shield, CheckCircle2, HelpCircle, Lightbulb, MessageSquare, LockKeyhole } from "lucide-react";
-import appMockup from "@/assets/app-mockup.png";
+import HeroIllustration from "@/components/HeroIllustration";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { AppMenu } from "@/components/AppMenu";
@@ -148,8 +148,8 @@ const Index = () => {
               Sem cartões. Sem taxas. Só você e seus planos.
             </p>
           </div>
-          <div className="relative">
-            <img src={appMockup} alt="Mockup da tela do FinaManage mostrando dashboard" className="w-full h-auto rounded-lg shadow-2xl" width="1280" height="720" />
+          <div className="relative flex items-center justify-center">
+            <HeroIllustration />
           </div>
         </div>
       </section>
