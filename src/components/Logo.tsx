@@ -25,7 +25,7 @@ export const Logo = ({ className = "", onClick }: LogoProps) => {
       <img 
         src={logo} 
         alt="FinaManage" 
-        className="h-10 w-auto"
+        className="h-12 w-auto"
         loading="eager"
       />
     </div>
