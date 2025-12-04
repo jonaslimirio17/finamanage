@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -15,15 +15,28 @@ import { UpcomingDebts } from "@/components/dashboard/UpcomingDebts";
 import { GoalsProgress } from "@/components/dashboard/GoalsProgress";
 import { LastSyncInfo } from "@/components/dashboard/LastSyncInfo";
 import { NotificationsList } from "@/components/dashboard/NotificationsList";
+import { StreakCard } from "@/components/dashboard/StreakCard";
+import { BadgesCard } from "@/components/dashboard/BadgesCard";
 import { AppMenu } from "@/components/AppMenu";
 import { Logo } from "@/components/Logo";
+import { useGamification } from "@/hooks/use-gamification";
 
 const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const streakUpdatedRef = useRef(false);
+  
+  const { streaks, badges, userBadges, totalPoints, loading: gamificationLoading, updateLoginStreak } = useGamification(user?.id ?? null);
 
+  // Update login streak once when dashboard loads
+  useEffect(() => {
+    if (user && !streakUpdatedRef.current) {
+      streakUpdatedRef.current = true;
+      updateLoginStreak();
+    }
+  }, [user, updateLoginStreak]);
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -113,6 +126,12 @@ const Dashboard = () => {
             <BalanceCard profileId={user.id} />
             <UpcomingDebts profileId={user.id} />
             <GoalsProgress profileId={user.id} />
+          </div>
+
+          {/* Gamification */}
+          <div className="grid md:grid-cols-2 gap-6">
+            <StreakCard streaks={streaks} loading={gamificationLoading} />
+            <BadgesCard badges={badges} userBadges={userBadges} totalPoints={totalPoints} loading={gamificationLoading} />
           </div>
 
           {/* Charts */}
