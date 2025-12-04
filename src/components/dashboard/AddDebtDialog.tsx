@@ -10,6 +10,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Loader2 } from "lucide-react";
 
@@ -27,6 +34,7 @@ export const AddDebtDialog = ({ profileId }: AddDebtDialogProps) => {
     principal: "",
     interest_rate: "",
     due_date: "",
+    recurrence: "none",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -50,19 +58,24 @@ export const AddDebtDialog = ({ profileId }: AddDebtDialogProps) => {
         principal: parseFloat(form.principal),
         interest_rate: form.interest_rate ? parseFloat(form.interest_rate) : null,
         due_date: form.due_date || null,
+        recurrence: form.recurrence === "none" ? null : form.recurrence,
         status: 'active',
       });
 
       if (error) throw error;
 
+      const recurrenceMessage = form.recurrence !== "none" 
+        ? ` Esta dívida se repete ${form.recurrence === 'monthly' ? 'mensalmente' : form.recurrence === 'weekly' ? 'semanalmente' : 'anualmente'}.`
+        : "";
+
       toast({
         title: "Dívida cadastrada!",
         description: form.due_date 
-          ? "Você será notificado uma semana antes do vencimento."
-          : "Dívida adicionada com sucesso.",
+          ? `Você será notificado uma semana antes do vencimento.${recurrenceMessage}`
+          : `Dívida adicionada com sucesso.${recurrenceMessage}`,
       });
 
-      setForm({ creditor: "", principal: "", interest_rate: "", due_date: "" });
+      setForm({ creditor: "", principal: "", interest_rate: "", due_date: "", recurrence: "none" });
       setOpen(false);
     } catch (error: any) {
       console.error('Error adding debt:', error);
@@ -128,18 +141,38 @@ export const AddDebtDialog = ({ profileId }: AddDebtDialogProps) => {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="due_date">Data de Vencimento</Label>
-            <Input
-              id="due_date"
-              type="date"
-              value={form.due_date}
-              onChange={(e) => setForm(prev => ({ ...prev, due_date: e.target.value }))}
-            />
-            <p className="text-xs text-muted-foreground">
-              Você será notificado 7 dias antes do vencimento
-            </p>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="due_date">Vencimento</Label>
+              <Input
+                id="due_date"
+                type="date"
+                value={form.due_date}
+                onChange={(e) => setForm(prev => ({ ...prev, due_date: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="recurrence">Recorrência</Label>
+              <Select 
+                value={form.recurrence} 
+                onValueChange={(value) => setForm(prev => ({ ...prev, recurrence: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Única vez</SelectItem>
+                  <SelectItem value="weekly">Semanal</SelectItem>
+                  <SelectItem value="monthly">Mensal</SelectItem>
+                  <SelectItem value="yearly">Anual</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
+
+          <p className="text-xs text-muted-foreground">
+            Você será notificado 7 dias antes do vencimento. Dívidas recorrentes geram nova cobrança automaticamente ao serem pagas.
+          </p>
 
           <div className="flex gap-2 pt-2">
             <Button

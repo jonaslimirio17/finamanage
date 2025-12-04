@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, AlertTriangle, Clock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { AlertCircle, AlertTriangle, Clock, RefreshCw, Check, Loader2 } from "lucide-react";
 import { AddDebtDialog } from "./AddDebtDialog";
+import { useToast } from "@/hooks/use-toast";
 
 interface Debt {
   id: string;
@@ -11,6 +13,8 @@ interface Debt {
   principal: number;
   due_date: string;
   status: string;
+  recurrence: string | null;
+  interest_rate: number | null;
 }
 
 const getUrgencyInfo = (dueDate: string) => {
@@ -31,13 +35,40 @@ const getUrgencyInfo = (dueDate: string) => {
   }
 };
 
+const getRecurrenceLabel = (recurrence: string | null) => {
+  switch (recurrence) {
+    case 'weekly': return 'Semanal';
+    case 'monthly': return 'Mensal';
+    case 'yearly': return 'Anual';
+    default: return null;
+  }
+};
+
+const getNextDueDate = (currentDueDate: string, recurrence: string): string => {
+  const date = new Date(currentDueDate);
+  switch (recurrence) {
+    case 'weekly':
+      date.setDate(date.getDate() + 7);
+      break;
+    case 'monthly':
+      date.setMonth(date.getMonth() + 1);
+      break;
+    case 'yearly':
+      date.setFullYear(date.getFullYear() + 1);
+      break;
+  }
+  return date.toISOString().split('T')[0];
+};
+
 export const UpcomingDebts = ({ profileId }: { profileId: string }) => {
   const [debts, setDebts] = useState<Debt[]>([]);
   const [loading, setLoading] = useState(true);
+  const [markingPaid, setMarkingPaid] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const fetchDebts = async () => {
     const today = new Date();
-    today.setDate(today.getDate() - 1); // Include overdue by 1 day
+    today.setDate(today.getDate() - 1);
     const thirtyDaysFromNow = new Date();
     thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
 
@@ -51,9 +82,61 @@ export const UpcomingDebts = ({ profileId }: { profileId: string }) => {
       .order('due_date', { ascending: true });
 
     if (!error && data) {
-      setDebts(data);
+      setDebts(data as Debt[]);
     }
     setLoading(false);
+  };
+
+  const handleMarkAsPaid = async (debt: Debt) => {
+    setMarkingPaid(debt.id);
+
+    try {
+      // Mark current debt as paid
+      const { error: updateError } = await supabase
+        .from('debts')
+        .update({ status: 'paid' })
+        .eq('id', debt.id);
+
+      if (updateError) throw updateError;
+
+      // If recurring, create next debt
+      if (debt.recurrence && debt.due_date) {
+        const nextDueDate = getNextDueDate(debt.due_date, debt.recurrence);
+        
+        const { error: insertError } = await supabase
+          .from('debts')
+          .insert({
+            profile_id: profileId,
+            creditor: debt.creditor,
+            principal: debt.principal,
+            interest_rate: debt.interest_rate,
+            due_date: nextDueDate,
+            recurrence: debt.recurrence,
+            status: 'active',
+          });
+
+        if (insertError) throw insertError;
+
+        toast({
+          title: "Dívida paga!",
+          description: `Próximo vencimento criado para ${new Date(nextDueDate).toLocaleDateString('pt-BR')}.`,
+        });
+      } else {
+        toast({
+          title: "Dívida paga!",
+          description: "A dívida foi marcada como paga.",
+        });
+      }
+    } catch (error: any) {
+      console.error('Error marking debt as paid:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível marcar a dívida como paga.",
+        variant: "destructive",
+      });
+    } finally {
+      setMarkingPaid(null);
+    }
   };
 
   useEffect(() => {
@@ -97,6 +180,7 @@ export const UpcomingDebts = ({ profileId }: { profileId: string }) => {
             {debts.map((debt) => {
               const urgency = getUrgencyInfo(debt.due_date);
               const UrgencyIcon = urgency.icon;
+              const recurrenceLabel = getRecurrenceLabel(debt.recurrence);
               
               return (
                 <div 
@@ -118,7 +202,15 @@ export const UpcomingDebts = ({ profileId }: { profileId: string }) => {
                         : 'text-muted-foreground'
                     }`} />
                     <div>
-                      <p className="font-medium text-sm">{debt.creditor}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-sm">{debt.creditor}</p>
+                        {recurrenceLabel && (
+                          <Badge variant="outline" className="text-xs gap-1 h-5">
+                            <RefreshCw className="h-3 w-3" />
+                            {recurrenceLabel}
+                          </Badge>
+                        )}
+                      </div>
                       <p className="text-xs text-muted-foreground">
                         {new Date(debt.due_date).toLocaleDateString('pt-BR')}
                       </p>
@@ -134,6 +226,20 @@ export const UpcomingDebts = ({ profileId }: { profileId: string }) => {
                         currency: 'BRL'
                       }).format(Number(debt.principal))}
                     </span>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7"
+                      onClick={() => handleMarkAsPaid(debt)}
+                      disabled={markingPaid === debt.id}
+                      title="Marcar como paga"
+                    >
+                      {markingPaid === debt.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Check className="h-4 w-4 text-green-600" />
+                      )}
+                    </Button>
                   </div>
                 </div>
               );
