@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { 
   Menu, Home, HelpCircle, Target, LogIn, LogOut, Shield, 
   Moon, Sun, GraduationCap, MessageSquare, CreditCard, 
   Settings, LayoutDashboard, Sparkles, Users, FileText,
-  Upload
+  Upload, Bell
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,10 +28,54 @@ interface AppMenuProps {
 
 export const AppMenu = ({ user }: AppMenuProps) => {
   const [open, setOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
+
+  // Fetch and subscribe to unread notifications count
+  useEffect(() => {
+    if (!user?.id) {
+      setUnreadCount(0);
+      return;
+    }
+
+    const fetchUnreadCount = async () => {
+      const { count, error } = await supabase
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('profile_id', user.id)
+        .eq('is_read', false);
+
+      if (!error && count !== null) {
+        setUnreadCount(count);
+      }
+    };
+
+    fetchUnreadCount();
+
+    // Subscribe to real-time updates
+    const channel = supabase
+      .channel('notifications-badge')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'notifications',
+          filter: `profile_id=eq.${user.id}`
+        },
+        () => {
+          fetchUnreadCount();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id]);
 
   const handleNavigation = (path: string) => {
     navigate(path);
@@ -114,6 +159,14 @@ export const AppMenu = ({ user }: AppMenuProps) => {
       <SheetTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
           <Menu className="h-5 w-5" />
+          {unreadCount > 0 && (
+            <Badge 
+              variant="destructive" 
+              className="absolute -top-1 -right-1 h-5 min-w-5 px-1 flex items-center justify-center text-xs"
+            >
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </Badge>
+          )}
           <span className="sr-only">Abrir menu</span>
         </Button>
       </SheetTrigger>
