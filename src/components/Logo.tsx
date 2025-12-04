@@ -17,6 +17,6 @@ export const Logo = ({
     }
   };
   return <div className={`flex items-center cursor-pointer transition-transform hover:scale-105 ${className}`} onClick={handleClick}>
-      <img src={logo} alt="FinaManage" loading="eager" className="h-18 w-auto" />
+      <img src={logo} alt="FinaManage" loading="eager" className="h-14 w-auto" />
     </div>;
 };
