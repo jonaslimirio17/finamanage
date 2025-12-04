@@ -11,6 +11,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { DeleteAccountDialog } from "@/components/dashboard/DeleteAccountDialog";
@@ -78,87 +79,89 @@ export const AppMenu = ({ user }: AppMenuProps) => {
           <span className="sr-only">Abrir menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+      <SheetContent side="right" className="w-[300px] sm:w-[400px] flex flex-col">
         <SheetHeader>
           <SheetTitle className="flex items-center justify-center">
             <Logo className="h-10" />
           </SheetTitle>
         </SheetHeader>
         
-        <div className="mt-8 flex flex-col gap-2">
-          {user && (
-            <>
-              <div className="px-3 py-2 mb-2">
-                <p className="text-sm text-muted-foreground">Conectado como:</p>
-                <p className="font-medium truncate">{user.email}</p>
-              </div>
-              <Separator className="my-2" />
-            </>
-          )}
-
-          <nav className="flex flex-col gap-1">
-            {menuItems.map((item) => 
-              item.show ? (
-                <Button
-                  key={item.path}
-                  variant={isActive(item.path) ? "secondary" : "ghost"}
-                  className="justify-start gap-3"
-                  onClick={() => handleNavigation(item.path)}
-                >
-                  <item.icon className="h-5 w-5" />
-                  <span>{item.title}</span>
-                </Button>
-              ) : null
-            )}
-          </nav>
-
-          <Separator className="my-4" />
-
-          <Button
-            variant="ghost"
-            className="justify-start gap-3"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          >
-            {theme === "dark" ? (
+        <ScrollArea className="flex-1 mt-4 -mx-6 px-6">
+          <div className="flex flex-col gap-2 pb-20">
+            {user && (
               <>
-                <Sun className="h-5 w-5" />
-                <span>Modo Claro</span>
-              </>
-            ) : (
-              <>
-                <Moon className="h-5 w-5" />
-                <span>Modo Escuro</span>
+                <div className="px-3 py-2 mb-2">
+                  <p className="text-sm text-muted-foreground">Conectado como:</p>
+                  <p className="font-medium truncate">{user.email}</p>
+                </div>
+                <Separator className="my-2" />
               </>
             )}
-          </Button>
 
-          <Separator className="my-4" />
+            <nav className="flex flex-col gap-1">
+              {menuItems.map((item) => 
+                item.show ? (
+                  <Button
+                    key={item.path}
+                    variant={isActive(item.path) ? "secondary" : "ghost"}
+                    className="justify-start gap-3"
+                    onClick={() => handleNavigation(item.path)}
+                  >
+                    <item.icon className="h-5 w-5" />
+                    <span>{item.title}</span>
+                  </Button>
+                ) : null
+              )}
+            </nav>
 
-          {user ? (
-            <div className="space-y-2">
-              <Button
-                variant="outline"
-                className="w-full justify-start gap-3"
-                onClick={handleLogout}
-              >
-                <LogOut className="h-5 w-5" />
-                <span>Sair</span>
-              </Button>
-              <DeleteAccountDialog />
-            </div>
-          ) : (
+            <Separator className="my-4" />
+
             <Button
-              variant="default"
+              variant="ghost"
               className="justify-start gap-3"
-              onClick={() => handleNavigation("/auth")}
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             >
-              <LogIn className="h-5 w-5" />
-              <span>Entrar / Criar conta</span>
+              {theme === "dark" ? (
+                <>
+                  <Sun className="h-5 w-5" />
+                  <span>Modo Claro</span>
+                </>
+              ) : (
+                <>
+                  <Moon className="h-5 w-5" />
+                  <span>Modo Escuro</span>
+                </>
+              )}
             </Button>
-          )}
-        </div>
 
-        <div className="absolute bottom-6 left-6 right-6">
+            <Separator className="my-4" />
+
+            {user ? (
+              <div className="space-y-2">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start gap-3"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="h-5 w-5" />
+                  <span>Sair</span>
+                </Button>
+                <DeleteAccountDialog />
+              </div>
+            ) : (
+              <Button
+                variant="default"
+                className="justify-start gap-3"
+                onClick={() => handleNavigation("/auth")}
+              >
+                <LogIn className="h-5 w-5" />
+                <span>Entrar / Criar conta</span>
+              </Button>
+            )}
+          </div>
+        </ScrollArea>
+
+        <div className="pt-4 border-t">
           <p className="text-xs text-muted-foreground text-center">
             © 2025 FinaManage. Todos os direitos reservados.
           </p>
