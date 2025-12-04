@@ -283,6 +283,7 @@ export type Database = {
           interest_rate: number | null
           principal: number
           profile_id: string
+          recurrence: string | null
           status: string
         }
         Insert: {
@@ -293,6 +294,7 @@ export type Database = {
           interest_rate?: number | null
           principal: number
           profile_id: string
+          recurrence?: string | null
           status?: string
         }
         Update: {
@@ -303,6 +305,7 @@ export type Database = {
           interest_rate?: number | null
           principal?: number
           profile_id?: string
+          recurrence?: string | null
           status?: string
         }
         Relationships: [
