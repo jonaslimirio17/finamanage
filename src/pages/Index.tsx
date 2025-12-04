@@ -19,22 +19,24 @@ const Index = () => {
     toast
   } = useToast();
   const navigate = useNavigate();
+  // Defer auth check to not block first paint
   useEffect(() => {
-    supabase.auth.getSession().then(({
-      data: {
-        session
-      }
-    }) => {
-      setUser(session?.user ?? null);
-    });
-    const {
-      data: {
-        subscription
-      }
-    } = supabase.auth.onAuthStateChange((_, session) => {
-      setUser(session?.user ?? null);
-    });
-    return () => subscription.unsubscribe();
+    // Use requestIdleCallback to defer auth check after paint
+    const checkAuth = () => {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        setUser(session?.user ?? null);
+      });
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+        setUser(session?.user ?? null);
+      });
+      return () => subscription.unsubscribe();
+    };
+    
+    if ('requestIdleCallback' in window) {
+      (window as any).requestIdleCallback(checkAuth);
+    } else {
+      setTimeout(checkAuth, 100);
+    }
   }, []);
   const handleScrollToDemo = () => {
     document.getElementById("how-it-works")?.scrollIntoView({
