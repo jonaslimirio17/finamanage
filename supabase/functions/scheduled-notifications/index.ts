@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.75.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-cron-secret',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-internal-token',
 };
 
 serve(async (req) => {
@@ -11,10 +11,32 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Validate internal service token
+  const INTERNAL_SERVICE_TOKEN = Deno.env.get('INTERNAL_SERVICE_TOKEN');
+  const authHeader = req.headers.get('x-internal-token');
+
+  if (!INTERNAL_SERVICE_TOKEN || !authHeader || authHeader !== INTERNAL_SERVICE_TOKEN) {
+    console.warn('Unauthorized access attempt to scheduled-notifications');
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
   const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
   const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+  // Helper function to invoke send-whatsapp-notification with internal token
+  const sendWhatsAppNotification = async (body: any) => {
+    return await supabase.functions.invoke('send-whatsapp-notification', {
+      headers: {
+        'x-internal-token': INTERNAL_SERVICE_TOKEN!
+      },
+      body
+    });
+  };
 
   try {
     const { type } = await req.json();
@@ -38,17 +60,15 @@ serve(async (req) => {
             (new Date(debt.due_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
           );
 
-          // Send WhatsApp notification
-          await supabase.functions.invoke('send-whatsapp-notification', {
-            body: {
-              profileId: debt.profile_id,
-              type: 'debt_reminder',
-              data: {
-                creditor: debt.creditor,
-                amount: debt.principal.toFixed(2),
-                dueDate: new Date(debt.due_date).toLocaleDateString('pt-BR'),
-                daysUntilDue
-              }
+          // Send WhatsApp notification with internal token
+          await sendWhatsAppNotification({
+            profileId: debt.profile_id,
+            type: 'debt_reminder',
+            data: {
+              creditor: debt.creditor,
+              amount: debt.principal.toFixed(2),
+              dueDate: new Date(debt.due_date).toLocaleDateString('pt-BR'),
+              daysUntilDue
             }
           });
 
@@ -91,16 +111,14 @@ serve(async (req) => {
           if (progress < expectedProgress * 0.7 && daysLeft <= 30 && daysLeft > 0) {
             const remaining = goal.target_amount - goal.current_amount;
 
-            await supabase.functions.invoke('send-whatsapp-notification', {
-              body: {
-                profileId: goal.profile_id,
-                type: 'goal_at_risk',
-                data: {
-                  goalTitle: goal.title,
-                  progress: progress.toFixed(0),
-                  remaining: remaining.toFixed(2),
-                  daysLeft
-                }
+            await sendWhatsAppNotification({
+              profileId: goal.profile_id,
+              type: 'goal_at_risk',
+              data: {
+                goalTitle: goal.title,
+                progress: progress.toFixed(0),
+                remaining: remaining.toFixed(2),
+                daysLeft
               }
             });
 
@@ -164,16 +182,14 @@ serve(async (req) => {
             .slice(0, 3)
             .map(([name, amount]) => ({ name, amount: amount.toFixed(2) }));
 
-          await supabase.functions.invoke('send-whatsapp-notification', {
-            body: {
-              profileId: profile.id,
-              type: 'weekly_summary',
-              data: {
-                income: income.toFixed(2),
-                expenses: expenses.toFixed(2),
-                balance: (income - expenses).toFixed(2),
-                topCategories
-              }
+          await sendWhatsAppNotification({
+            profileId: profile.id,
+            type: 'weekly_summary',
+            data: {
+              income: income.toFixed(2),
+              expenses: expenses.toFixed(2),
+              balance: (income - expenses).toFixed(2),
+              topCategories
             }
           });
 
@@ -243,18 +259,16 @@ serve(async (req) => {
             .slice(0, 5)
             .map(([name, amount]) => ({ name, amount: amount.toFixed(2) }));
 
-          await supabase.functions.invoke('send-whatsapp-notification', {
-            body: {
-              profileId: profile.id,
-              type: 'monthly_summary',
-              data: {
-                month: lastMonth.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }),
-                income: income.toFixed(2),
-                expenses: expenses.toFixed(2),
-                balance: balance.toFixed(2),
-                savingsRate,
-                topCategories
-              }
+          await sendWhatsAppNotification({
+            profileId: profile.id,
+            type: 'monthly_summary',
+            data: {
+              month: lastMonth.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }),
+              income: income.toFixed(2),
+              expenses: expenses.toFixed(2),
+              balance: balance.toFixed(2),
+              savingsRate,
+              topCategories
             }
           });
 
