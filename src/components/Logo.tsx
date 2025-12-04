@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import logoLight from '@/assets/finamanage-logo-light.png';
+import logo from '@/assets/finamanage-logo.png';
 
 interface LogoProps {
   className?: string;
@@ -23,7 +23,7 @@ export const Logo = ({ className = "", onClick }: LogoProps) => {
       onClick={handleClick}
     >
       <img 
-        src={logoLight} 
+        src={logo} 
         alt="FinaManage" 
         className="h-12 w-auto"
         loading="eager"
