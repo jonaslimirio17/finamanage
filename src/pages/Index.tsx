@@ -63,24 +63,46 @@ const Index = () => {
     setIsSubmitting(true);
     trackEvent("pre_signup_submitted");
     try {
-      // Salvar lead em pre_signups (será criado via migration)
-      const {
-        error
-      } = await supabase.from("pre_signups").insert({
-        email,
-        source_page: "landing",
-        utm_source: new URLSearchParams(window.location.search).get("utm_source"),
-        utm_campaign: new URLSearchParams(window.location.search).get("utm_campaign")
+      // Use edge function with rate limiting
+      const { data, error } = await supabase.functions.invoke('pre-signup', {
+        body: {
+          email,
+          source_page: "landing",
+          utm_source: new URLSearchParams(window.location.search).get("utm_source"),
+          utm_campaign: new URLSearchParams(window.location.search).get("utm_campaign")
+        }
       });
+
       if (error) throw error;
+      
+      if (data?.code === 'RATE_LIMITED') {
+        toast({
+          title: "Muitas tentativas",
+          description: "Aguarde alguns minutos antes de tentar novamente.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       toast({
-        title: "Checamos seu e-mail!",
-        description: "Verifique sua caixa de entrada para continuar."
+        title: "Cadastro realizado!",
+        description: data?.message || "Verifique sua caixa de entrada para continuar."
       });
       setEmail("");
       setAgreedToTerms(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error:", error);
+      
+      // Handle rate limit error from HTTP status
+      if (error?.status === 429) {
+        toast({
+          title: "Muitas tentativas",
+          description: "Aguarde alguns minutos antes de tentar novamente.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
       toast({
         title: "Erro ao processar",
         description: "Tente novamente em alguns instantes.",
