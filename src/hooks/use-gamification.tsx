@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Badge {
@@ -32,70 +32,86 @@ export function useGamification(userId: string | null) {
   const [badges, setBadges] = useState<Badge[]>([]);
   const [userBadges, setUserBadges] = useState<UserBadge[]>([]);
   const [loading, setLoading] = useState(true);
-  const [totalPoints, setTotalPoints] = useState(0);
+  
+  const initialLoadDone = useRef(false);
+  const currentUserId = useRef<string | null>(null);
 
-  const fetchStreaks = useCallback(async () => {
-    if (!userId) return;
+  // Calculate total points using useMemo to avoid recalculations
+  const totalPoints = useMemo(() => {
+    const badgeIds = userBadges.map(ub => ub.badge_id);
+    return badges
+      .filter(b => badgeIds.includes(b.id))
+      .reduce((sum, b) => sum + (b.points || 0), 0);
+  }, [badges, userBadges]);
 
-    const { data, error } = await supabase
-      .from('user_streaks')
-      .select('*')
-      .eq('profile_id', userId);
-
-    if (!error && data) {
-      setStreaks(data);
+  // Single effect to load all data - only runs once per userId
+  useEffect(() => {
+    // Reset if userId changes
+    if (currentUserId.current !== userId) {
+      initialLoadDone.current = false;
+      currentUserId.current = userId;
     }
+
+    if (initialLoadDone.current) return;
+
+    const loadData = async () => {
+      setLoading(true);
+
+      // Always fetch badges (public data)
+      const { data: badgesData } = await supabase
+        .from('badges')
+        .select('*')
+        .eq('is_active', true)
+        .order('category')
+        .order('requirement_value');
+
+      if (badgesData) {
+        setBadges(badgesData);
+      }
+
+      // Only fetch user data if we have a userId
+      if (userId) {
+        const [streaksRes, userBadgesRes] = await Promise.all([
+          supabase.from('user_streaks').select('*').eq('profile_id', userId),
+          supabase.from('user_badges').select('*').eq('profile_id', userId)
+        ]);
+
+        if (streaksRes.data) setStreaks(streaksRes.data);
+        if (userBadgesRes.data) setUserBadges(userBadgesRes.data);
+      }
+
+      setLoading(false);
+      initialLoadDone.current = true;
+    };
+
+    loadData();
   }, [userId]);
-
-  const fetchBadges = useCallback(async () => {
-    const { data, error } = await supabase
-      .from('badges')
-      .select('*')
-      .eq('is_active', true)
-      .order('category')
-      .order('requirement_value');
-
-    if (!error && data) {
-      setBadges(data);
-    }
-  }, []);
-
-  const fetchUserBadges = useCallback(async () => {
-    if (!userId) return;
-
-    const { data, error } = await supabase
-      .from('user_badges')
-      .select('*')
-      .eq('profile_id', userId);
-
-    if (!error && data) {
-      setUserBadges(data);
-      
-      // Calculate total points
-      const badgeIds = data.map(ub => ub.badge_id);
-      const earnedBadges = badges.filter(b => badgeIds.includes(b.id));
-      const points = earnedBadges.reduce((sum, b) => sum + b.points, 0);
-      setTotalPoints(points);
-    }
-  }, [userId, badges]);
 
   const updateLoginStreak = useCallback(async () => {
     if (!userId) return;
 
     try {
       await supabase.rpc('update_login_streak', { p_profile_id: userId });
-      await fetchStreaks();
+      
+      // Optimistic update - fetch only streaks without triggering full reload
+      const { data } = await supabase
+        .from('user_streaks')
+        .select('*')
+        .eq('profile_id', userId);
+      
+      if (data) {
+        setStreaks(data);
+      }
     } catch (error) {
       console.error('Error updating login streak:', error);
     }
-  }, [userId, fetchStreaks]);
+  }, [userId]);
 
   const updateTransactionStreak = useCallback(async () => {
     if (!userId) return;
 
     const today = new Date().toISOString().split('T')[0];
 
-    // Check if streak exists
     const { data: existing } = await supabase
       .from('user_streaks')
       .select('*')
@@ -130,13 +146,20 @@ export function useGamification(userId: string | null) {
         .eq('id', existing.id);
     }
 
-    await fetchStreaks();
-  }, [userId, fetchStreaks]);
+    // Fetch updated streaks
+    const { data } = await supabase
+      .from('user_streaks')
+      .select('*')
+      .eq('profile_id', userId);
+    
+    if (data) {
+      setStreaks(data);
+    }
+  }, [userId]);
 
   const checkAndAwardBadge = useCallback(async (badgeId: string) => {
     if (!userId) return false;
 
-    // Check if already earned
     const alreadyEarned = userBadges.some(ub => ub.badge_id === badgeId);
     if (alreadyEarned) return false;
 
@@ -146,25 +169,31 @@ export function useGamification(userId: string | null) {
     });
 
     if (!error) {
-      await fetchUserBadges();
+      // Fetch updated user badges
+      const { data } = await supabase
+        .from('user_badges')
+        .select('*')
+        .eq('profile_id', userId);
+      
+      if (data) {
+        setUserBadges(data);
+      }
       return true;
     }
     return false;
-  }, [userId, userBadges, fetchUserBadges]);
+  }, [userId, userBadges]);
 
-  useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-      await fetchBadges();
-      if (userId) {
-        await fetchStreaks();
-        await fetchUserBadges();
-      }
-      setLoading(false);
-    };
+  const refetch = useCallback(async () => {
+    if (!userId) return;
+    
+    const [streaksRes, userBadgesRes] = await Promise.all([
+      supabase.from('user_streaks').select('*').eq('profile_id', userId),
+      supabase.from('user_badges').select('*').eq('profile_id', userId)
+    ]);
 
-    loadData();
-  }, [userId, fetchBadges, fetchStreaks, fetchUserBadges]);
+    if (streaksRes.data) setStreaks(streaksRes.data);
+    if (userBadgesRes.data) setUserBadges(userBadgesRes.data);
+  }, [userId]);
 
   return {
     streaks,
@@ -175,9 +204,6 @@ export function useGamification(userId: string | null) {
     updateLoginStreak,
     updateTransactionStreak,
     checkAndAwardBadge,
-    refetch: async () => {
-      await fetchStreaks();
-      await fetchUserBadges();
-    },
+    refetch,
   };
 }
