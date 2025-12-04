@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Link, Zap, Target, Shield, CheckCircle2, HelpCircle, Lightbulb, MessageSquare, LockKeyhole, LogOut } from "lucide-react";
+import { Link, Zap, Target, Shield, CheckCircle2, HelpCircle, Lightbulb, MessageSquare, LockKeyhole } from "lucide-react";
 import appMockup from "@/assets/app-mockup.png";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -90,36 +90,13 @@ const Index = () => {
       setIsSubmitting(false);
     }
   };
-  const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast({
-        title: "Erro ao sair",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Logout realizado",
-        description: "Até logo!",
-      });
-    }
-  };
 
   return <div className="min-h-screen bg-background">
       {/* Header with Menu */}
       <header className="border-b border-border sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Logo />
-          <div className="flex items-center gap-2">
-            {user && (
-              <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2">
-                <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline">Sair</span>
-              </Button>
-            )}
-            <AppMenu user={user} />
-          </div>
+          <AppMenu user={user} />
         </div>
       </header>
 
