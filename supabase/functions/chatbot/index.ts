@@ -5,6 +5,69 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Rate limiting configuration
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute window
+const MAX_REQUESTS_PER_WINDOW = 20; // 20 requests per minute per IP
+const GLOBAL_RATE_LIMIT = 100; // 100 requests per minute globally
+let globalRequestCount = 0;
+let globalResetTime = Date.now() + RATE_LIMIT_WINDOW_MS;
+
+// Get client IP from request headers
+function getClientIP(req: Request): string {
+  return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+         req.headers.get('x-real-ip') ||
+         req.headers.get('cf-connecting-ip') ||
+         'unknown';
+}
+
+// Check if request should be rate limited
+function isRateLimited(ip: string): { limited: boolean; retryAfter?: number } {
+  const now = Date.now();
+  
+  // Reset global counter if window expired
+  if (now > globalResetTime) {
+    globalRequestCount = 0;
+    globalResetTime = now + RATE_LIMIT_WINDOW_MS;
+  }
+  
+  // Check global rate limit
+  if (globalRequestCount >= GLOBAL_RATE_LIMIT) {
+    const retryAfter = Math.ceil((globalResetTime - now) / 1000);
+    return { limited: true, retryAfter };
+  }
+  
+  // Check IP-based rate limit
+  const ipData = rateLimitMap.get(ip);
+  
+  if (!ipData || now > ipData.resetTime) {
+    // New window for this IP
+    rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+    globalRequestCount++;
+    return { limited: false };
+  }
+  
+  if (ipData.count >= MAX_REQUESTS_PER_WINDOW) {
+    const retryAfter = Math.ceil((ipData.resetTime - now) / 1000);
+    return { limited: true, retryAfter };
+  }
+  
+  // Increment counters
+  ipData.count++;
+  globalRequestCount++;
+  return { limited: false };
+}
+
+// Clean up old entries periodically (every 5 minutes)
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, data] of rateLimitMap.entries()) {
+    if (now > data.resetTime + RATE_LIMIT_WINDOW_MS) {
+      rateLimitMap.delete(ip);
+    }
+  }
+}, 5 * 60 * 1000);
+
 // Knowledge base for the chatbot
 const KNOWLEDGE_BASE = `
 Você é o assistente virtual do FinaManage, uma plataforma de gestão financeira inteligente para universitários.
@@ -52,8 +115,54 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Apply rate limiting
+  const clientIP = getClientIP(req);
+  const rateLimitResult = isRateLimited(clientIP);
+  
+  if (rateLimitResult.limited) {
+    console.log(`Rate limited IP: ${clientIP}`);
+    return new Response(
+      JSON.stringify({ 
+        error: "Muitas requisições. Por favor, aguarde um momento.",
+        response: "Você está enviando mensagens muito rápido. Por favor, aguarde um momento antes de tentar novamente.",
+        retryAfter: rateLimitResult.retryAfter
+      }),
+      { 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json',
+          'Retry-After': String(rateLimitResult.retryAfter || 60)
+        },
+        status: 429 
+      }
+    );
+  }
+
   try {
     const { message, sessionId, conversationHistory } = await req.json();
+    
+    // Validate input
+    if (!message || typeof message !== 'string') {
+      return new Response(
+        JSON.stringify({ response: "Mensagem inválida." }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400 
+        }
+      );
+    }
+    
+    // Limit message length to prevent abuse
+    if (message.length > 2000) {
+      return new Response(
+        JSON.stringify({ response: "Mensagem muito longa. Por favor, envie uma mensagem menor." }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400 
+        }
+      );
+    }
+    
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
     if (!LOVABLE_API_KEY) {
@@ -67,7 +176,7 @@ serve(async (req) => {
       );
     }
 
-    console.log('Processing chatbot message:', { message, sessionId });
+    console.log('Processing chatbot message:', { messageLength: message.length, sessionId, ip: clientIP });
 
     // Build messages array for AI
     const messages = [
@@ -81,13 +190,13 @@ Sempre seja prestativo e sugira o suporte humano se não conseguir resolver a d�
       }
     ];
 
-    // Add conversation history if available
+    // Add conversation history if available (limit to last 10 messages)
     if (conversationHistory && Array.isArray(conversationHistory)) {
-      for (const msg of conversationHistory.slice(-10)) { // Keep last 10 messages for context
+      for (const msg of conversationHistory.slice(-10)) {
         if (msg.role && msg.content) {
           messages.push({
             role: msg.role === 'user' ? 'user' : 'assistant',
-            content: msg.content
+            content: String(msg.content).slice(0, 2000) // Truncate history messages too
           });
         }
       }
@@ -117,6 +226,19 @@ Sempre seja prestativo e sugira o suporte humano se não conseguir resolver a d�
     if (!aiResponse.ok) {
       const errorText = await aiResponse.text();
       console.error('AI API error:', aiResponse.status, errorText);
+      
+      if (aiResponse.status === 429) {
+        return new Response(
+          JSON.stringify({ 
+            response: "O serviço está muito ocupado no momento. Por favor, tente novamente em alguns instantes." 
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200 
+          }
+        );
+      }
+      
       throw new Error(`AI API error: ${aiResponse.status}`);
     }
 
