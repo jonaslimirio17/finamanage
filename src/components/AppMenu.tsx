@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Menu, Home, HelpCircle, Target, LogIn, LogOut, Shield, User, Moon, Sun, GraduationCap, MessageSquare, CreditCard, Settings } from "lucide-react";
+import { 
+  Menu, Home, HelpCircle, Target, LogIn, LogOut, Shield, 
+  Moon, Sun, GraduationCap, MessageSquare, CreditCard, 
+  Settings, LayoutDashboard, Sparkles, Users, FileText,
+  Upload
+} from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,13 +19,11 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-
+import { Logo } from "@/components/Logo";
 
 interface AppMenuProps {
   user?: any;
 }
-
-import { Logo } from "@/components/Logo";
 
 export const AppMenu = ({ user }: AppMenuProps) => {
   const [open, setOpen] = useState(false);
@@ -55,22 +58,56 @@ export const AppMenu = ({ user }: AppMenuProps) => {
 
   const isActive = (path: string) => location.pathname === path;
 
-  const menuItems = [
-    { title: "Início", path: "/", icon: Home, show: true },
-    { title: "Recursos", path: "/features", icon: Target, show: true },
-    { title: "Planos", path: "/plans", icon: Target, show: true },
-    { title: "Sobre Nós", path: "/about", icon: User, show: true },
-    // { title: "Blog", path: "/blog", icon: HelpCircle, show: true }, // Temporariamente oculto
-    { title: "Dashboard", path: "/dashboard", icon: User, show: !!user },
-    { title: "Metas", path: "/goals", icon: Target, show: !!user },
-    { title: "Minha Assinatura 👑", path: "/subscription", icon: CreditCard, show: !!user },
-    { title: "WhatsApp Bot", path: "/whatsapp", icon: MessageSquare, show: !!user },
-    { title: "Educação Financeira 👑", path: "/education", icon: GraduationCap, show: !!user },
-    { title: "Configurações", path: "/settings", icon: Settings, show: !!user },
-    { title: "Segurança", path: "/security", icon: Shield, show: !!user },
-    { title: "Ajuda", path: "/help", icon: HelpCircle, show: true },
-    { title: "Política de Privacidade", path: "/privacy-policy", icon: Shield, show: true },
+  // Itens públicos (visíveis para todos)
+  const publicItems = [
+    { title: "Início", path: "/", icon: Home },
+    { title: "Recursos", path: "/features", icon: Sparkles },
+    { title: "Planos", path: "/plans", icon: CreditCard },
+    { title: "Sobre Nós", path: "/about", icon: Users },
   ];
+
+  // Itens principais do app (apenas logados)
+  const appItems = [
+    { title: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
+    { title: "Metas", path: "/goals", icon: Target },
+    { title: "Importar Extrato", path: "/importar-extrato", icon: Upload },
+    { title: "WhatsApp Bot", path: "/whatsapp", icon: MessageSquare },
+    { title: "Educação Financeira 👑", path: "/education", icon: GraduationCap },
+  ];
+
+  // Conta e configurações (apenas logados)
+  const accountItems = [
+    { title: "Minha Assinatura 👑", path: "/subscription", icon: CreditCard },
+    { title: "Configurações", path: "/settings", icon: Settings },
+    { title: "Segurança", path: "/security", icon: Shield },
+  ];
+
+  // Suporte e informações (visíveis para todos)
+  const supportItems = [
+    { title: "Ajuda", path: "/help", icon: HelpCircle },
+    { title: "Política de Privacidade", path: "/privacy-policy", icon: FileText },
+  ];
+
+  const renderMenuSection = (items: typeof publicItems, label?: string) => (
+    <>
+      {label && (
+        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-3 py-2">
+          {label}
+        </p>
+      )}
+      {items.map((item) => (
+        <Button
+          key={item.path}
+          variant={isActive(item.path) ? "secondary" : "ghost"}
+          className="justify-start gap-3 h-10"
+          onClick={() => handleNavigation(item.path)}
+        >
+          <item.icon className="h-4 w-4" />
+          <span className="text-sm">{item.title}</span>
+        </Button>
+      ))}
+    </>
+  );
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -88,73 +125,96 @@ export const AppMenu = ({ user }: AppMenuProps) => {
         </SheetHeader>
         
         <ScrollArea className="flex-1 mt-4 -mx-6 px-6">
-          <div className="flex flex-col gap-2 pb-20">
+          <div className="flex flex-col gap-1 pb-20">
+            {/* Usuário conectado */}
             {user && (
               <>
-                <div className="px-3 py-2 mb-2">
-                  <p className="text-sm text-muted-foreground">Conectado como:</p>
-                  <p className="font-medium truncate">{user.email}</p>
+                <div className="px-3 py-3 mb-2 bg-muted/50 rounded-lg">
+                  <p className="text-xs text-muted-foreground">Conectado como:</p>
+                  <p className="font-medium text-sm truncate">{user.email}</p>
                 </div>
+              </>
+            )}
+
+            {/* Botão de login (não logado) - posição destacada */}
+            {!user && (
+              <>
+                <Button
+                  variant="default"
+                  className="justify-start gap-3 h-11 mb-3"
+                  onClick={() => handleNavigation("/auth")}
+                >
+                  <LogIn className="h-4 w-4" />
+                  <span>Entrar / Criar conta</span>
+                </Button>
                 <Separator className="my-2" />
               </>
             )}
 
+            {/* Navegação pública */}
             <nav className="flex flex-col gap-1">
-              {menuItems.map((item) => 
-                item.show ? (
-                  <Button
-                    key={item.path}
-                    variant={isActive(item.path) ? "secondary" : "ghost"}
-                    className="justify-start gap-3"
-                    onClick={() => handleNavigation(item.path)}
-                  >
-                    <item.icon className="h-5 w-5" />
-                    <span>{item.title}</span>
-                  </Button>
-                ) : null
-              )}
+              {renderMenuSection(publicItems)}
             </nav>
 
-            <Separator className="my-4" />
+            {/* Funcionalidades do App (logados) */}
+            {user && (
+              <>
+                <Separator className="my-3" />
+                <nav className="flex flex-col gap-1">
+                  {renderMenuSection(appItems, "Meu App")}
+                </nav>
+              </>
+            )}
 
+            {/* Conta (logados) */}
+            {user && (
+              <>
+                <Separator className="my-3" />
+                <nav className="flex flex-col gap-1">
+                  {renderMenuSection(accountItems, "Conta")}
+                </nav>
+              </>
+            )}
+
+            {/* Suporte */}
+            <Separator className="my-3" />
+            <nav className="flex flex-col gap-1">
+              {renderMenuSection(supportItems, "Suporte")}
+            </nav>
+
+            {/* Tema */}
+            <Separator className="my-3" />
             <Button
               variant="ghost"
-              className="justify-start gap-3"
+              className="justify-start gap-3 h-10"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             >
               {theme === "dark" ? (
                 <>
-                  <Sun className="h-5 w-5" />
-                  <span>Modo Claro</span>
+                  <Sun className="h-4 w-4" />
+                  <span className="text-sm">Modo Claro</span>
                 </>
               ) : (
                 <>
-                  <Moon className="h-5 w-5" />
-                  <span>Modo Escuro</span>
+                  <Moon className="h-4 w-4" />
+                  <span className="text-sm">Modo Escuro</span>
                 </>
               )}
             </Button>
 
-            <Separator className="my-4" />
-
-            {user ? (
-              <Button
-                variant="outline"
-                className="w-full justify-start gap-3"
-                onClick={handleLogout}
-              >
-                <LogOut className="h-5 w-5" />
-                <span>Sair</span>
-              </Button>
-            ) : (
-              <Button
-                variant="default"
-                className="justify-start gap-3"
-                onClick={() => handleNavigation("/auth")}
-              >
-                <LogIn className="h-5 w-5" />
-                <span>Entrar / Criar conta</span>
-              </Button>
+            {/* Logout (logados) */}
+            {user && (
+              <>
+                <Separator className="my-3" />
+                <Button
+                  variant="outline"
+                  className="w-full justify-start gap-3 h-10 text-destructive hover:text-destructive"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span className="text-sm">Sair</span>
+                </Button>
+              </>
             )}
           </div>
         </ScrollArea>
