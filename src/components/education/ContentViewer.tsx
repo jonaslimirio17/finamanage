@@ -1,8 +1,9 @@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Video, FileText, Clock, Eye } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import DOMPurify from "dompurify";
 
 interface ContentViewerProps {
   content: {
@@ -70,10 +71,17 @@ export const ContentViewer = ({ content, isOpen, onClose }: ContentViewerProps) 
     }
 
     if (content.contentBody) {
+      // Sanitize HTML content to prevent XSS attacks
+      const sanitizedContent = DOMPurify.sanitize(content.contentBody, {
+        ALLOWED_TAGS: ['p', 'br', 'b', 'i', 'em', 'strong', 'a', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code', 'pre', 'span', 'div'],
+        ALLOWED_ATTR: ['href', 'target', 'rel', 'class'],
+        ALLOW_DATA_ATTR: false,
+      });
+      
       return (
         <div 
           className="prose prose-slate dark:prose-invert max-w-none"
-          dangerouslySetInnerHTML={{ __html: content.contentBody }}
+          dangerouslySetInnerHTML={{ __html: sanitizedContent }}
         />
       );
     }
