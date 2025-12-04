@@ -185,7 +185,7 @@ export const UpcomingDebts = ({ profileId }: { profileId: string }) => {
               return (
                 <div 
                   key={debt.id} 
-                  className={`flex justify-between items-center p-3 rounded-lg border ${
+                  className={`p-3 rounded-lg border ${
                     urgency.level === 'overdue' || urgency.level === 'critical' 
                       ? 'border-destructive/50 bg-destructive/5' 
                       : urgency.level === 'warning'
@@ -193,53 +193,55 @@ export const UpcomingDebts = ({ profileId }: { profileId: string }) => {
                       : 'border-border'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <UrgencyIcon className={`h-4 w-4 ${
-                      urgency.level === 'overdue' || urgency.level === 'critical' 
-                        ? 'text-destructive' 
-                        : urgency.level === 'warning'
-                        ? 'text-orange-500'
-                        : 'text-muted-foreground'
-                    }`} />
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium text-sm">{debt.creditor}</p>
-                        {recurrenceLabel && (
-                          <Badge variant="outline" className="text-xs gap-1 h-5">
-                            <RefreshCw className="h-3 w-3" />
-                            {recurrenceLabel}
-                          </Badge>
-                        )}
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-start gap-2 min-w-0 flex-1">
+                      <UrgencyIcon className={`h-4 w-4 mt-0.5 shrink-0 ${
+                        urgency.level === 'overdue' || urgency.level === 'critical' 
+                          ? 'text-destructive' 
+                          : urgency.level === 'warning'
+                          ? 'text-orange-500'
+                          : 'text-muted-foreground'
+                      }`} />
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-sm truncate">{debt.creditor}</p>
+                        <div className="flex items-center gap-2 flex-wrap mt-0.5">
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(debt.due_date).toLocaleDateString('pt-BR')}
+                          </p>
+                          {recurrenceLabel && (
+                            <Badge variant="outline" className="text-[10px] gap-0.5 h-4 px-1">
+                              <RefreshCw className="h-2.5 w-2.5" />
+                              {recurrenceLabel}
+                            </Badge>
+                          )}
+                        </div>
                       </div>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(debt.due_date).toLocaleDateString('pt-BR')}
-                      </p>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className={urgency.color}>
-                      {urgency.label}
-                    </Badge>
-                    <span className="font-bold text-sm">
-                      {new Intl.NumberFormat('pt-BR', {
-                        style: 'currency',
-                        currency: 'BRL'
-                      }).format(Number(debt.principal))}
-                    </span>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-7 w-7"
-                      onClick={() => handleMarkAsPaid(debt)}
-                      disabled={markingPaid === debt.id}
-                      title="Marcar como paga"
-                    >
-                      {markingPaid === debt.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Check className="h-4 w-4 text-green-600" />
-                      )}
-                    </Button>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Badge variant="secondary" className={`${urgency.color} text-xs px-1.5`}>
+                        {urgency.label}
+                      </Badge>
+                      <span className="font-bold text-sm whitespace-nowrap">
+                        {new Intl.NumberFormat('pt-BR', {
+                          style: 'currency',
+                          currency: 'BRL'
+                        }).format(Number(debt.principal))}
+                      </span>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-6 w-6 shrink-0"
+                        onClick={() => handleMarkAsPaid(debt)}
+                        disabled={markingPaid === debt.id}
+                        title="Marcar como paga"
+                      >
+                        {markingPaid === debt.id ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Check className="h-3.5 w-3.5 text-green-600" />
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 </div>
               );
