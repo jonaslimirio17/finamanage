@@ -176,7 +176,7 @@ export const UpcomingDebts = ({ profileId }: { profileId: string }) => {
         ) : debts.length === 0 ? (
           <p className="text-muted-foreground text-sm">Nenhuma dívida próxima</p>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
             {debts.map((debt) => {
               const urgency = getUrgencyInfo(debt.due_date);
               const UrgencyIcon = urgency.icon;
