@@ -42,10 +42,17 @@ serve(async (req) => {
     const forwarded = req.headers.get('x-forwarded-for');
     const clientIp = forwarded ? forwarded.split(',')[0].trim() : 'unknown';
     
-    console.log(`Pre-signup request from IP: ${clientIp}`);
+    const { email, source_page, utm_source, utm_campaign } = await req.json();
 
-    // Check in-memory rate limit first (fast check)
-    if (isRateLimited(clientIp)) {
+    // Detect if request comes from fair page (shared IP scenario)
+    const isFairSource = source_page === 'feira' || 
+                         utm_source?.toLowerCase().includes('feira') ||
+                         utm_campaign?.toLowerCase().includes('feira');
+
+    console.log(`Pre-signup request from IP: ${clientIp}, source: ${source_page}, isFair: ${isFairSource}`);
+
+    // Only apply IP rate limit for non-fair sources (fairs share same IP)
+    if (!isFairSource && isRateLimited(clientIp)) {
       console.log(`Rate limited IP: ${clientIp}`);
       return new Response(
         JSON.stringify({ 
@@ -58,8 +65,6 @@ serve(async (req) => {
         }
       );
     }
-
-    const { email, source_page, utm_source, utm_campaign } = await req.json();
 
     // Validate email
     if (!email || typeof email !== 'string') {
