@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 interface Badge {
   id: string;
@@ -27,6 +28,17 @@ interface UserStreak {
   last_activity_date: string | null;
 }
 
+const STREAK_MILESTONES = [3, 7, 14, 30, 60, 90, 180, 365];
+
+const getStreakLabel = (type: string) => {
+  const labels: Record<string, string> = {
+    login: 'Login',
+    transaction: 'Transações',
+    savings: 'Poupança'
+  };
+  return labels[type] || type;
+};
+
 export function useGamification(userId: string | null) {
   const [streaks, setStreaks] = useState<UserStreak[]>([]);
   const [badges, setBadges] = useState<Badge[]>([]);
@@ -35,6 +47,8 @@ export function useGamification(userId: string | null) {
   
   const initialLoadDone = useRef(false);
   const currentUserId = useRef<string | null>(null);
+  const previousStreaks = useRef<UserStreak[]>([]);
+  const previousBadgeCount = useRef<number>(0);
 
   // Calculate total points using useMemo to avoid recalculations
   const totalPoints = useMemo(() => {
@@ -43,6 +57,58 @@ export function useGamification(userId: string | null) {
       .filter(b => badgeIds.includes(b.id))
       .reduce((sum, b) => sum + (b.points || 0), 0);
   }, [badges, userBadges]);
+
+  // Check for milestone achievements
+  const checkMilestoneAchievement = useCallback((newStreaks: UserStreak[]) => {
+    if (previousStreaks.current.length === 0) {
+      previousStreaks.current = newStreaks;
+      return;
+    }
+
+    newStreaks.forEach(newStreak => {
+      const oldStreak = previousStreaks.current.find(s => s.streak_type === newStreak.streak_type);
+      const oldValue = oldStreak?.current_streak || 0;
+      const newValue = newStreak.current_streak || 0;
+
+      // Check if crossed a milestone
+      STREAK_MILESTONES.forEach(milestone => {
+        if (oldValue < milestone && newValue >= milestone) {
+          toast({
+            title: `🔥 Milestone alcançado!`,
+            description: `${getStreakLabel(newStreak.streak_type)}: ${milestone} dias consecutivos!`,
+          });
+        }
+      });
+    });
+
+    previousStreaks.current = newStreaks;
+  }, []);
+
+  // Check for new badge achievements
+  const checkBadgeAchievement = useCallback((newBadges: UserBadge[], allBadges: Badge[]) => {
+    if (previousBadgeCount.current === 0) {
+      previousBadgeCount.current = newBadges.length;
+      return;
+    }
+
+    if (newBadges.length > previousBadgeCount.current) {
+      // Find the newest badge (most recent earned_at)
+      const sortedBadges = [...newBadges].sort((a, b) => 
+        new Date(b.earned_at).getTime() - new Date(a.earned_at).getTime()
+      );
+      const newestUserBadge = sortedBadges[0];
+      const badge = allBadges.find(b => b.id === newestUserBadge.badge_id);
+
+      if (badge) {
+        toast({
+          title: `🏆 Nova conquista desbloqueada!`,
+          description: `${badge.name}: ${badge.description}`,
+        });
+      }
+    }
+
+    previousBadgeCount.current = newBadges.length;
+  }, []);
 
   // Single effect to load all data - only runs once per userId
   useEffect(() => {
@@ -76,8 +142,14 @@ export function useGamification(userId: string | null) {
           supabase.from('user_badges').select('*').eq('profile_id', userId)
         ]);
 
-        if (streaksRes.data) setStreaks(streaksRes.data);
-        if (userBadgesRes.data) setUserBadges(userBadgesRes.data);
+        if (streaksRes.data) {
+          setStreaks(streaksRes.data);
+          previousStreaks.current = streaksRes.data;
+        }
+        if (userBadgesRes.data) {
+          setUserBadges(userBadgesRes.data);
+          previousBadgeCount.current = userBadgesRes.data.length;
+        }
       }
 
       setLoading(false);
@@ -100,6 +172,7 @@ export function useGamification(userId: string | null) {
         .eq('profile_id', userId);
       
       if (data) {
+        checkMilestoneAchievement(data);
         setStreaks(data);
       }
     } catch (error) {
@@ -153,6 +226,7 @@ export function useGamification(userId: string | null) {
       .eq('profile_id', userId);
     
     if (data) {
+      checkMilestoneAchievement(data);
       setStreaks(data);
     }
   }, [userId]);
@@ -169,6 +243,15 @@ export function useGamification(userId: string | null) {
     });
 
     if (!error) {
+      // Show toast for the newly earned badge
+      const badge = badges.find(b => b.id === badgeId);
+      if (badge) {
+        toast({
+          title: `🏆 Nova conquista desbloqueada!`,
+          description: `${badge.name}: ${badge.description}`,
+        });
+      }
+
       // Fetch updated user badges
       const { data } = await supabase
         .from('user_badges')
