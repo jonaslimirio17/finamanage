@@ -2,6 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Animation classes for HeroIllustration - moved from inline to reduce forced reflow */
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes float-medium {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes float-fast {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float-slow {
+  animation: float-slow 4s ease-in-out infinite;
+  will-change: transform;
+}
+.animate-float-medium {
+  animation: float-medium 3s ease-in-out infinite;
+  animation-delay: 0.5s;
+  will-change: transform;
+}
+.animate-float-fast {
+  animation: float-fast 3.5s ease-in-out infinite;
+  animation-delay: 1s;
+  will-change: transform;
+}
+
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
 */
