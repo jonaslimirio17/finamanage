@@ -26,6 +26,7 @@ import SecuritySettings from "./pages/SecuritySettings";
 import FairLanding from "./pages/FairLanding";
 import FairQRCodePage from "./pages/FairQRCodePage";
 import FairSlidePage from "./pages/FairSlidePage";
+import AdminEducation from "./pages/AdminEducation";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -59,6 +60,7 @@ const App = () => (
           <Route path="/feira" element={<FairLanding />} />
           <Route path="/feira/qrcode" element={<FairQRCodePage />} />
           <Route path="/feira/slide" element={<FairSlidePage />} />
+          <Route path="/admin/education" element={<AdminEducation />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
