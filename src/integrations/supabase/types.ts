@@ -1042,6 +1042,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_content_view: {
+        Args: { content_id: string }
+        Returns: undefined
+      }
       is_premium_user: { Args: { user_id: string }; Returns: boolean }
     }
     Enums: {

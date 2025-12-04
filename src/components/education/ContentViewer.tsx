@@ -25,11 +25,9 @@ interface ContentViewerProps {
 export const ContentViewer = ({ content, isOpen, onClose }: ContentViewerProps) => {
   useEffect(() => {
     if (content && isOpen) {
-      // Increment view count
+      // Increment view count using the secure RPC function
       supabase
-        .from("educational_content")
-        .update({ view_count: (content.viewCount || 0) + 1 })
-        .eq("id", content.id)
+        .rpc('increment_content_view', { content_id: content.id })
         .then();
     }
   }, [content, isOpen]);

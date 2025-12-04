@@ -3,12 +3,24 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.75.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-internal-token',
 };
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // Validate internal service token
+  const INTERNAL_SERVICE_TOKEN = Deno.env.get('INTERNAL_SERVICE_TOKEN');
+  const authHeader = req.headers.get('x-internal-token');
+
+  if (!INTERNAL_SERVICE_TOKEN || !authHeader || authHeader !== INTERNAL_SERVICE_TOKEN) {
+    console.error('Unauthorized request to process-receipt');
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 
   const WHATSAPP_ACCESS_TOKEN = Deno.env.get('WHATSAPP_ACCESS_TOKEN');

@@ -28,6 +28,7 @@ serve(async (req) => {
   }
 
   const WHATSAPP_VERIFY_TOKEN = Deno.env.get('WHATSAPP_VERIFY_TOKEN');
+  const INTERNAL_SERVICE_TOKEN = Deno.env.get('INTERNAL_SERVICE_TOKEN');
   const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
   const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
@@ -121,6 +122,7 @@ serve(async (req) => {
         console.log('No matching profile found, sending onboarding message');
         // User not found, send onboarding message
         await supabase.functions.invoke('whatsapp-commands', {
+          headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN || '' },
           body: {
             to: from,
             command: 'onboarding',
@@ -144,6 +146,7 @@ serve(async (req) => {
       // Process receipt
       console.log('Processing receipt image/document');
       await supabase.functions.invoke('process-receipt', {
+        headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN || '' },
         body: {
           sessionId: session.id,
           profileId: session.profile_id,
@@ -157,6 +160,7 @@ serve(async (req) => {
       console.log('Processing text command:', text);
       
       await supabase.functions.invoke('whatsapp-commands', {
+        headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN || '' },
         body: {
           to: from,
           command: text,
@@ -171,6 +175,7 @@ serve(async (req) => {
       console.log('Processing button response:', buttonId);
       
       await supabase.functions.invoke('whatsapp-commands', {
+        headers: { 'x-internal-token': INTERNAL_SERVICE_TOKEN || '' },
         body: {
           to: from,
           command: buttonId,
