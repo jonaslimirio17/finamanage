@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Menu, Home, HelpCircle, Target, LogIn, LogOut, Shield, User, Moon, Sun, GraduationCap, MessageSquare, CreditCard } from "lucide-react";
+import { Menu, Home, HelpCircle, Target, LogIn, LogOut, Shield, User, Moon, Sun, GraduationCap, MessageSquare, CreditCard, Settings } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import {
@@ -66,6 +66,7 @@ export const AppMenu = ({ user }: AppMenuProps) => {
     { title: "Minha Assinatura 👑", path: "/subscription", icon: CreditCard, show: !!user },
     { title: "WhatsApp Bot", path: "/whatsapp", icon: MessageSquare, show: !!user },
     { title: "Educação Financeira 👑", path: "/education", icon: GraduationCap, show: !!user },
+    { title: "Configurações", path: "/settings", icon: Settings, show: !!user },
     { title: "Segurança", path: "/security", icon: Shield, show: !!user },
     { title: "Ajuda", path: "/help", icon: HelpCircle, show: true },
     { title: "Política de Privacidade", path: "/privacy-policy", icon: Shield, show: true },
