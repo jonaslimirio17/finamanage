@@ -60,7 +60,7 @@ export const AppMenu = ({ user }: AppMenuProps) => {
     { title: "Recursos", path: "/features", icon: Target, show: true },
     { title: "Planos", path: "/plans", icon: Target, show: true },
     { title: "Sobre Nós", path: "/about", icon: User, show: true },
-    { title: "Blog", path: "/blog", icon: HelpCircle, show: true },
+    // { title: "Blog", path: "/blog", icon: HelpCircle, show: true }, // Temporariamente oculto
     { title: "Dashboard", path: "/dashboard", icon: User, show: !!user },
     { title: "Metas", path: "/goals", icon: Target, show: !!user },
     { title: "Minha Assinatura 👑", path: "/subscription", icon: CreditCard, show: !!user },
