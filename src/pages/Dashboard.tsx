@@ -17,6 +17,7 @@ import { LastSyncInfo } from "@/components/dashboard/LastSyncInfo";
 import { NotificationsList } from "@/components/dashboard/NotificationsList";
 import { StreakCard } from "@/components/dashboard/StreakCard";
 import { BadgesCard } from "@/components/dashboard/BadgesCard";
+import { SubscriptionsCard } from "@/components/dashboard/SubscriptionsCard";
 import { AppMenu } from "@/components/AppMenu";
 import { Logo } from "@/components/Logo";
 import { useGamification } from "@/hooks/use-gamification";
@@ -127,6 +128,9 @@ const Dashboard = () => {
             <UpcomingDebts profileId={user.id} />
             <GoalsProgress profileId={user.id} />
           </div>
+
+          {/* Subscriptions Detection */}
+          <SubscriptionsCard profileId={user.id} />
 
           {/* Gamification */}
           <div className="grid md:grid-cols-2 gap-6">
