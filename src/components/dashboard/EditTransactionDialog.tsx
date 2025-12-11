@@ -12,6 +12,7 @@ import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { useMerchantCategories } from "@/hooks/use-merchant-categories";
 
 interface Transaction {
   id: string;
@@ -22,6 +23,7 @@ interface Transaction {
   subcategory: string | null;
   merchant: string | null;
   raw_description: string | null;
+  profile_id?: string;
 }
 
 interface EditTransactionDialogProps {
@@ -62,6 +64,8 @@ export const EditTransactionDialog = ({
   const [merchant, setMerchant] = useState("");
   const [description, setDescription] = useState("");
   const { toast } = useToast();
+  
+  const { saveMerchantMapping } = useMerchantCategories(transaction?.profile_id || null);
 
   useEffect(() => {
     if (transaction) {
@@ -94,6 +98,11 @@ export const EditTransactionDialog = ({
       })
       .eq('id', transaction.id);
 
+    // Save merchant → category mapping for future auto-categorization
+    if (!error && merchant && category) {
+      await saveMerchantMapping(merchant, category, subcategory);
+    }
+
     setLoading(false);
 
     if (error) {
@@ -103,6 +112,12 @@ export const EditTransactionDialog = ({
         variant: "destructive",
       });
     } else {
+      toast({
+        title: "Transação atualizada",
+        description: merchant && category 
+          ? `Categoria "${category}" será usada automaticamente para "${merchant}".`
+          : "Alterações salvas com sucesso.",
+      });
       onSuccess();
     }
   };

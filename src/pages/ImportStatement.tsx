@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -8,11 +8,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { User, Session } from "@supabase/supabase-js";
-import { Upload, FileText, ArrowLeft, Camera, PenLine, Image, Loader2 } from "lucide-react";
+import { Upload, FileText, ArrowLeft, Camera, PenLine, Image, Loader2, Sparkles } from "lucide-react";
 import { AppMenu } from "@/components/AppMenu";
 import { Logo } from "@/components/Logo";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useMerchantCategories } from "@/hooks/use-merchant-categories";
 
 const ImportStatement = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -23,9 +24,12 @@ const ImportStatement = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [extractedData, setExtractedData] = useState<any>(null);
+  const [autoCategory, setAutoCategory] = useState<{ category: string; subcategory: string | null } | null>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const { getMerchantCategory, saveMerchantMapping } = useMerchantCategories(user?.id || null);
 
   // Manual entry form state
   const [manualForm, setManualForm] = useState({
@@ -35,8 +39,10 @@ const ImportStatement = () => {
     merchant: "",
     type: "expense" as "expense" | "income",
     category: "",
+    subcategory: "",
   });
   const [savingManual, setSavingManual] = useState(false);
+  const [manualAutoCategory, setManualAutoCategory] = useState<{ category: string; subcategory: string | null } | null>(null);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -59,6 +65,38 @@ const ImportStatement = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  // Auto-lookup category when merchant changes (manual form)
+  const handleManualMerchantChange = useCallback(async (merchant: string) => {
+    setManualForm(prev => ({ ...prev, merchant }));
+    setManualAutoCategory(null);
+    
+    if (merchant && merchant.length >= 3 && user) {
+      const mapping = await getMerchantCategory(merchant);
+      if (mapping) {
+        setManualAutoCategory({ category: mapping.category, subcategory: mapping.subcategory });
+        // Auto-fill if no category is set
+        setManualForm(prev => ({
+          ...prev,
+          category: prev.category || mapping.category,
+          subcategory: prev.subcategory || mapping.subcategory || '',
+        }));
+      }
+    }
+  }, [getMerchantCategory, user]);
+
+  // Auto-lookup category when receipt merchant is extracted
+  const checkReceiptMerchantCategory = useCallback(async (merchant: string) => {
+    if (merchant && user) {
+      const mapping = await getMerchantCategory(merchant);
+      if (mapping) {
+        setAutoCategory({ category: mapping.category, subcategory: mapping.subcategory });
+        return mapping;
+      }
+    }
+    setAutoCategory(null);
+    return null;
+  }, [getMerchantCategory, user]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -155,6 +193,20 @@ const ImportStatement = () => {
 
       if (data) {
         setExtractedData(data);
+        
+        // Check for saved merchant category
+        if (data.merchant) {
+          const mapping = await checkReceiptMerchantCategory(data.merchant);
+          if (mapping) {
+            // Apply saved category to extracted data
+            setExtractedData((prev: any) => ({
+              ...prev,
+              category: mapping.category,
+              subcategory: mapping.subcategory,
+            }));
+          }
+        }
+        
         toast({
           title: "Recibo processado!",
           description: "Verifique os dados extraídos e confirme.",
@@ -229,6 +281,7 @@ const ImportStatement = () => {
         type: dbType,
         merchant: extractedData.merchant || null,
         category: extractedData.category || 'Sem categoria',
+        subcategory: extractedData.subcategory || null,
         raw_description: extractedData.raw_description || '',
         imported_from: 'receipt_photo',
         currency: 'BRL',
@@ -236,6 +289,10 @@ const ImportStatement = () => {
 
       if (error) throw error;
 
+      // Save merchant → category mapping for future auto-categorization
+      if (extractedData.merchant && extractedData.category && extractedData.category !== 'Sem categoria') {
+        await saveMerchantMapping(extractedData.merchant, extractedData.category, extractedData.subcategory);
+      }
       toast({
         title: "Transação salva!",
         description: "A transação foi adicionada com sucesso. Redirecionando...",
@@ -360,6 +417,7 @@ const ImportStatement = () => {
         type: dbType,
         merchant: manualForm.merchant || null,
         category: manualForm.category || 'Sem categoria',
+        subcategory: manualForm.subcategory || null,
         raw_description: manualForm.description,
         imported_from: 'manual',
         currency: 'BRL',
@@ -367,9 +425,16 @@ const ImportStatement = () => {
 
       if (error) throw error;
 
+      // Save merchant → category mapping for future auto-categorization
+      if (manualForm.merchant && manualForm.category) {
+        await saveMerchantMapping(manualForm.merchant, manualForm.category, manualForm.subcategory);
+      }
+
       toast({
         title: "Transação adicionada!",
-        description: "A transação foi salva com sucesso.",
+        description: manualForm.merchant && manualForm.category 
+          ? `Categoria "${manualForm.category}" será usada automaticamente para "${manualForm.merchant}".`
+          : "A transação foi salva com sucesso.",
       });
 
       // Reset form
@@ -380,7 +445,9 @@ const ImportStatement = () => {
         merchant: "",
         type: "expense",
         category: "",
+        subcategory: "",
       });
+      setManualAutoCategory(null);
 
     } catch (error: any) {
       console.error('Error saving transaction:', error);
@@ -633,7 +700,15 @@ const ImportStatement = () => {
                           </div>
 
                           <div className="space-y-2">
-                            <Label htmlFor="extracted-category">Categoria</Label>
+                            <Label htmlFor="extracted-category" className="flex items-center gap-2">
+                              Categoria
+                              {autoCategory && (
+                                <span className="text-xs text-primary flex items-center gap-1">
+                                  <Sparkles className="h-3 w-3" />
+                                  Auto
+                                </span>
+                              )}
+                            </Label>
                             <Select
                               value={extractedData.category || 'Sem categoria'}
                               onValueChange={(value) => setExtractedData(prev => prev ? { ...prev, category: value } : null)}
@@ -756,11 +831,25 @@ const ImportStatement = () => {
                           id="manual-merchant"
                           placeholder="Ex: Carrefour"
                           value={manualForm.merchant}
-                          onChange={(e) => setManualForm(prev => ({ ...prev, merchant: e.target.value }))}
+                          onChange={(e) => handleManualMerchantChange(e.target.value)}
                         />
+                        {manualAutoCategory && (
+                          <p className="text-xs text-primary flex items-center gap-1">
+                            <Sparkles className="h-3 w-3" />
+                            Categoria sugerida: {manualAutoCategory.category}
+                          </p>
+                        )}
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="manual-category">Categoria</Label>
+                        <Label htmlFor="manual-category" className="flex items-center gap-2">
+                          Categoria
+                          {manualAutoCategory && (
+                            <span className="text-xs text-primary flex items-center gap-1">
+                              <Sparkles className="h-3 w-3" />
+                              Auto
+                            </span>
+                          )}
+                        </Label>
                         <Select
                           value={manualForm.category}
                           onValueChange={(value) => 
