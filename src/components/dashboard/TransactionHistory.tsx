@@ -26,6 +26,7 @@ interface Transaction {
   raw_description: string | null;
   imported_from: string;
   tags: string[] | null;
+  profile_id?: string;
 }
 
 interface TransactionFilters {
@@ -496,12 +497,11 @@ export const TransactionHistory = ({ profileId }: { profileId: string }) => {
 
       {/* Edit Dialog */}
       <EditTransactionDialog
-        transaction={editingTransaction}
+        transaction={editingTransaction ? { ...editingTransaction, profile_id: profileId } : null}
         open={!!editingTransaction}
         onOpenChange={(open) => !open && setEditingTransaction(null)}
         onSuccess={() => {
           setEditingTransaction(null);
-          toast({ title: "Transação atualizada", description: "Alterações salvas com sucesso." });
         }}
       />
 

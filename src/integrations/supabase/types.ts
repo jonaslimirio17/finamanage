@@ -559,6 +559,36 @@ export type Database = {
           },
         ]
       }
+      merchant_category_mappings: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          merchant_name: string
+          profile_id: string
+          subcategory: string | null
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          merchant_name: string
+          profile_id: string
+          subcategory?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          merchant_name?: string
+          profile_id?: string
+          subcategory?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
