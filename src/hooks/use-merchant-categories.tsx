@@ -41,8 +41,9 @@ export function useMerchantCategories(userId: string | null) {
 
     try {
       // Upsert the mapping (update if exists, insert if not)
-      const { error } = await supabase
-        .from('merchant_category_mappings')
+      // Using type assertion since table was just created
+      const { error } = await (supabase
+        .from('merchant_category_mappings' as any)
         .upsert(
           {
             profile_id: userId,
@@ -53,7 +54,7 @@ export function useMerchantCategories(userId: string | null) {
           {
             onConflict: 'profile_id,merchant_name',
           }
-        );
+        ) as any);
 
       if (error) {
         console.error('Error saving merchant mapping:', error);
@@ -80,12 +81,12 @@ export function useMerchantCategories(userId: string | null) {
     if (!normalizedMerchant) return null;
 
     try {
-      const { data, error } = await supabase
-        .from('merchant_category_mappings')
+      const { data, error } = await (supabase
+        .from('merchant_category_mappings' as any)
         .select('merchant_name, category, subcategory')
         .eq('profile_id', userId)
         .eq('merchant_name', normalizedMerchant)
-        .maybeSingle();
+        .maybeSingle() as any);
 
       if (error) {
         console.error('Error fetching merchant mapping:', error);
@@ -107,11 +108,11 @@ export function useMerchantCategories(userId: string | null) {
     if (!userId) return [];
 
     try {
-      const { data, error } = await supabase
-        .from('merchant_category_mappings')
+      const { data, error } = await (supabase
+        .from('merchant_category_mappings' as any)
         .select('merchant_name, category, subcategory')
         .eq('profile_id', userId)
-        .order('merchant_name');
+        .order('merchant_name') as any);
 
       if (error) {
         console.error('Error fetching all mappings:', error);
@@ -135,11 +136,11 @@ export function useMerchantCategories(userId: string | null) {
     if (!normalizedMerchant) return false;
 
     try {
-      const { error } = await supabase
-        .from('merchant_category_mappings')
+      const { error } = await (supabase
+        .from('merchant_category_mappings' as any)
         .delete()
         .eq('profile_id', userId)
-        .eq('merchant_name', normalizedMerchant);
+        .eq('merchant_name', normalizedMerchant) as any);
 
       if (error) {
         console.error('Error deleting merchant mapping:', error);
